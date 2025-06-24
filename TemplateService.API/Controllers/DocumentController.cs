@@ -7,14 +7,17 @@ using TemplateService.Application.Document.Queries.GetDocument;
 using TemplateService.API.Models;
 using TemplateService.Application.Document.Commands.CreateDocument;
 using System.ComponentModel;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace TemplateService.API.Controllers;
 
 /// <summary>
-/// Документы
+/// API для работы с документами
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[Produces("application/json")]
+[SwaggerTag("Управление документами - создание, получение списка и деталей")]
 public class DocumentController : ControllerBase
 {
     private readonly ILogger<DocumentController> _logger;
@@ -27,31 +30,51 @@ public class DocumentController : ControllerBase
     }
 
     /// <summary>
-    /// Список документов
+    /// Получить список документов с пагинацией
     /// </summary>
-    /// <param name="name">Название документа</param>
-    /// <param name="skip">Количество пропускаемых записей</param>
-    /// <param name="take">Количество записей</param>
+    /// <param name="name">Фильтр по названию документа</param>
+    /// <param name="skip">Количество пропускаемых записей (для пагинации)</param>
+    /// <param name="take">Количество возвращаемых записей (макс. 100)</param>
     /// <param name="cancellationToken">Токен отмены</param>
+    /// <returns>Список документов</returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<DocumentDto>>> GetDocuments([FromQuery] string name, [FromQuery, DefaultValue(0)] int skip, [FromQuery, DefaultValue(20)] int take, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(IEnumerable<DocumentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [SwaggerOperation(
+        Summary = "Получение списка документов",
+        Description = "Возвращает отфильтрованный и пагинированный список документов",
+        OperationId = "GetDocuments")]
+    public async Task<ActionResult<IEnumerable<DocumentDto>>> GetDocuments(
+        [FromQuery, SwaggerParameter("Фильтр по названию", Required = false)] string name,
+        [FromQuery, DefaultValue(0), SwaggerParameter("Смещение", Required = false)] int skip,
+        [FromQuery, DefaultValue(20), SwaggerParameter("Лимит (макс. 100)", Required = false)] int take,
+        CancellationToken cancellationToken)
     {
+        if (take > 100)
+            return BadRequest("Maximum take value is 100");
+
         var docs = await _mediator.Send(new GetDocumentsQuery(name, skip, take), cancellationToken);
         return Ok(docs);
     }
 
     /// <summary>
-    /// Документ
+    /// Получить документ по идентификатору
     /// </summary>
-    /// <param name="id">ID документа</param>
+    /// <param name="id">Идентификатор документа (GUID)</param>
     /// <param name="cancellationToken">Токен отмены</param>
+    /// <returns>Данные документа</returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(DocumentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DocumentDto>> GetDocument(Guid id, CancellationToken cancellationToken)
+    [SwaggerOperation(
+        Summary = "Получение документа по ID",
+        Description = "Возвращает полные данные документа по его идентификатору",
+        OperationId = "GetDocumentById")]
+    public async Task<ActionResult<DocumentDto>> GetDocument(
+        [SwaggerParameter("Идентификатор документа", Required = true)] Guid id,
+        CancellationToken cancellationToken)
     {
         var doc = await _mediator.Send(new GetDocumentQuery(id), cancellationToken);
 
@@ -62,15 +85,23 @@ public class DocumentController : ControllerBase
     }
 
     /// <summary>
-    /// Создание документа
+    /// Создать новый документ
     /// </summary>
-    /// <param name="model">Модель запроса</param>
+    /// <param name="model">Данные для создания документа</param>
     /// <param name="cancellationToken">Токен отмены</param>
+    /// <returns>Созданный документ</returns>
     [HttpPost]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<DocumentDto>> CreateDocument([FromBody] CreateDocumentModel model, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(DocumentDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [SwaggerOperation(
+        Summary = "Создание документа",
+        Description = "Создает новый документ с указанным названием",
+        OperationId = "CreateDocument")]
+    public async Task<ActionResult<DocumentDto>> CreateDocument(
+        [FromBody, SwaggerRequestBody("Данные для создания документа", Required = true)] CreateDocumentModel model,
+        CancellationToken cancellationToken)
     {
         var doc = await _mediator.Send(new CreateDocumentCommand(model.DocumentName), cancellationToken);
         return CreatedAtAction(nameof(GetDocument), new { id = doc.Id }, doc);

@@ -50,6 +50,22 @@ namespace TemplateService.API
                 .Select(a => Path.Combine(Path.GetDirectoryName(currentAssembly.Location), $"{a.Name}.xml"))
                 .Where(f => File.Exists(f)).ToList();
 
+                // Генерация XML-документации
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                if (File.Exists(xmlPath))
+                {
+                    config.IncludeXmlComments(xmlPath);
+                }
+                else
+                {
+                    // Логируем предупреждение, если файл не найден
+                    var logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<Program>();
+                    logger.LogWarning($"XML documentation file not found at: {xmlPath}");
+                }
+
+
                 xmlDocs.ForEach(xmlDoc =>
                 {
                     config.IncludeXmlComments(xmlDoc, includeControllerXmlComments: true);
