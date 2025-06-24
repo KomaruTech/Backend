@@ -1,0 +1,26 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "TemplateService.Protobuf";
+
+service TemplateGrpcService {
+	//Формирование xml файла доверенности
+	rpc TestMethod(TestMethodRequest) returns (TestMethodResponse)  {}
+}
+
+//Тестовый запрос 
+message TestMethodRequest {
+	//ID 
+	string request_id = 1;
+	//Сообщение
+	string message = 2;	
+}
+
+//Ответ на тестовый запрос
+message TestMethodResponse {
+	//Признак успешности операции
+	google.protobuf.BoolValue success = 1;
+	//Сообщение
+	string message = 2;	
+}

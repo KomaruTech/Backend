@@ -1,0 +1,150 @@
+@font-face {
+    font-family: 'ALS Granate';
+    src: url('./fonts/ALSGranate-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'ALS Granate';
+    src: url('./fonts/ALSGranate-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'ALS Granate';
+    src: url('./fonts/ALSGranate-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+body {
+    font-family: 'ALS Granate', sans-serif;
+    width: 1280px;
+    margin: 0 auto;
+}
+
+.main-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+.logo-icon {
+    margin: 25px 48px 0;
+}
+
+.template-section {
+    width: 462px;
+}
+
+.main-title {
+    margin-top: 24px;
+    font-family: 'ALS Granate', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 38px;
+    letter-spacing: 0em;
+    text-align: left;
+}
+
+.main-form {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.text-input {
+    font-family: 'ALS Granate', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 0em;
+    text-align: left;
+    width: 277px;
+    height: 22px;
+    padding: 5px 15px;
+    margin-right: 11px;
+    border-radius: 8px;
+    border: 0.5px solid #9FAEC6;
+    outline: none;
+}
+
+.text-input:hover,
+.text-input:focus {
+    border-color: #22B3F5;
+}
+
+.button {
+    width: 174px;
+    height: 34px;
+    padding: 0;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    font-family: ALS Granate;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    text-align: center;
+    background-color: #22B3F5;
+    color: white;
+}
+
+.result-header, 
+.result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.result-id,
+.id {
+    flex-basis: 30%;
+}
+
+.result-name,
+.name {
+    flex-basis: 50%;
+}
+
+.result-date,
+.date {
+    flex-basis: 20%;
+}
+
+.result-id,
+.result-name,
+.result-date {
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 12px;
+    letter-spacing: 0em;
+    color:#010101;
+}
+
+.id,
+.name,
+.date {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14px;
+    letter-spacing: 0em;
+    text-align: left; 
+}
+
+.id {
+    font-weight: 700;
+}
+

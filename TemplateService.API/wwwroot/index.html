@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>АТАЧ. Сервис</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Сервис электронного документооборота `АТАЧ`" />
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+
+  <body>
+    <main class="main-section">
+        <section class="logo-section">
+            <svg class="logo-icon" width="156" height="36" viewBox="0 0 156 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M135.673 12.3573C135.673 18.5199 139.487 21.001 144.763 21.001H150.66V28.4042H155.538V6.2429H150.66V16.2155H145.164C141.973 16.2155 140.555 14.3085 140.555 12.004V6.2429H135.677V12.3573H135.673ZM114.753 17.2794C114.753 13.5095 117.503 10.631 121.445 10.631C125.48 10.631 128.05 13.7344 128.05 17.2794C128.05 20.9569 125.344 24.0161 121.445 24.0161C117.72 24.0161 114.753 21.2258 114.753 17.2794ZM109.654 17.2794C109.654 23.7511 114.62 28.8056 121.048 28.8056C123.754 28.8056 126.456 28.0067 128.054 25.5256V28.4082H132.931V17.2794C132.931 10.9843 128.588 5.84143 121.493 5.84143C114.528 5.84143 109.654 10.9843 109.654 17.2794ZM74.0154 28.4042H78.8933V11.0285H87.8461V28.4042H92.724V11.0285H97.0679C100.26 11.0285 101.677 12.9354 101.677 15.2399V28.4042H106.555V14.8866C106.555 8.724 102.741 6.2429 97.4654 6.2429H74.0154V28.4042ZM46.7956 17.2794C46.7956 23.7511 51.7618 28.8056 58.1894 28.8056C60.8953 28.8056 63.5972 28.0067 65.1951 25.5256V28.4082H70.0729V17.2794C70.0729 10.9843 65.729 5.84143 58.635 5.84143C51.6735 5.84143 46.7956 10.9843 46.7956 17.2794ZM65.191 17.2794C65.191 20.9569 62.4851 24.0161 58.5868 24.0161C54.8652 24.0161 51.8943 21.2218 51.8943 17.2794C51.8943 13.5095 54.6444 10.631 58.5868 10.631C62.6216 10.631 65.191 13.7344 65.191 17.2794Z" fill="black"/>
+                <path d="M27.9063 36H8.09368C3.62128 36 0 32.3747 0 27.9063V8.09368C0 3.62128 3.62529 0 8.09368 0H27.9063C32.3787 0 36 3.62529 36 8.09368V27.9063C36 32.3787 32.3787 36 27.9063 36Z" fill="url(#paint0_radial_545_14064)"/>
+                <path d="M18.2027 5.84134C11.2412 5.84134 6.36731 10.9842 6.36731 17.2793C6.36731 23.751 11.3335 28.8055 17.7611 28.8055C19.6841 28.8055 21.6072 28.396 23.1288 27.2719V21.7999C21.9565 23.1568 20.2261 24.016 18.1585 24.016C14.4369 24.016 11.466 21.2217 11.466 17.2793C11.466 13.5095 14.2161 10.6309 18.1585 10.6309C22.101 10.6309 24.6423 13.5938 24.7587 17.0384H24.7628V25.5255V28.4081H29.6406V17.2793C29.6366 10.9842 25.2927 5.84134 18.2027 5.84134Z" fill="white"/>
+                <defs>
+                <radialGradient id="paint0_radial_545_14064" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(18.0018 18.0008) scale(21.4913)">
+                    <stop stop-color="#23C7FA"/>
+                    <stop offset="0.3426" stop-color="#23C4F9"/>
+                    <stop offset="0.6011" stop-color="#22BAF7"/>
+                    <stop offset="0.8313" stop-color="#20AAF2"/>
+                    <stop offset="1" stop-color="#1F99EE"/>
+                </radialGradient>
+                </defs>
+            </svg>
+        </section>
+        <section class="template-section">
+            <h1 class="main-title">Шаблонный сервис</h1>
+            <form class="main-form" method="post">
+                <input id="title" name="title" class="text-input" type="text" placeholder="Введите название документа" minlength="1" maxlength="100">
+                <button class="button" type="submit">создать документ</button>
+            </form>
+            <section class="result-section">
+                <div class="result-header">
+                    <p class="result-id">ID</p>
+                    <p class="result-name">Название</p>
+                    <p class="result-date">Дата создания</p>
+                </div>
+                <div class="result-wrapper"></div>
+            </section>
+        </section>
+    </main>
+
+    <!-- Метка щаблона -->
+    <template id="template">
+        <div class="result">
+            <p class="id"></p>
+            <p class="name"></p>
+            <p class="date"></p>
+        </div>
+    </template>
+    <script src='./js/form.js'></script>
+    <script src="./js/list.js"></script>
+    <script src='./js/data.js'></script>
+    <script src="./js/main.js"></script>
+    <noscript>Please enable JavaScript to continue using this application.</noscript>
+  </body>
+</html>

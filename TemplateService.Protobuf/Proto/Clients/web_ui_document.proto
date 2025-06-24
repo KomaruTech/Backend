@@ -1,0 +1,23 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "InformService.Atach.WebUI.Proto.Document";
+
+
+service DocumentGrpcService {
+	rpc CreateDocument(CreateDocumentRequest) returns (CreateDocumentResponse) {}
+}
+
+message CreateDocumentRequest { 
+	string user_id = 1;
+	string document_type_id = 2;
+	string document_id = 3;
+	string external_id = 4;
+}
+
+message CreateDocumentResponse {
+	google.protobuf.BoolValue success = 1;
+	string document_id = 2;
+	string error_message = 3;
+}
