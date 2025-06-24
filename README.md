@@ -56,9 +56,9 @@
 | `description` | TEXT       | Описание мероприятия                              |
 | `time_start`| TIMESTAMP    | Время начала                                      |
 | `time_end`  | TIMESTAMP    | Время окончания                                   |
-| `type`      | ENUM         | Тип (`general`, `personal`, `group`)             |
+| `type`      | ENUM (event_type)        | `general`, `personal`, `group`             |
 | `location`  | VARCHAR(1000)| Место проведения                                  |
-| `created_by`| INTEGER      | Автор события (FK → `users.id`)                   |
+| `created_by`| INTEGER      | Автор события (FK `users.id`)                   |
 | `keywords`  | JSONB        | Ключевые слова (по умолчанию — пустой список `[]`) |
 
 ---
@@ -98,7 +98,7 @@
 | `user_id`   | INTEGER         | Автор заявки                                 |
 | `event_id`  | INTEGER         | Целевое мероприятие                          |
 | `topic`     | TEXT            | Тема выступления                             |
-| `status`    | APPLICATION_STATUS | Статус заявки (по умолчанию `pending`)     |
+| `status`    | ENUM(application_status) | `pending`, `approved`, `rejected` (по умолчанию `pending`)     |
 | `created_at`| TIMESTAMP       | Дата подачи                                  |
 
 ---
