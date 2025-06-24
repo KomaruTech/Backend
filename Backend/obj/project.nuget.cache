@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "dgSpecHash": "PHHUcQ5+HhM=",
+  "success": false,
+  "projectFilePath": "C:\\Users\\skyreed\\source\\repos\\Backend\\Backend\\Backend.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Не удалось найти пакет Swashbuckle.AspNetCore. Пакеты с таким идентификатором отсутствуют в следующих источниках пакетов: Microsoft Visual Studio Offline Packages",
+      "projectPath": "C:\\Users\\skyreed\\source\\repos\\Backend\\Backend\\Backend.csproj",
+      "filePath": "C:\\Users\\skyreed\\source\\repos\\Backend\\Backend\\Backend.csproj",
+      "libraryId": "Swashbuckle.AspNetCore",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
+}
