@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using TemplateService.Domain.Enums;
 
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 
@@ -11,7 +12,7 @@ public class TemplatePostgresqlDbContext : TemplateDbContext
     public TemplatePostgresqlDbContext(
         DbContextOptions<TemplatePostgresqlDbContext> options,
         IConfiguration configuration)
-            : base(ChangeOptionsType<TemplateDbContext>(options))
+        : base(ChangeOptionsType<TemplateDbContext>(options))
     {
         _configuration = configuration;
     }
@@ -20,20 +21,20 @@ public class TemplatePostgresqlDbContext : TemplateDbContext
     {
         base.OnConfiguring(options);
 
-        var conStrBuilder = new NpgsqlConnectionStringBuilder(_configuration.GetConnectionString("TemplatePostgreSqlDatabase"))
-        {
-            //Password = _configuration.GetValue<string>("DbPassword")
-        };
+        var conStrBuilder = new NpgsqlConnectionStringBuilder(_configuration.GetConnectionString("PostgreSqlDatabase"));
 
         options.UseNpgsql(conStrBuilder.ConnectionString, opt =>
         {
             opt.MigrationsHistoryTable("TMP_EFMigrationsHistory", _defaultSchema);
+            opt.MigrationsAssembly("TemplateService.Infrastructure");
         });
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(_defaultSchema);
+        modelBuilder.HasPostgresEnum("application_status", new[] { "pending", "approved", "rejected" });
+        modelBuilder.HasPostgresEnum("event_type", new[] { "general", "personal", "group" });
         base.OnModelCreating(modelBuilder);
     }
 }
