@@ -5,8 +5,6 @@ VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplateService.API", "TemplateService.API\TemplateService.API.csproj", "{7232BE32-6310-4043-80A0-5157416C8F4F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemplateService.Protobuf", "TemplateService.Protobuf\TemplateService.Protobuf.csproj", "{5BDDFF2F-B0CB-42AE-A157-0F05D14BA2C5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemplateService.Infrastructure", "TemplateService.Infrastructure\TemplateService.Infrastructure.csproj", "{F17784A2-8536-4720-A444-D451D30C65CD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemplateService.Domain", "TemplateService.Domain\TemplateService.Domain.csproj", "{0F4DB174-D28E-44BE-BEDD-6F01CD5C43B3}"
@@ -23,10 +21,6 @@ Global
 		{7232BE32-6310-4043-80A0-5157416C8F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7232BE32-6310-4043-80A0-5157416C8F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7232BE32-6310-4043-80A0-5157416C8F4F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5BDDFF2F-B0CB-42AE-A157-0F05D14BA2C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5BDDFF2F-B0CB-42AE-A157-0F05D14BA2C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5BDDFF2F-B0CB-42AE-A157-0F05D14BA2C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5BDDFF2F-B0CB-42AE-A157-0F05D14BA2C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F17784A2-8536-4720-A444-D451D30C65CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F17784A2-8536-4720-A444-D451D30C65CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F17784A2-8536-4720-A444-D451D30C65CD}.Release|Any CPU.ActiveCfg = Release|Any CPU

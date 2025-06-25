@@ -1,0 +1,48 @@
+﻿namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Domain.Entities;
+
+
+public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventParticipantEntity>
+{
+    public void Configure(EntityTypeBuilder<EventParticipantEntity> builder)
+    {
+        builder.ToTable("event_participants", opts =>
+        {
+            opts.HasComment("Связь пользователей с мероприятиями");
+        });
+
+        // Составной ключ
+        builder.HasKey(e => new { e.UserId, e.EventId });
+
+        builder.Property(e => e.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+
+        builder.Property(e => e.EventId)
+            .HasColumnName("event_id")
+            .IsRequired();
+
+        builder.Property(e => e.IsSpeaker)
+            .HasColumnName("is_speaker")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(e => e.AttendanceMarked)
+            .HasColumnName("attendance_marked")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(e => e.Event)
+            .WithMany() // Или .WithMany(ev => ev.Participants), если есть навигация у мероприятия
+            .HasForeignKey(e => e.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

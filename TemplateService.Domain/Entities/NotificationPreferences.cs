@@ -8,7 +8,7 @@ public class NotificationPreferencesEntity
     /// <summary>
     /// Идентификатор
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Уведомлять в Telegram

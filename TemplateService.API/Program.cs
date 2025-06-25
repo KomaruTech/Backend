@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using TemplateService.API.Extensions;
-using TemplateService.API.GrpcServices;
+//using TemplateService.API.GrpcServices;
 using TemplateService.Application.Extensions;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence;
@@ -86,16 +86,16 @@ namespace TemplateService.API
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
 
-            #region gRPC
-            builder.Services.AddGrpc(options =>
-            {
-                options.EnableDetailedErrors = true;
-            });
-
-            builder.Services.AddGrpcServices(builder.Configuration);
-
-            builder.Services.AddGrpcReflection();
-            #endregion
+            // #region gRPC
+            // builder.Services.AddGrpc(options =>
+            // {
+            //     options.EnableDetailedErrors = true;
+            // });
+            //
+            // builder.Services.AddGrpcServices(builder.Configuration);
+            //
+            // builder.Services.AddGrpcReflection();
+            // #endregion
 
             var app = builder.Build();
 
@@ -128,7 +128,7 @@ namespace TemplateService.API
             app.MapControllers();
 
             app.MapGrpcReflectionService();
-            app.MapGrpcService<TmpGrpcService>().EnableGrpcWeb();
+            //app.MapGrpcService<TmpGrpcService>().EnableGrpcWeb();
             app.MapGrpcHealthChecksService();
 
             app.Run();
@@ -146,16 +146,9 @@ namespace TemplateService.API
             using var scope = service.CreateScope();
             var services = scope.ServiceProvider;
 
-            try
-            {
-                var сontext = services.GetRequiredService<TemplateDbContext>();
+            var context = services.GetRequiredService<TemplateDbContext>();
 
-                сontext.Migrate();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            context.Migrate();
         }
     }
 }

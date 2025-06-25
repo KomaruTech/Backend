@@ -6,9 +6,9 @@
 public class UserEntity
 {
     /// <summary>
-    /// Идентификатор пользователя
+    /// ID
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Логин
@@ -43,10 +43,21 @@ public class UserEntity
     /// <summary>
     /// ID настроек уведомлений (внешний ключ)
     /// </summary>
-    public int NotificationPreferencesId { get; set; }
+    public Guid NotificationPreferencesId { get; set; }
 
     /// <summary>
     /// Навигационное свойство на настройки уведомлений
     /// </summary>
     public virtual NotificationPreferencesEntity NotificationPreferences { get; set; }
+    
+    /// <summary>
+    /// Фото пользователя в виде байтов
+    /// </summary>
+    public byte[]? Photo { get; set; }
+    
+    /// <summary>
+    /// Промежуточная сущность для связи с командами
+    /// </summary>
+    public virtual ICollection<UserTeamsEntity> Teams { get; set; } = new List<UserTeamsEntity>();
+    
 }

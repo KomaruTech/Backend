@@ -2,13 +2,13 @@ CREATE TYPE "event_type" AS ENUM (
     'general',
     'personal',
     'group'
-);
+    );
 
 CREATE TYPE "application_status" AS ENUM (
     'pending',
     'approved',
     'rejected'
-);
+    );
 
 CREATE TABLE "notification_preferences"
 (
@@ -30,8 +30,8 @@ CREATE TABLE "users"
     "email"                       VARCHAR(64),
     "telegram_id"                 VARCHAR(32),
     "notification_preferences_id" INTEGER      NOT NULL,
-    "avatar"                      BYTEA
-        PRIMARY KEY ("id"),
+    "avatar"                      BYTEA,
+    PRIMARY KEY ("id"),
     FOREIGN KEY ("notification_preferences_id") REFERENCES "notification_preferences" ("id")
         ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -45,11 +45,11 @@ CREATE TABLE "events"
     "time_end"    TIMESTAMP,
     "type"        EVENT_TYPE    NOT NULL,
     "location"    VARCHAR(1000) NOT NULL,
-    "created_by"  INTEGER       NOT NULL,
+    "created_by_id"  INTEGER       NOT NULL,
     "keywords"    JSONB         NOT NULL DEFAULT '[]'::jsonb,
     PRIMARY KEY ("id"),
-    FOREIGN KEY ("created_by") REFERENCES "users" ("id")
-        ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY ("created_by_id") REFERENCES "users" ("id")
+        ON UPDATE CASCADE ON DELETE NO ACTION 
 );
 
 CREATE TABLE "event_participants"
