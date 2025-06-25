@@ -1,11 +1,12 @@
 namespace TemplateService.Application.User.DTOs;
 
 public record UserDto(
-    int Id,
+    Guid Id,
     string Login,
     string Name,
     string PasswordHash,
     string Surname,
     string? Email,
     string? TelegramId,
-    int NotificationPreferencesId);
+    Guid NotificationPreferencesId,
+    byte[]? Avatar);
