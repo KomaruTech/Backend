@@ -148,9 +148,9 @@ namespace TemplateService.API
 
             try
             {
-                var Òontext = services.GetRequiredService<TemplateDbContext>();
+                var —Åontext = services.GetRequiredService<TemplateDbContext>();
 
-                Òontext.Migrate();
+                —Åontext.Migrate();
             }
             catch (Exception ex)
             {
