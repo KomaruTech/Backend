@@ -146,16 +146,9 @@ namespace TemplateService.API
             using var scope = service.CreateScope();
             var services = scope.ServiceProvider;
 
-            try
-            {
-                var сontext = services.GetRequiredService<TemplateDbContext>();
+            var context = services.GetRequiredService<TemplateDbContext>();
 
-                сontext.Migrate();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            context.Migrate();
         }
     }
 }
