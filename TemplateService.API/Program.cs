@@ -9,6 +9,7 @@ using TemplateService.API.Extensions;
 using TemplateService.Application.Extensions;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence;
+using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 
 namespace TemplateService.API
 {
@@ -42,6 +43,7 @@ namespace TemplateService.API
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddCors();
+
 
             builder.Services.AddSwaggerGen(config =>
             {
