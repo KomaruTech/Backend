@@ -4,7 +4,7 @@ using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Reflection;
 using TemplateService.API.Extensions;
-using TemplateService.API.GrpcServices;
+//using TemplateService.API.GrpcServices;
 using TemplateService.Application.Extensions;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence;
@@ -82,16 +82,16 @@ namespace TemplateService.API
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
 
-            #region gRPC
-            builder.Services.AddGrpc(options =>
-            {
-                options.EnableDetailedErrors = true;
-            });
-
-            builder.Services.AddGrpcServices(builder.Configuration);
-
-            builder.Services.AddGrpcReflection();
-            #endregion
+            // #region gRPC
+            // builder.Services.AddGrpc(options =>
+            // {
+            //     options.EnableDetailedErrors = true;
+            // });
+            //
+            // builder.Services.AddGrpcServices(builder.Configuration);
+            //
+            // builder.Services.AddGrpcReflection();
+            // #endregion
 
             var app = builder.Build();
 
@@ -124,7 +124,7 @@ namespace TemplateService.API
             app.MapControllers();
 
             app.MapGrpcReflectionService();
-            app.MapGrpcService<TmpGrpcService>().EnableGrpcWeb();
+            //app.MapGrpcService<TmpGrpcService>().EnableGrpcWeb();
             app.MapGrpcHealthChecksService();
 
             app.Run();
