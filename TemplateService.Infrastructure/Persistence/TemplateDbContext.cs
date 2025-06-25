@@ -1,61 +1,42 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using TemplateService.Domain.Entities;
 
 namespace TemplateService.Infrastructure.Persistence;
 
 public class TemplateDbContext : DbContext
 {
-    protected readonly string _defaultSchema = "XXATACH_TMP";
+    protected readonly string _defaultSchema = "DEFAULT";
 
     public TemplateDbContext(DbContextOptions<TemplateDbContext> options)
         : base(options)
     {
     }
 
-    public DbSet<DocumentEntity>  Documents { get; set; }
-    public DbSet<MetaEntity>  Metas { get; set; }
+    // DbSet'ы сущностей
     public DbSet<UserEntity> Users { get; set; }
-
+    public DbSet<TeamsEntity> Teams { get; set; }
+    public DbSet<UserTeamsEntity> UserTeams { get; set; }
+    public DbSet<NotificationPreferencesEntity> NotificationPreferences { get; set; }
+    public DbSet<EventEntity> Events { get; set; }
+    public DbSet<EventFeedbackEntity> EventFeedbacks { get; set; }
+    public DbSet<EventParticipantEntity> EventParticipants { get; set; }
+    public DbSet<SpeakerApplicationEntity> SpeakerApplications { get; set; }
+    
     public void Migrate()
     {
-        try
-        {
-            // Получаем путь к папке API-проекта
-            var apiProjectPath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "..",
-                "TemplateService.API");
-
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(apiProjectPath) // Указываем правильную базовую папку
-                .AddJsonFile("tmp-appsettings.json")
-                .AddJsonFile($"tmp-appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
-                .Build();
-
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
-            }
-
-            Database.GetDbConnection().ConnectionString = connectionString;
-            Database.Migrate();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Migration failed: {ex.Message}");
-            throw;
-        }
+        Database.Migrate();
     }
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
 
+    // Подключение конфигураций сущностей
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.HasDefaultSchema(_defaultSchema);
+        
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TemplateDbContext).Assembly);
     }
 
