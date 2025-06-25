@@ -1,14 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TemplateService.Domain.Entities;
+﻿namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
-namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Domain.Entities;
+
 
 public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 {
     public void Configure(EntityTypeBuilder<UserEntity> builder)
     {
-        builder.ToTable("users");
+        builder.ToTable("users", opts =>
+        {
+            opts.HasComment("Пользователи");
+        });
 
         builder.HasKey(u => u.Id);
         builder.Property(u => u.Id)
@@ -17,25 +21,30 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 
         builder.Property(u => u.Login)
             .HasColumnName("login")
-            .HasMaxLength(50)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(32);
+
+        builder.HasIndex(u => u.Login)
+            .IsUnique();
 
         builder.Property(u => u.PasswordHash)
             .HasColumnName("password_hash")
-            .HasMaxLength(256)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(255);
 
         builder.Property(u => u.Name)
             .HasColumnName("name")
-            .HasMaxLength(50);
+            .IsRequired()
+            .HasMaxLength(32);
 
         builder.Property(u => u.Surname)
             .HasColumnName("surname")
-            .HasMaxLength(50);
+            .IsRequired()
+            .HasMaxLength(64);
 
         builder.Property(u => u.Email)
             .HasColumnName("email")
-            .HasMaxLength(100);
+            .HasMaxLength(64);
 
         builder.Property(u => u.TelegramId)
             .HasColumnName("telegram_id")
@@ -45,13 +54,19 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasColumnName("notification_preferences_id")
             .IsRequired();
 
-        // Настройка связи с NotificationPreferences
-        builder.HasOne(u => u.NotificationPreferences)
-            .WithMany()
-            .HasForeignKey(u => u.NotificationPreferencesId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(u => u.Photo)
+            .HasColumnName("avatar")
+            .HasColumnType("bytea");
 
-        builder.HasIndex(u => u.Login).IsUnique();
-        builder.HasIndex(u => u.Email).IsUnique();
+        builder.HasOne(u => u.NotificationPreferences)
+            .WithOne()
+            .HasForeignKey<UserEntity>(u => u.NotificationPreferencesId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+        
+        builder.HasMany(u => u.Teams)
+            .WithOne(ut => ut.User)
+            .HasForeignKey(ut => ut.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
