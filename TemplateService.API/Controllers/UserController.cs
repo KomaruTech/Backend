@@ -16,8 +16,8 @@ public class UserController : ControllerBase
 
     public UserController(IMediator mediator) => _mediator = mediator;
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetUser(int id)
+    [HttpGet("{id:Guid}")]
+    public async Task<IActionResult> GetUser(Guid id)
     {
         var user = await _mediator.Send(new GetUserQuery(id));
         return Ok(user);
