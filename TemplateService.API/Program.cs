@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Reflection;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 using TemplateService.API.Extensions;
 using TemplateService.API.GrpcServices;
 using TemplateService.Application.Extensions;
@@ -16,6 +17,9 @@ namespace TemplateService.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddDbContext<TemplateDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Configuration.AddCustomConfiguration();
 

@@ -60,19 +60,6 @@ public class DocumentController : ControllerBase
 
         return Ok(doc);
     }
-
-    /// <summary>
-    /// Создание документа
-    /// </summary>
-    /// <param name="model">Модель запроса</param>
-    /// <param name="cancellationToken">Токен отмены</param>
-    [HttpPost]
-    [Consumes(MediaTypeNames.Application.Json)]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<DocumentDto>> CreateDocument([FromBody] CreateDocumentModel model, CancellationToken cancellationToken)
-    {
-        var doc = await _mediator.Send(new CreateDocumentCommand(model.DocumentName), cancellationToken);
-        return CreatedAtAction(nameof(GetDocument), new { id = doc.Id }, doc);
-    }
 }
+
+   

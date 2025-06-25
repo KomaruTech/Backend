@@ -1,9 +1,14 @@
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
+    "Logging": {
+        "LogLevel": {
+            "Default": "Information",
+            "Microsoft.AspNetCore": "Warning"
+        }
+    },
+    "AllowedHosts": "*",
+
+    "ConnectionStrings": {
+        "DefaultConnection": "Host=localhost;Port=5432;Database=template_service;Username=postgres;Password=12345;Timeout=300"
     }
-  },
-  "AllowedHosts": "*"
 }
+

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TemplateService.Domain.Entities;
 
 namespace TemplateService.Infrastructure.Persistence;
@@ -14,10 +15,39 @@ public class TemplateDbContext : DbContext
 
     public DbSet<DocumentEntity>  Documents { get; set; }
     public DbSet<MetaEntity>  Metas { get; set; }
+    public DbSet<UserEntity> Users { get; set; }
 
     public void Migrate()
     {
-        Database.Migrate();
+        try
+        {
+            // Получаем путь к папке API-проекта
+            var apiProjectPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "..",
+                "TemplateService.API");
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(apiProjectPath) // Указываем правильную базовую папку
+                .AddJsonFile("tmp-appsettings.json")
+                .AddJsonFile($"tmp-appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+                .Build();
+
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
+            }
+
+            Database.GetDbConnection().ConnectionString = connectionString;
+            Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Migration failed: {ex.Message}");
+            throw;
+        }
     }
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
