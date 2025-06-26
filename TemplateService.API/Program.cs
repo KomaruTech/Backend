@@ -129,7 +129,7 @@ namespace TemplateService.API
 
             app.MapControllers();
 
-            app.MapGrpcReflectionService();
+            //app.MapGrpcReflectionService();
             //app.MapGrpcService<TmpGrpcService>().EnableGrpcWeb();
             app.MapGrpcHealthChecksService();
 

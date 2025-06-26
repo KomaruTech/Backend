@@ -33,7 +33,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TemplateService.Application\TemplateService.Application.csproj" />
-    <ProjectReference Include="..\TemplateService.Protobuf\TemplateService.Protobuf.csproj" />
   </ItemGroup>
 
 </Project>
