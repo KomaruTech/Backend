@@ -4,11 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Queries;
 
-namespace TemplateService.API.Controllers;
-
-/// <summary>
-/// События
-/// </summary>
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [Route("api/v1/[controller]")]
@@ -21,9 +16,18 @@ public class EventController : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<EventDto>> GetUser(Guid id)
+    public async Task<ActionResult<EventDto>> GetEvent(Guid id)
     {
-        var user = await _mediator.Send(new GetEventQuery(id));
-        return user != null ? Ok(user) : NotFound();
+        var eventObj = await _mediator.Send(new GetEventQuery(id));
+        return eventObj != null ? Ok(eventObj) : NotFound();
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<EventDto>> CreateEvent([FromBody] GetEventQuery command)
+    {
+        var createdEvent = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetEvent), new { id = createdEvent.Id }, createdEvent);
     }
 }
