@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using TemplateService.Application.EventPhoto.Dtos;
 
-namespace TemplateService.Application.EventPhoto.Queries
-{
-    internal class GetEventPhotoQuery
-    {
-    }
-}
+namespace TemplateService.Application.EventPhoto.Queries;
+
+public record GetEventPhotoQuery(Guid Id) : IRequest<EventPhotoDto>;

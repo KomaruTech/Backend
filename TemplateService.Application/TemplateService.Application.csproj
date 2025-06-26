@@ -18,20 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="NotificationPreferences\Dtos\" />
-    <Folder Include="NotificationPreferences\Queries\" />
-    <Folder Include="SpeakerApplication\Dtos\" />
-    <Folder Include="SpeakerApplication\Queries\" />
     <Folder Include="_template\Commands\" />
     <Folder Include="_template\Dtos\" />
     <Folder Include="_template\Queries\" />
     <Folder Include="EventFeedback\" />
 	<Folder Include="Event\" />
     <Folder Include="EventPhoto\" />
-    <Folder Include="NotificationPreferences\" />
-    <Folder Include="SpeakerApplication\" />
-    <Folder Include="Teams\" />
-    <Folder Include="UserTeams\" />
   </ItemGroup>
 
 </Project>

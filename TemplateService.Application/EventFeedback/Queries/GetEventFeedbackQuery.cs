@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using TemplateService.Application.EventFeedback.DTOs;
 
-namespace TemplateService.Application.EventFeedback.Queries
-{
-    internal class GetEventFeedbackQuery
-    {
-    }
-}
+namespace TemplateService.Application.EventFeedback.Queries;
+
+public record GetEventFeedbackQuery(Guid Id) : IRequest<EventFeedbackDto>;
