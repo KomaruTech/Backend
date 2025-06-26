@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
 using TemplateService.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection; // Добавьте это
 
@@ -8,43 +6,44 @@ namespace TemplateService.Infrastructure.Persistence;
 
 public class TemplateDbContext : DbContext
 {
-    
-    protected readonly string _defaultSchema = "XXATACH_TMP";
-    protected IConfiguration Configuration { get; } // Делаем protected property вместо field
+    protected readonly string _defaultSchema = "DEFAULT";
 
-    public TemplateDbContext(
-        DbContextOptions options, // Изменяем на не-generic версию
-        IConfiguration configuration) : base(options)
+    public TemplateDbContext(DbContextOptions<TemplateDbContext> options)
+        : base(options)
     {
-        Configuration = configuration;
     }
 
-
+    // DbSet'ы сущностей
     public DbSet<UserEntity> Users { get; set; }
+    public DbSet<TeamsEntity> Teams { get; set; }
+    public DbSet<UserTeamsEntity> UserTeams { get; set; }
+    public DbSet<NotificationPreferencesEntity> NotificationPreferences { get; set; }
+    public DbSet<EventEntity> Events { get; set; }
+    public DbSet<EventFeedbackEntity> EventFeedbacks { get; set; }
+    public DbSet<EventParticipantEntity> EventParticipants { get; set; }
+    public DbSet<SpeakerApplicationEntity> SpeakerApplications { get; set; }
 
     public void Migrate()
     {
-        try
-        {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
-            }
-
-            Database.Migrate();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Migration failed: {ex.Message}");
-            throw;
-        }
+        Database.Migrate();
+    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
     }
 
+    // Подключение конфигураций сущностей
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.HasDefaultSchema(_defaultSchema);
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TemplateDbContext).Assembly);
+    }
+
+    protected static DbContextOptions<T> ChangeOptionsType<T>(DbContextOptions options) where T : DbContext
+    {
+        return new DbContextOptionsBuilder<T>()
+                    .Options;
     }
 }
