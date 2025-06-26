@@ -27,5 +27,7 @@ public class UserController : ControllerBase
         var user = await _mediator.Send(new GetUserQuery(id));
         return user != null ? Ok(user) : NotFound();
     }
+
+    //создать контроллер авторизации
 }
 

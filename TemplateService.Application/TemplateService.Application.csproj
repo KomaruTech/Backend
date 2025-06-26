@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -18,14 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="NotificationPreferences\Dtos\" />
+    <Folder Include="NotificationPreferences\Queries\" />
+    <Folder Include="SpeakerApplication\Dtos\" />
+    <Folder Include="SpeakerApplication\Queries\" />
     <Folder Include="_template\Commands\" />
     <Folder Include="_template\Dtos\" />
     <Folder Include="_template\Queries\" />
-    <Folder Include="EventFeedback\" />
-    <Folder Include="EventParticipant\" />
-    <Folder Include="EventPhoto\" />
-    <Folder Include="NotificationPreferences\" />
-    <Folder Include="SpeakerApplication\" />
     <Folder Include="Teams\" />
     <Folder Include="UserTeams\" />
   </ItemGroup>
