@@ -32,7 +32,7 @@ public class TemplatePostgresqlDbContext : TemplateDbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.HasPostgresEnum<ApplicationStatus>();
-        modelBuilder.HasPostgresEnum<EventType>();
+        modelBuilder.HasPostgresEnum<ApplicationStatusEnum>();
+        modelBuilder.HasPostgresEnum<EventTypeEnum>();
     }
 }

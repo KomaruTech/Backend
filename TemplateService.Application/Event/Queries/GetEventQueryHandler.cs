@@ -5,7 +5,7 @@ using TemplateService.Application.Event.DTOs;
 using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
 
-namespace TemplateService.Application.Event.Queries.GetEvent;
+namespace TemplateService.Application.Event.Queries;
 
 internal class GetEventQueryHandler : IRequestHandler<GetEventQuery, EventDto>
 {
