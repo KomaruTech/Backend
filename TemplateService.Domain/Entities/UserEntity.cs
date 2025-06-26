@@ -33,7 +33,7 @@ public class UserEntity
     /// <summary>
     /// Электронная почта (может быть null)
     /// </summary>
-    public string? Email { get; set; }
+    public string Email { get; set; }
 
     /// <summary>
     /// Telegram ID (может быть null)
@@ -53,7 +53,7 @@ public class UserEntity
     /// <summary>
     /// Фото пользователя в виде байтов
     /// </summary>
-    public byte[]? Photo { get; set; }
+    public byte[]? Avatar { get; set; }
     
     /// <summary>
     /// Промежуточная сущность для связи с командами

@@ -8,11 +8,7 @@
   },
   "AllowedHosts": "*",
   "WEB_PORT": "5124",
-  "GRPC_PORT": "3119",
   "ConnectionStrings": {
     "TemplatePostgreSqlDatabase": "Server=161.8.230.143;User Id=touchdb;Port=5432;Database=atach_box;"
-  },
-  "GrpcEndpoints": {
-    "CoreApi": "http://webapi:3111"
   }
 }

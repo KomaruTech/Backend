@@ -4,9 +4,8 @@ public record UserDto(
     Guid Id,
     string Login,
     string Name,
-    string PasswordHash,
     string Surname,
-    string? Email,
+    string Email,
     string? TelegramId,
     Guid NotificationPreferencesId,
     byte[]? Avatar);

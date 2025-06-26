@@ -54,7 +54,7 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasColumnName("notification_preferences_id")
             .IsRequired();
 
-        builder.Property(u => u.Photo)
+        builder.Property(u => u.Avatar)
             .HasColumnName("avatar")
             .HasColumnType("bytea");
 
