@@ -42,7 +42,7 @@ public class UserController : ControllerBase
         var createdUser = await _mediator.Send(command);
 
         // Возвращаем 201 Created с Location на нового пользователя
-        return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+        return CreatedAtAction(nameof(GetUser), new { login = createdUser.Login }, createdUser);
     }
 }
 
