@@ -13,7 +13,6 @@ using System.Text.Json.Serialization;
 using Npgsql;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
-using TemplateService.Domain.Enums;
 
 namespace TemplateService.API
 {
@@ -22,9 +21,19 @@ namespace TemplateService.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            builder.Services.AddDbContext<TemplateDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSourceBuilder.EnableDynamicJson();
+
+            var dataSource = dataSourceBuilder.Build();
+            
+            builder.Services.AddSingleton(dataSource);
+            builder.Services.AddDbContext<TemplateDbContext>((provider, options) =>
+            {
+                var ds = provider.GetRequiredService<NpgsqlDataSource>();
+                options.UseNpgsql(ds);
+            });
 
             builder.Configuration.AddCustomConfiguration();
 
@@ -44,6 +53,7 @@ namespace TemplateService.API
                 });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddCors();
+            builder.Services.AddHttpContextAccessor();
 
             var jwtSettings = builder.Configuration.GetSection("Jwt");
 

@@ -11,10 +11,7 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 {
     public void Configure(EntityTypeBuilder<EventEntity> builder)
     {
-        builder.ToTable("events", opts =>
-        {
-            opts.HasComment("Мероприятия");
-        });
+        builder.ToTable("events", opts => { opts.HasComment("Мероприятия"); });
 
         builder.HasKey(u => u.Id);
         builder.Property(u => u.Id)
@@ -35,7 +32,7 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 
         builder.Property(u => u.TimeEnd)
             .HasColumnName("time_end");
-    
+
         builder.Property(e => e.Type)
             .HasColumnName("type")
             .IsRequired()
@@ -56,14 +53,18 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
             .HasColumnName("keywords")
             .HasColumnType("jsonb")
             .HasDefaultValueSql("'[]'::jsonb")
-            .IsRequired();
+            .IsRequired()
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)
+            );
 
         builder.HasOne(e => e.CreatedBy)
             .WithMany()
             .HasForeignKey(e => e.CreatedById)
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
-        
+
         builder.HasMany(e => e.Photos)
             .WithOne(p => p.Event)
             .HasForeignKey(p => p.EventId)

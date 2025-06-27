@@ -28,7 +28,7 @@ public class EventController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<EventDto>> CreateEvent([FromBody] GetEventQuery command)
+    public async Task<ActionResult<EventDto>> CreateEvent([FromBody] CreateEventCommand command)
     {
         var createdEvent = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetEvent), new { id = createdEvent.Id }, createdEvent);

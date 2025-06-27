@@ -9,9 +9,8 @@ public record EventDto(
     string Description,
     DateTime TimeStart,
     DateTime? TimeEnd,
-    EventTypeEnum Type, 
+    EventTypeEnum Type,
     string? Location,
     Guid CreatedById,
-    UserEntity CreatedBy,
-    List<string> Keywords,
-    ICollection<EventPhotoEntity> Photos );
+    List<string> Keywords
+);
