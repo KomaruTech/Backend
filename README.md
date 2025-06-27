@@ -2,6 +2,25 @@
 
 Репозиторий разработки backend`a
 
+## Как это запустить
+Делаем докер контейнеры
+```shell
+docker-compose up --build
+```
+Это запускает миграцию (работает и в VS и не в ней, главное путь поменять, если другая миграция)
+```shell
+dotnet ef database update --project TemplateService.Infrastructure\TemplateService.Infrastructure.csproj --startup-project TemplateService.API\TemplateService.API.csproj --context TemplateService.Infrastructure.Persistence.Providers.Postgresql.TemplatePostgresqlDbContext --configuration Debug 20250627054332_TemplatePostgresqlDbContext_v0.0.3 --connection "Host=localhost;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
+```
+
+## Миграции
+
+- Если надо новые, то надо удалить ModelSnapshot (не знаю почему, если этого не сделать миграции будут пустые)
+- Надо ручками в метод Up файла миграции написать
+  ```csharp
+            migrationBuilder.Sql("CREATE TYPE application_status AS ENUM ('pending', 'approved', 'rejected');");
+            migrationBuilder.Sql("CREATE TYPE event_type AS ENUM ('general', 'personal', 'group');");
+```
+
 ## Структура базы данных
 
 ### Типы ENUM
