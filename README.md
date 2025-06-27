@@ -6,6 +6,12 @@
 Делаем докер контейнеры
 ```shell
 docker-compose up --build
+
+Если у вас нет .NET SDK, то
+
+1. Скачиваем тут https://dotnet.microsoft.com/download
+2. dotnet tool install --global dotnet-ef
+
 ```
 Это запускает миграцию (работает и в VS и не в ней, главное путь поменять, если другая миграция)
 ```shell
