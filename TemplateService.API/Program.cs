@@ -9,8 +9,11 @@ using TemplateService.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
+using Npgsql;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
+using TemplateService.Domain.Enums;
 
 namespace TemplateService.API
 {
@@ -33,7 +36,12 @@ namespace TemplateService.API
                 
             });
 
-            builder.Services.AddControllers();
+            builder.Services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddCors();
 

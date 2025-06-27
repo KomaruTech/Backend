@@ -35,10 +35,7 @@ public class TemplatePostgresqlDbContext : TemplateDbContext
 
         
         modelBuilder.HasDefaultSchema(_defaultSchema);
-       
-        modelBuilder.HasPostgresEnum<EventTypeEnum>();
-        modelBuilder.HasPostgresEnum<ApplicationStatusEnum>();
-        modelBuilder.HasPostgresEnum<UserRoleEnum>();
+
         base.OnModelCreating(modelBuilder);
     }
 }

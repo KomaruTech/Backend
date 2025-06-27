@@ -1,3 +1,5 @@
+using TemplateService.Domain.Enums;
+
 namespace TemplateService.Application.User.DTOs;
 
 public record UserDto(
@@ -5,6 +7,7 @@ public record UserDto(
     string Login,
     string Name,
     string Surname,
+    UserRoleEnum Role,
     string Email,
     string? TelegramId,
     Guid NotificationPreferencesId,

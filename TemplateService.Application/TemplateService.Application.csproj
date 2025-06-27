@@ -22,12 +22,9 @@
 
 
     <ItemGroup>
-        <Folder Include="_template\Commands\"/>
-        <Folder Include="_template\Dtos\"/>
-        <Folder Include="_template\Queries\"/>
         <Folder Include="EventFeedback\"/>
         <Folder Include="Event\"/>
-        <Folder Include="EventPhoto\"/>
+        <Folder Include="EventPhotos\" />
         <Folder Include="NotificationPreferences\"/>
         <Folder Include="SpeakerApplication\"/>
         <Folder Include="Teams\"/>

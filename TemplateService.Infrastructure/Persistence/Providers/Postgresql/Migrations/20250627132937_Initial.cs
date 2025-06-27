@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     /// <inheritdoc />
-    public partial class TemplatePostgresqlDbContext_v001 : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,15 +15,6 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
             migrationBuilder.EnsureSchema(
                 name: "DEFAULT");
 
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:Enum:application_status_enum", "pending,approved,rejected")
-                .Annotation("Npgsql:Enum:event_type_enum", "general,personal,group")
-                .Annotation("Npgsql:Enum:user_role_enum", "member,manager,administrator");
-
-            migrationBuilder.Sql("CREATE TYPE application_status AS ENUM ('pending', 'approved', 'rejected');");
-            migrationBuilder.Sql("CREATE TYPE event_type AS ENUM ('general', 'personal', 'group');");
-            migrationBuilder.Sql("CREATE TYPE user_role AS ENUM ('member', 'manager', 'administrator');");
-            
             migrationBuilder.CreateTable(
                 name: "notification_preferences",
                 schema: "DEFAULT",
@@ -67,10 +58,11 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     name = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     surname = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     email = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    role = table.Column<int>(type: "user_role", nullable: false, defaultValueSql: "'member'"),
+                    role = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "member"),
                     telegram_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     notification_preferences_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    avatar = table.Column<byte[]>(type: "bytea", nullable: true)
+                    avatar = table.Column<byte[]>(type: "bytea", nullable: true),
+                    avatar_mime_type = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -95,7 +87,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     description = table.Column<string>(type: "text", nullable: true),
                     time_start = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     time_end = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    type = table.Column<int>(type: "event_type", nullable: false, defaultValueSql: "'general'"),
+                    type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "general"),
                     location = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
                     keywords = table.Column<List<string>>(type: "jsonb", nullable: false, defaultValueSql: "'[]'::jsonb")
@@ -239,7 +231,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     topic = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     comment = table.Column<string>(type: "text", nullable: true),
-                    status = table.Column<int>(type: "application_status", nullable: false, defaultValueSql: "'pending'")
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "pending")
                 },
                 constraints: table =>
                 {

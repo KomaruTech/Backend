@@ -20,7 +20,7 @@ internal class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDto>
     public async Task<UserDto> Handle(GetUserQuery query, CancellationToken ct)
     {
         return await _dbContext.Users
-            .Where(u => u.Id == query.Id)
+            .Where(u => u.Login == query.Login)
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(ct);
     }

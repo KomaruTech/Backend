@@ -63,6 +63,11 @@ public class UserEntity
     public byte[]? Avatar { get; set; }
     
     /// <summary>
+    /// Мета-информация о фото
+    /// </summary>
+    public string? AvatarMimeType { get; set; }
+    
+    /// <summary>
     /// Промежуточная сущность для связи с командами
     /// </summary>
     public virtual ICollection<UserTeamsEntity> Teams { get; set; } = new List<UserTeamsEntity>();

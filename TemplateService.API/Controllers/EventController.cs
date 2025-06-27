@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Queries;
+namespace TemplateService.API.Controllers;
 
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]

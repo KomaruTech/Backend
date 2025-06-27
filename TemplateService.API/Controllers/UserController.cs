@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Document.Queries;
 using TemplateService.Application.User.DTOs;
@@ -20,17 +21,17 @@ public class UserController : ControllerBase
 
     public UserController(IMediator mediator) => _mediator = mediator;
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{login}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserDto>> GetUser(Guid id)
+    public async Task<ActionResult<UserDto>> GetUser(string login)
     {
-        var user = await _mediator.Send(new GetUserQuery(id));
+        var user = await _mediator.Send(new GetUserQuery(login));
         return user != null ? Ok(user) : NotFound();
     }
 
     
-    [HttpPost]
+    [HttpPost("create")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)

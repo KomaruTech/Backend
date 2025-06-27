@@ -4,6 +4,6 @@
 /// Модель данных для входа пользователя
 /// </summary>
 public record UserLoginDto(
-    string Username,
+    string Login,
     string Password
 );

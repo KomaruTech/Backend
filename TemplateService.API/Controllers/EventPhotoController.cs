@@ -1,32 +1,38 @@
-﻿using MediatR;
+﻿using System.Net.Mime;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TemplateService.Application.EventPhoto.Dtos;
-using TemplateService.Application.EventPhoto.Queries;
+using TemplateService.Application.EventPhotos.Dtos;
+using TemplateService.Application.EventPhotos.Queries;
 
-namespace TemplateService.API.Controllers
+
+namespace TemplateService.API.Controllers;
+
+[ApiController]
+[Produces(MediaTypeNames.Multipart.ByteRanges)]
+[Route("api/v1/[controller]")]
+[Authorize]
+public class EventPhotoController : ControllerBase
 {
-    public class EventPhotoController : Controller
+    private readonly IMediator _mediator;
+
+    public EventPhotoController(IMediator mediator) => _mediator = mediator;
+
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(EventPhotosDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventPhotosDto>> GetEventPhoto(Guid id)
     {
-        private readonly IMediator _mediator;
+        var eventPhotoObj = await _mediator.Send(new GetEventPhotosQuery(id));
+        return eventPhotoObj != null ? Ok(eventPhotoObj) : NotFound();
+    }
 
-        public EventPhotoController(IMediator mediator) => _mediator = mediator;
-
-        [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(EventPhotoDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<EventPhotoDto>> GetEventPhoto(Guid id)
-        {
-            var eventPhotoObj = await _mediator.Send(new GetEventPhotoQuery(id));
-            return eventPhotoObj != null ? Ok(eventPhotoObj) : NotFound();
-        }
-
-        [HttpPost]
-        [ProducesResponseType(typeof(EventPhotoDto), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<EventPhotoDto>> CreateEvent([FromBody] GetEventPhotoQuery command)
-        {
-            var createdEventPhoto = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetEventPhotoQuery), new { id = createdEventPhoto.Id }, createdEventPhoto);
-        }
+    [HttpPost]
+    [ProducesResponseType(typeof(EventPhotosDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<EventPhotosDto>> CreateEvent([FromBody] GetEventPhotosQuery command)
+    {
+        var createdEventPhoto = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetEventPhotosQuery), new { id = createdEventPhoto.Id }, createdEventPhoto);
     }
 }

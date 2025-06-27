@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using TemplateService.Application.User.DTOs;
+using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.User.Commands;
 
 public record CreateUserCommand(
-    string Login,
     string Name,
-    string Password,
     string Surname,
-    string Email
+    string Password,
+    string Email,
+    UserRoleEnum Role
 ) : IRequest<UserDto>; // Вернём созданного пользователя

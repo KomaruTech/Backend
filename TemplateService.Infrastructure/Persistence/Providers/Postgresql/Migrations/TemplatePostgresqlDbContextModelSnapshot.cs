@@ -22,9 +22,6 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "application_status_enum", new[] { "pending", "approved", "rejected" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "event_type_enum", new[] { "general", "personal", "group" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "user_role_enum", new[] { "member", "manager", "administrator" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("TemplateService.Domain.Entities.EventEntity", b =>
@@ -68,11 +65,13 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("time_start");
 
-                    b.Property<int>("Type")
+                    b.Property<string>("Type")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("event_type")
-                        .HasColumnName("type")
-                        .HasDefaultValueSql("'general'");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("general")
+                        .HasColumnName("type");
 
                     b.HasKey("Id");
 
@@ -261,11 +260,13 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("uuid")
                         .HasColumnName("event_id");
 
-                    b.Property<int>("Status")
+                    b.Property<string>("Status")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("application_status")
-                        .HasColumnName("status")
-                        .HasDefaultValueSql("'pending'");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("pending")
+                        .HasColumnName("status");
 
                     b.Property<string>("Topic")
                         .IsRequired()
@@ -327,6 +328,11 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("bytea")
                         .HasColumnName("avatar");
 
+                    b.Property<string>("AvatarMimeType")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("avatar_mime_type");
+
                     b.Property<string>("Email")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
@@ -354,11 +360,13 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("character varying(255)")
                         .HasColumnName("password_hash");
 
-                    b.Property<int>("Role")
+                    b.Property<string>("Role")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("user_role")
-                        .HasColumnName("role")
-                        .HasDefaultValueSql("'member'");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("member")
+                        .HasColumnName("role");
 
                     b.Property<string>("Surname")
                         .IsRequired()

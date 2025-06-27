@@ -1,4 +1,6 @@
-﻿namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
+﻿using TemplateService.Domain.Enums;
+
+namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -41,12 +43,13 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasColumnName("surname")
             .IsRequired()
             .HasMaxLength(64);
-        
+
         builder.Property(e => e.Role)
             .HasColumnName("role")
-            .HasColumnType("user_role")
             .IsRequired()
-            .HasDefaultValueSql("'member'");
+            .HasDefaultValue(UserRoleEnum.member)
+            .HasConversion<string>()
+            .HasMaxLength(32);
 
         builder.Property(u => u.Email)
             .HasColumnName("email")
@@ -63,6 +66,10 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
         builder.Property(u => u.Avatar)
             .HasColumnName("avatar")
             .HasColumnType("bytea");
+        
+        builder.Property(p => p.AvatarMimeType)
+            .HasColumnName("avatar_mime_type")
+            .HasMaxLength(255);
 
         builder.HasOne(u => u.NotificationPreferences)
             .WithOne()
