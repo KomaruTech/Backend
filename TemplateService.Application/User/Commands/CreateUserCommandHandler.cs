@@ -32,7 +32,7 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Use
         var notificationPreferences = new NotificationPreferencesEntity
         {
             Id = id
-            // Остальные поля не заполняем, они возьмутся из БД по DEFAULT
+            // Остальные поля не заполняем, они возьмутся из БД
         };
 
         var user = new UserEntity

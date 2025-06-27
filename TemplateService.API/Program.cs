@@ -103,7 +103,18 @@ namespace TemplateService.API
             builder.Services.AddScoped<TokenService>();
 
             builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
-
+            
+            // Временно (Разрешены любые CORS)
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+            
             var app = builder.Build();
 
             MigrateDatabase(app.Services);
@@ -113,7 +124,9 @@ namespace TemplateService.API
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
+            // Временно (Разрешены любые CORS)
+            app.UseCors();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

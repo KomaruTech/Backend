@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.TokenService;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Infrastructure.Persistence; // <-- не забудь пространство имён
@@ -21,7 +22,7 @@ namespace TemplateService.API.Controllers
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
         }
-
+        [AllowAnonymous]
         [HttpPost("login")]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
