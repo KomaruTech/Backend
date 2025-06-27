@@ -30,7 +30,7 @@ public class EventFeedbackController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(EventFeedbackDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<EventFeedbackDto>> CreateEvent([FromBody] GetEventFeedbackQuery command)
+    public async Task<ActionResult<EventFeedbackDto>> CreateEventFeedback([FromBody] GetEventFeedbackQuery command)
     {
         var createdEvent = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetEventFeedbackQuery), new { id = createdEvent.Id }, createdEvent);

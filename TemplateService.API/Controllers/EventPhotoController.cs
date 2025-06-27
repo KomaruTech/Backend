@@ -30,7 +30,7 @@ public class EventPhotoController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(EventPhotosDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<EventPhotosDto>> CreateEvent([FromBody] GetEventPhotosQuery command)
+    public async Task<ActionResult<EventPhotosDto>> CreateEventPhoto([FromBody] GetEventPhotosQuery command)
     {
         var createdEventPhoto = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetEventPhotosQuery), new { id = createdEventPhoto.Id }, createdEventPhoto);
