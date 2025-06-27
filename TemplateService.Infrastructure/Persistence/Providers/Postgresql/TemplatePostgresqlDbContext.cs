@@ -32,9 +32,13 @@ public class TemplatePostgresqlDbContext : TemplateDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        
         modelBuilder.HasDefaultSchema(_defaultSchema);
-        modelBuilder.HasPostgresEnum("application_status", new[] { "pending", "approved", "rejected" });
-        modelBuilder.HasPostgresEnum("event_type", new[] { "general", "personal", "group" });
+       
+        modelBuilder.HasPostgresEnum<EventTypeEnum>();
+        modelBuilder.HasPostgresEnum<ApplicationStatusEnum>();
+        modelBuilder.HasPostgresEnum<UserRoleEnum>();
         base.OnModelCreating(modelBuilder);
     }
 }

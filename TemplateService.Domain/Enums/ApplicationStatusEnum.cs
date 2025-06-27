@@ -11,17 +11,17 @@ public enum ApplicationStatusEnum
     /// Заявка на рассмотрении
     /// </summary>
     [Description("Заявка на рассмотрении ('pending')")]
-    Pending,
+    pending,
 
     /// <summary>
     /// Персональные встречи
     /// </summary>
     [Description("Заявка одобрена ('approved')")]
-    Approved,
+    approved,
 
     /// <summary>
     /// Групповые мероприятия
     /// </summary>
     [Description("Заявка отклонена ('rejected')")]
-    Rejected
+    rejected
 }

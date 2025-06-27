@@ -13,8 +13,8 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     [DbContext(typeof(TemplatePostgresqlDbContext))]
-    [Migration("20250627054332_TemplatePostgresqlDbContext_v0.0.3")]
-    partial class TemplatePostgresqlDbContext_v003
+    [Migration("20250627073201_TemplatePostgresqlDbContext_v0.0.1")]
+    partial class TemplatePostgresqlDbContext_v001
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,8 +25,9 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "application_status", new[] { "pending", "approved", "rejected" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "event_type", new[] { "general", "personal", "group" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "application_status_enum", new[] { "pending", "approved", "rejected" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "event_type_enum", new[] { "general", "personal", "group" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "user_role_enum", new[] { "member", "manager", "administrator" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("TemplateService.Domain.Entities.EventEntity", b =>
@@ -355,6 +356,12 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("password_hash");
+
+                    b.Property<int>("Role")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("user_role")
+                        .HasColumnName("role")
+                        .HasDefaultValueSql("'member'");
 
                     b.Property<string>("Surname")
                         .IsRequired()
