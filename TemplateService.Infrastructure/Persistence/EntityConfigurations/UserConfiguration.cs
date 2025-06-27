@@ -41,6 +41,12 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasColumnName("surname")
             .IsRequired()
             .HasMaxLength(64);
+        
+        builder.Property(e => e.Role)
+            .HasColumnName("role")
+            .HasColumnType("user_role")
+            .IsRequired()
+            .HasDefaultValueSql("'member'");
 
         builder.Property(u => u.Email)
             .HasColumnName("email")
@@ -54,7 +60,7 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasColumnName("notification_preferences_id")
             .IsRequired();
 
-        builder.Property(u => u.Photo)
+        builder.Property(u => u.Avatar)
             .HasColumnName("avatar")
             .HasColumnType("bytea");
 

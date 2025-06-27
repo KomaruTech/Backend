@@ -3,7 +3,7 @@
 namespace TemplateService.Domain.Enums;
 
 /// <summary>
-/// Тип мета-данных
+/// Тип мероприятия
 /// </summary>
 public enum EventTypeEnum
 {
@@ -11,17 +11,17 @@ public enum EventTypeEnum
     /// Общие мероприятия
     /// </summary>
     [Description("Общее мероприятие ('general')")]
-    General,
+    general,
 
     /// <summary>
     /// Персональные встречи
     /// </summary>
     [Description("Персональная встреча ('personal')")]
-    Personal,
+    personal,
 
     /// <summary>
     /// Групповые мероприятия
     /// </summary>
     [Description("Групповое мероприятие ('group')")]
-    Group
+    group
 }

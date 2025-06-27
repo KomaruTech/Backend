@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
@@ -12,9 +13,11 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     [DbContext(typeof(TemplatePostgresqlDbContext))]
-    partial class TemplatePostgresqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250627073201_TemplatePostgresqlDbContext_v0.0.1")]
+    partial class TemplatePostgresqlDbContext_v001
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

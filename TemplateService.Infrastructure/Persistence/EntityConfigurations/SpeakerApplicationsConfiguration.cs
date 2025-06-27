@@ -45,7 +45,7 @@ public class SpeakerApplicationsConfiguration : IEntityTypeConfiguration<Speaker
             .HasColumnName("status")
             .HasColumnType("application_status")
             .IsRequired()
-            .HasDefaultValue(ApplicationStatusEnum.Pending);
+            .HasDefaultValueSql("'pending'");
 
         builder.HasOne(e => e.User)
             .WithMany()

@@ -1,5 +1,5 @@
 using AutoMapper;
-using TemplateService.Application.Document.Dtos;
+using TemplateService.Application.User.Commands;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Domain.Entities;
 
@@ -9,7 +9,10 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<UserEntity, UserDto>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+        CreateMap<UserEntity, UserDto>();
+        CreateMap<CreateUserCommand, UserEntity>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
+
     }
+    
 }

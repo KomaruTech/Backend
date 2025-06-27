@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using TemplateService.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection; // Добавьте это
+using TemplateService.Domain.Entities;
 
 namespace TemplateService.Infrastructure.Persistence;
 
@@ -22,7 +22,7 @@ public class TemplateDbContext : DbContext
     public DbSet<EventFeedbackEntity> EventFeedbacks { get; set; }
     public DbSet<EventParticipantEntity> EventParticipants { get; set; }
     public DbSet<SpeakerApplicationEntity> SpeakerApplications { get; set; }
-    public DbSet<EventPhotoEntity> EventPhoto {  get; set; }
+    public DbSet<EventPhotoEntity> EventPhotos { get; set; }
 
     public void Migrate()
     {

@@ -1,0 +1,34 @@
+﻿services:
+  postgres:
+    image: postgres:17
+    container_name: template_postgres
+    environment:
+      POSTGRES_DB: server
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: template_api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5124:5124"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
+      ASPNETCORE_ENVIRONMENT: Development
+
+volumes:
+  postgres_data:

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Document.Queries;
 using TemplateService.Application.User.DTOs;
+using TemplateService.Application.User.Commands;
 using TemplateService.Application.User.Queries;
 
 namespace TemplateService.API.Controllers;
@@ -28,6 +29,19 @@ public class UserController : ControllerBase
         return user != null ? Ok(user) : NotFound();
     }
 
-    //создать контроллер авторизации
+    
+    [HttpPost]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var createdUser = await _mediator.Send(command);
+
+        // Возвращаем 201 Created с Location на нового пользователя
+        return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+    }
 }
 

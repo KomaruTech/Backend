@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Infrastructure.Persistence;
 
-namespace TemplateService.Application.User.Queries.GetUser;
+namespace TemplateService.Application.User.Queries;
 
 internal class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDto>
 {

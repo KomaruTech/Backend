@@ -1,15 +1,16 @@
 using System.Net;
 using System.Reflection;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using TemplateService.API.Extensions;
-//using TemplateService.API.GrpcServices;
 using TemplateService.Application.Extensions;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence;
-using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using TemplateService.Application.PasswordService;
+using TemplateService.Application.TokenService;
 
 namespace TemplateService.API
 {
@@ -20,29 +21,42 @@ namespace TemplateService.API
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<TemplateDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Configuration.AddCustomConfiguration();
 
             builder.WebHost.ConfigureKestrel(options =>
             {
-                var (httpPort, grpcPort) = GetDefinedPorts(builder.Configuration);
+                var httpPort = GetDefinedPorts(builder.Configuration);
 
-                options.Listen(IPAddress.Any, httpPort, listenOptions =>
-                {
-                    listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
-                });
-
-                options.Listen(IPAddress.Any, grpcPort, listenOptions =>
-                {
-                    listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
-                });
+                options.Listen(IPAddress.Any, httpPort, listenOptions => { listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2; });
+                
             });
 
-            // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddCors();
+
+            var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+            builder.Services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings["Issuer"],
+                        ValidAudience = jwtSettings["Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+                    };
+                });
 
 
             builder.Services.AddSwaggerGen(config =>
@@ -52,14 +66,11 @@ namespace TemplateService.API
                 // Add swagger documentation
                 var currentAssembly = Assembly.GetExecutingAssembly();
                 var xmlDocs = currentAssembly.GetReferencedAssemblies()
-                .Union(new[] { currentAssembly.GetName() })
-                .Select(a => Path.Combine(Path.GetDirectoryName(currentAssembly.Location), $"{a.Name}.xml"))
-                .Where(f => File.Exists(f)).ToList();
+                    .Union(new[] { currentAssembly.GetName() })
+                    .Select(a => Path.Combine(Path.GetDirectoryName(currentAssembly.Location), $"{a.Name}.xml"))
+                    .Where(f => File.Exists(f)).ToList();
 
-                xmlDocs.ForEach(xmlDoc =>
-                {
-                    config.IncludeXmlComments(xmlDoc, includeControllerXmlComments: true);
-                });
+                xmlDocs.ForEach(xmlDoc => { config.IncludeXmlComments(xmlDoc, includeControllerXmlComments: true); });
 
                 var securitySchema = new OpenApiSecurityScheme
                 {
@@ -88,17 +99,22 @@ namespace TemplateService.API
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
 
-            // #region gRPC
-            // builder.Services.AddGrpc(options =>
-            // {
-            //     options.EnableDetailedErrors = true;
-            // });
-            //
-            // builder.Services.AddGrpcServices(builder.Configuration);
-            //
-            // builder.Services.AddGrpcReflection();
-            // #endregion
+            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddScoped<TokenService>();
 
+            builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            
+            // Временно (Разрешены любые CORS)
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+            
             var app = builder.Build();
 
             MigrateDatabase(app.Services);
@@ -108,8 +124,9 @@ namespace TemplateService.API
             {
                 app.UseDeveloperExceptionPage();
             }
-
-           
+            
+            // Временно (Разрешены любые CORS)
+            app.UseCors();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -118,29 +135,25 @@ namespace TemplateService.API
                 c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
             });
 
+
             app.UseHttpsRedirection();
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            
+
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
 
-            //app.MapGrpcReflectionService();
-            //app.MapGrpcService<TmpGrpcService>().EnableGrpcWeb();
-            app.MapGrpcHealthChecksService();
-
             app.Run();
         }
 
-        private static (int httpPort, int grpcPort) GetDefinedPorts(IConfiguration config)
+        private static int GetDefinedPorts(IConfiguration config)
         {
-            var grpcPort = config.GetValue<int>("GRPC_PORT");
             var port = config.GetValue<int>("WEB_PORT");
-            return (port, grpcPort);
+            return port;
         }
 
         private static void MigrateDatabase(IServiceProvider service)

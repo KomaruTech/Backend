@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Queries;
@@ -7,6 +8,7 @@ using TemplateService.Application.Event.Queries;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class EventController : ControllerBase
 {
     private readonly IMediator _mediator;
