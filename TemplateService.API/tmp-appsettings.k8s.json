@@ -9,6 +9,6 @@
   "AllowedHosts": "*",
   "WEB_PORT": "5124",
   "ConnectionStrings": {
-    "TemplatePostgreSqlDatabase": "Server=161.8.230.143;User Id=touchdb;Port=5432;Database=atach_box;"
+    "DefaultConnection": "Host=template_postgres;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
+    }
   }
-}

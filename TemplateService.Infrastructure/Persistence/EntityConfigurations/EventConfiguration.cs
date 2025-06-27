@@ -40,12 +40,7 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
             .HasColumnName("type")
             .HasColumnType("event_type")
             .IsRequired()
-            .HasDefaultValue(EventTypeEnum.General);
-        
-        builder.Property(u => u.Type)
-            .HasColumnName("type")
-            .IsRequired();
-            
+            .HasDefaultValueSql("'general'");
 
         builder.Property(u => u.Location)
             .HasColumnName("location")
