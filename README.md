@@ -6,7 +6,7 @@
 Делаем докер контейнеры
 ```shell
 docker-compose up --build
-
+```
 Если у вас нет .NET SDK, то
 
 1. Скачиваем тут https://dotnet.microsoft.com/download
