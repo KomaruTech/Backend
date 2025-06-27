@@ -28,6 +28,7 @@ public class UserController : ControllerBase
         var user = await _mediator.Send(new GetUserQuery(id));
         return user != null ? Ok(user) : NotFound();
     }
+
     
     [HttpPost]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
@@ -42,6 +43,5 @@ public class UserController : ControllerBase
         // Возвращаем 201 Created с Location на нового пользователя
         return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
     }
-    
 }
 

@@ -20,7 +20,7 @@ internal class GetEventQueryHandler : IRequestHandler<GetEventQuery, EventDto>
 
     public async Task<EventDto> Handle(GetEventQuery query, CancellationToken ct)
     {
-        return await _dbContext.Users
+        return await _dbContext.Events
             .Where(u => u.Id == query.Id)
             .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(ct);
