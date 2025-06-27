@@ -12,7 +12,7 @@ docker-compose up --build
 1. Скачиваем тут https://dotnet.microsoft.com/download
 2. dotnet tool install --global dotnet-ef
 
-```
+
 Это запускает миграцию (работает и в VS и не в ней, главное путь поменять, если другая миграция)
 ```shell
 dotnet ef database update --project TemplateService.Infrastructure\TemplateService.Infrastructure.csproj --startup-project TemplateService.API\TemplateService.API.csproj --context TemplateService.Infrastructure.Persistence.Providers.Postgresql.TemplatePostgresqlDbContext --configuration Debug 20250627132937_Initial --connection "Host=localhost;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
