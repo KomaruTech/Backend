@@ -1,11 +1,11 @@
-﻿using TemplateService.Domain.Enums;
+﻿using System.Text.Json;
+using TemplateService.Domain.Enums;
 
 namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Domain.Entities;
-
 
 public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
 {
@@ -47,8 +47,8 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
         builder.Property(u => u.CreatedById)
             .HasColumnName("created_by_id") // имя колонки из таблицы events
             .IsRequired();
-        
-        
+
+
         builder.Property(e => e.Keywords)
             .HasColumnName("keywords")
             .HasColumnType("jsonb")
