@@ -1,18 +1,20 @@
 using System.Net;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using TemplateService.API.Extensions;
-using TemplateService.Application.Extensions;
-using TemplateService.Infrastructure.Extensions;
-using TemplateService.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Npgsql;
+using Telegram.Bot;
+using TemplateService.API.Extensions;
+//using TemplateService.API.TelegramBot.Services;
+using TemplateService.Application.Extensions;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
+using TemplateService.Infrastructure.Extensions;
+using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.API
 {
@@ -56,6 +58,10 @@ namespace TemplateService.API
             builder.Services.AddHttpContextAccessor();
 
             var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+            var botToken = builder.Configuration["Telegram:BotToken"];
+            builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+          //  builder.Services.AddHostedService<TelegramBotService>();
 
             builder.Services.AddAuthentication(options =>
                 {

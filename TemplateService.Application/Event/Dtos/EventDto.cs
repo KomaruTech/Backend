@@ -12,5 +12,10 @@ public record EventDto(
     EventTypeEnum Type,
     string? Location,
     Guid CreatedById,
-    List<string> Keywords
+    List<string> Keywords,
+    // Добавляем новые поля
+    bool NotificationsEnabled = true,
+    bool Reminder1DaySent = false,
+    bool Reminder1HourSent = false,
+    List<Guid> ParticipantIds = null // Список ID участников
 );

@@ -15,6 +15,13 @@
         "Issuer": "Backend",
         "Audience": "Users",
         "ExpiresInMinutes": 3600
+    },
+
+
+    "Telegram": {
+        "BotToken": "7851663659:AAGpPDhL3URaO9PMNvJRkF4AiHCZ6Lp9yUA",
+        "ChatId": "1665417074"
     }
+
 }
 

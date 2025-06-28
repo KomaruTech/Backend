@@ -13,7 +13,7 @@ namespace TemplateService.API.Controllers;
 [Authorize]
 public class EventController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator; 
 
     public EventController(IMediator mediator) => _mediator = mediator;
 
