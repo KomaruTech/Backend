@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Event.Commands;
+using TemplateService.Application.Event.Queries;
 using TemplateService.Application.EventParticipant.Dtos;
 using TemplateService.Application.EventParticipant.Queries;
 namespace TemplateService.API.Controllers;
@@ -26,13 +27,13 @@ public class EventParticipantController : ControllerBase
         return eventObj != null ? Ok(eventObj) : NotFound();
     }
 
-    //[HttpGet("search_in_interval")]
-    //[ProducesResponseType(typeof(List<EventParticipantDto>), StatusCodes.Status200OK)]
-    //public async Task<ActionResult<List<EventParticipantDto>>> SearchInInterval([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
-    //{
-    //    var events = await _mediator.Send(new SearchInIntervalQuery(startDate, endDate));
-    //    return Ok(events);
-    //}
+    [HttpGet("search_in_interval")]
+    [ProducesResponseType(typeof(List<EventParticipantDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<EventParticipantDto>>> SearchInInterval([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+    {
+        var events = await _mediator.Send(new SearchInIntervalQuery(startDate, endDate));
+        return Ok(events);
+    }
 
     [HttpPost]
     [ProducesResponseType(typeof(EventParticipantDto), StatusCodes.Status201Created)]

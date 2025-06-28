@@ -20,6 +20,7 @@ public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventPart
         builder.Property(e => e.UserId)
             .HasColumnName("user_id")
             .IsRequired();
+        
 
         builder.Property(e => e.EventId)
             .HasColumnName("event_id")
@@ -28,12 +29,14 @@ public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventPart
         builder.Property(e => e.IsSpeaker)
             .HasColumnName("is_speaker")
             .IsRequired()
-            .HasDefaultValue(false);
+            .HasDefaultValue(false)
+            .HasComment("Флаг, выступает ли пользователь на мероприятии");;
 
         builder.Property(e => e.AttendanceMarked)
             .HasColumnName("attendance_marked")
             .IsRequired()
-            .HasDefaultValue(false);
+            .HasDefaultValue(false)
+            .HasComment("Флаг, был ли пользователь отмечен на мероприятии");;
 
         builder.HasOne(e => e.User)
             .WithMany()
@@ -41,7 +44,7 @@ public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventPart
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(e => e.Event)
-            .WithMany() // Или .WithMany(ev => ev.Participants), если есть навигация у мероприятия
+            .WithMany(ev => ev.Participants)
             .HasForeignKey(e => e.EventId)
             .OnDelete(DeleteBehavior.Cascade);
     }
