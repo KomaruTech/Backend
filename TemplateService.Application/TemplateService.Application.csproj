@@ -28,7 +28,6 @@
         <Folder Include="Event\Services\" />
         <Folder Include="NotificationPreferences\" />
         <Folder Include="SpeakerApplication\" />
-        <Folder Include="Teams\" />
         <Folder Include="UserTeams\" />
     </ItemGroup>
 </Project>
