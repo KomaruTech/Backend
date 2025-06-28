@@ -68,6 +68,11 @@ public class UserEntity
     public string? AvatarMimeType { get; set; }
     
     /// <summary>
+    /// Команды, созданные этим пользователем
+    /// </summary>
+    public virtual ICollection<TeamsEntity> CreatedTeams { get; set; } = new List<TeamsEntity>();
+    
+    /// <summary>
     /// Промежуточная сущность для связи с командами
     /// </summary>
     public virtual ICollection<UserTeamsEntity> Teams { get; set; } = new List<UserTeamsEntity>();
