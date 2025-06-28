@@ -1,7 +1,6 @@
-﻿using System.Security.Claims;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.Auth.Services;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Domain.Enums;
 using TemplateService.Infrastructure.Persistence;
@@ -12,27 +11,23 @@ public class SearchEventsHandler : IRequestHandler<SearchInIntervalQuery, List<E
 {
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ICurrentUserService _currentUserService;
 
     public SearchEventsHandler(
         TemplateDbContext dbContext,
         IMapper mapper,
-        IHttpContextAccessor httpContextAccessor)
+        ICurrentUserService currentUserService
+    )
     {
         _dbContext = dbContext;
         _mapper = mapper;
-        _httpContextAccessor = httpContextAccessor;
+        _currentUserService = currentUserService;
     }
 
     public async Task<List<EventDto>> Handle(SearchInIntervalQuery request, CancellationToken cancellationToken)
     {
-        var jwtUser = _httpContextAccessor.HttpContext?.User;
-
-        var idClaim = jwtUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _currentUserService.GetUserId();
         
-        if (!Guid.TryParse(idClaim, out var userId))
-            throw new UnauthorizedAccessException("Invalid user ID");
-
         var query = _dbContext.Events
             .Include(e => e.Participants) // обязательно для фильтра по участникам
             .AsQueryable();
@@ -42,7 +37,7 @@ public class SearchEventsHandler : IRequestHandler<SearchInIntervalQuery, List<E
 
         if (request.EndDate.HasValue)
             query = query.Where(e => !e.TimeEnd.HasValue || e.TimeEnd <= request.EndDate.Value);
-
+       
         // ID групп пользователя
         var userGroupIds = await _dbContext.UserTeams
             .Where(ug => ug.UserId == userId)

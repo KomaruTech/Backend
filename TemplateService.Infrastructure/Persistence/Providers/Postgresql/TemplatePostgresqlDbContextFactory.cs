@@ -9,7 +9,6 @@ public class TemplatePostgresqlDbContextFactory : IDesignTimeDbContextFactory<Te
 {
     public TemplatePostgresqlDbContext CreateDbContext(string[] args)
     {
-        // Чтение конфигурации вручную
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("tmp-appsettings.json", optional: false)
@@ -17,8 +16,7 @@ public class TemplatePostgresqlDbContextFactory : IDesignTimeDbContextFactory<Te
             .Build();
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-        // Построение DataSource с dynamic json
+        
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
         dataSourceBuilder.EnableDynamicJson();
         var dataSource = dataSourceBuilder.Build();
