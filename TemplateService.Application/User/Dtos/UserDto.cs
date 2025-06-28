@@ -10,5 +10,5 @@ public record UserDto(
     UserRoleEnum Role,
     string Email,
     string? TelegramId,
-    Guid NotificationPreferencesId,
-    byte[]? Avatar);
+    Guid NotificationPreferencesId
+    );
