@@ -29,6 +29,16 @@ public class TeamsConfiguration : IEntityTypeConfiguration<TeamsEntity>
 
         builder.Property(u => u.Description)
             .HasColumnName("description");
+
+        builder.Property(u => u.OwnerId)
+            .HasColumnName("owner_id")
+            .IsRequired();
+        
+        builder.HasOne(u => u.Owner)
+            .WithMany(o => o.CreatedTeams)
+            .HasForeignKey(u => u.OwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         
         builder.HasMany(u => u.Users)
             .WithOne(ut => ut.Team)
