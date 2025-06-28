@@ -2,12 +2,13 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using TemplateService.Application.Teams.Commands.AddTeamMember;
+using TemplateService.Application.Teams.Commands;
 using TemplateService.Application.Teams.Dtos;
+using TemplateService.Application.User.DTOs;
 using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
 
-namespace TemplateService.Application.Teams.Commands.AddTeamMember;
+namespace TemplateService.Application.Teams.Commands;
 
 internal sealed class AddTeamMemberCommandHandler(
     TemplateDbContext dbContext,
@@ -29,8 +30,8 @@ internal sealed class AddTeamMemberCommandHandler(
         if (team.Users.Any(u => u.UserId == request.UserId))
             throw new ArgumentException("User already in team");
 
-        //team.Users.Add(new User { UserId = request.UserId });  Здвесь ошибка, надо исправить.
-        //await dbContext.SaveChangesAsync(ct);
+        // team.Users.Add(new UserDto { Id = request.UserId });  Здвесь ошибка, надо исправить.
+        // await dbContext.SaveChangesAsync(ct);
 
         return mapper.Map<TeamsDto>(team);
     }
