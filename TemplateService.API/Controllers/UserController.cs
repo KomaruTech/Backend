@@ -15,6 +15,7 @@ namespace TemplateService.API.Controllers;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -34,6 +35,7 @@ public class UserController : ControllerBase
     [HttpPost("create")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [AllowAnonymous]
     public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)
     {
         if (!ModelState.IsValid)

@@ -37,6 +37,11 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
         if (userRole == UserRoleEnum.member)
             throw new InvalidOperationException("User with role 'member' cant create events.");
 
+        // Валидация начала, минимум через 2 часа от текущего времени
+        var now = DateTime.UtcNow;
+        if (command.TimeStart < now.AddHours(2))
+            throw new ArgumentException("The event must start at least 2 hours from now.");
+
         //Валидация длительности, минимум 10 минут на мероприятие если указан конец.
         if (command.TimeEnd.HasValue)
         {
@@ -58,12 +63,16 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
             CreatedById = userId,
             Type = command.Type,
             Location = command.Location,
-            Keywords = command.Keywords,
+            Keywords = command.Keywords?
+                .Where(k => !string.IsNullOrWhiteSpace(k)) // фильтрация пустых
+                .Select(k => k.ToLowerInvariant().Trim()) // приведение к нижнему регистру и обрезка пробелов
+                .Distinct() // убрает дубли
+                .ToList() ?? new List<string>(), // если null — сделать пустой список
         };
 
         _dbContext.Events.Add(newEvent);
-        await _dbContext.SaveChangesAsync(ct);
 
+        await _dbContext.SaveChangesAsync(ct);
         return _mapper.Map<EventDto>(newEvent);
     }
 }

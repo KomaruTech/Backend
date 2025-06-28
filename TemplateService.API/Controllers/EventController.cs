@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TemplateService.API.Models;
 using TemplateService.Application.Event.Commands;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Queries;
@@ -26,11 +27,12 @@ public class EventController : ControllerBase
         return eventObj != null ? Ok(eventObj) : NotFound();
     }
     
-    [HttpGet("search_in_interval")]
+    [HttpGet("search")]
     [ProducesResponseType(typeof(List<EventDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<EventDto>>> SearchInInterval([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+    public async Task<ActionResult<List<EventDto>>> SearchInInterval([FromQuery] SearchEventsQuery request)
     {
-        var events = await _mediator.Send(new SearchInIntervalQuery(startDate, endDate));
+        var query = new SearchEventsQuery(request.StartSearchTime, request.EndSearchTime, request.Keywords);
+        var events = await _mediator.Send(query);
         return Ok(events);
     }
 

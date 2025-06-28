@@ -11,9 +11,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using Npgsql;
+using TemplateService.API.Middleware;
 using TemplateService.Application.Auth.Services;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
+using TemplateService.Application.User.Services;
 
 namespace TemplateService.API
 {
@@ -121,6 +123,7 @@ namespace TemplateService.API
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<IUserFieldValidationService, UserFieldValidationService>();
             
 
             builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -135,7 +138,7 @@ namespace TemplateService.API
                         .AllowAnyMethod();
                 });
             });
-            
+
             var app = builder.Build();
 
             MigrateDatabase(app.Services);
@@ -148,6 +151,9 @@ namespace TemplateService.API
             
             // Временно (Разрешены любые CORS)
             app.UseCors();
+            
+            // Миддлвейр для обработки ошибок
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

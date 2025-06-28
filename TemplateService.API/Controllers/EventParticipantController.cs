@@ -26,15 +26,7 @@ public class EventParticipantController : ControllerBase
         var eventObj = await _mediator.Send(new GetEventParticipantQuery(id));
         return eventObj != null ? Ok(eventObj) : NotFound();
     }
-
-    [HttpGet("search_in_interval")]
-    [ProducesResponseType(typeof(List<EventParticipantDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<EventParticipantDto>>> SearchInInterval([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
-    {
-        var events = await _mediator.Send(new SearchInIntervalQuery(startDate, endDate));
-        return Ok(events);
-    }
-
+    
     [HttpPost]
     [ProducesResponseType(typeof(EventParticipantDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
