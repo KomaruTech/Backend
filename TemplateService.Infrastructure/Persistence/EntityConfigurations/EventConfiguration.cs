@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TemplateService.Domain.Enums;
 
 namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
@@ -57,7 +58,12 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
                 v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)
-            );
+            ).Metadata.SetValueComparer(
+                new ValueComparer<List<string>>(
+                    (c1, c2) => c1!.SequenceEqual(c2!),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList())
+            );;
 
         builder.HasOne(e => e.CreatedBy)
             .WithMany()

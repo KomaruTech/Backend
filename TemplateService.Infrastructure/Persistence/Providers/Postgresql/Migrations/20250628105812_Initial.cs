@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -31,21 +30,6 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     table.PrimaryKey("PK_notification_preferences", x => x.id);
                 },
                 comment: "Предпочтения пользователей");
-
-            migrationBuilder.CreateTable(
-                name: "teams",
-                schema: "DEFAULT",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    description = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_teams", x => x.id);
-                },
-                comment: "Команды (Группы)");
 
             migrationBuilder.CreateTable(
                 name: "users",
@@ -90,7 +74,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "general"),
                     location = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    keywords = table.Column<List<string>>(type: "jsonb", nullable: false, defaultValueSql: "'[]'::jsonb")
+                    keywords = table.Column<string>(type: "jsonb", nullable: false, defaultValueSql: "'[]'::jsonb")
                 },
                 constraints: table =>
                 {
@@ -105,32 +89,27 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 comment: "Мероприятия");
 
             migrationBuilder.CreateTable(
-                name: "user_teams",
+                name: "teams",
                 schema: "DEFAULT",
                 columns: table => new
                 {
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    team_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    owner_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_user_teams", x => new { x.user_id, x.team_id });
+                    table.PrimaryKey("PK_teams", x => x.id);
                     table.ForeignKey(
-                        name: "FK_user_teams_teams_team_id",
-                        column: x => x.team_id,
-                        principalSchema: "DEFAULT",
-                        principalTable: "teams",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_user_teams_users_user_id",
-                        column: x => x.user_id,
+                        name: "FK_teams_users_owner_id",
+                        column: x => x.owner_id,
                         principalSchema: "DEFAULT",
                         principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 },
-                comment: "Связь пользователей и команд");
+                comment: "Команды (Группы)");
 
             migrationBuilder.CreateTable(
                 name: "event_feedback",
@@ -172,8 +151,8 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     event_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    is_speaker = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    attendance_marked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                    is_speaker = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Флаг, выступает ли пользователь на мероприятии"),
+                    attendance_marked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Флаг, был ли пользователь отмечен на мероприятии")
                 },
                 constraints: table =>
                 {
@@ -253,6 +232,62 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 },
                 comment: "Заявки на выступление");
 
+            migrationBuilder.CreateTable(
+                name: "event_groups",
+                schema: "DEFAULT",
+                columns: table => new
+                {
+                    event_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_event_groups", x => new { x.event_id, x.group_id });
+                    table.ForeignKey(
+                        name: "FK_event_groups_events_event_id",
+                        column: x => x.event_id,
+                        principalSchema: "DEFAULT",
+                        principalTable: "events",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_event_groups_teams_group_id",
+                        column: x => x.group_id,
+                        principalSchema: "DEFAULT",
+                        principalTable: "teams",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                },
+                comment: "Связь мероприятий с группами");
+
+            migrationBuilder.CreateTable(
+                name: "user_teams",
+                schema: "DEFAULT",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    team_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_user_teams", x => new { x.user_id, x.team_id });
+                    table.ForeignKey(
+                        name: "FK_user_teams_teams_team_id",
+                        column: x => x.team_id,
+                        principalSchema: "DEFAULT",
+                        principalTable: "teams",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_user_teams_users_user_id",
+                        column: x => x.user_id,
+                        principalSchema: "DEFAULT",
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                },
+                comment: "Связь пользователей и команд");
+
             migrationBuilder.CreateIndex(
                 name: "IX_event_feedback_event_id",
                 schema: "DEFAULT",
@@ -264,6 +299,12 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 schema: "DEFAULT",
                 table: "event_feedback",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_event_groups_group_id",
+                schema: "DEFAULT",
+                table: "event_groups",
+                column: "group_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_event_participants_event_id",
@@ -303,6 +344,12 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_teams_owner_id",
+                schema: "DEFAULT",
+                table: "teams",
+                column: "owner_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_user_teams_team_id",
                 schema: "DEFAULT",
                 table: "user_teams",
@@ -328,6 +375,10 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
         {
             migrationBuilder.DropTable(
                 name: "event_feedback",
+                schema: "DEFAULT");
+
+            migrationBuilder.DropTable(
+                name: "event_groups",
                 schema: "DEFAULT");
 
             migrationBuilder.DropTable(
