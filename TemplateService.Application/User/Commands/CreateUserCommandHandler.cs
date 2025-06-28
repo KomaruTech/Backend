@@ -5,6 +5,7 @@ using TemplateService.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.PasswordService;
+using TemplateService.Application.User.Services;
 
 namespace TemplateService.Application.User.Commands;
 
@@ -13,19 +14,34 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Use
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IUserFieldValidationService _userFieldValidationService;
 
     public CreateUserCommandHandler(
         TemplateDbContext dbContext,
         IMapper mapper,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher,
+        IUserFieldValidationService  userFieldValidationService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
+        _userFieldValidationService = userFieldValidationService;
     }
 
     public async Task<UserDto> Handle(CreateUserCommand command, CancellationToken ct)
     {
+        if (!_userFieldValidationService.IsValidName(command.Name))
+            throw new ArgumentException("Invalid name, must be 2 <= name_length <= 32");
+        
+        if (!_userFieldValidationService.IsValidSurname(command.Surname))
+            throw new ArgumentException("Invalid name, must be 2 <= surname_length <= 64");
+        
+        if (!_userFieldValidationService.IsValidEmail(command.Email))
+            throw new ArgumentException("String does not look like email");
+        
+        if (!_userFieldValidationService.IsValidPassword(command.Password))
+            throw new ArgumentException("Invalid name, must be 2 <= password_length <= 1024");
+            
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();
 
