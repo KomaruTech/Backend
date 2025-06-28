@@ -21,13 +21,6 @@ dotnet ef database update --project TemplateService.Infrastructure\TemplateServi
 ## Миграции
 
 - Если надо новые, то надо удалить ModelSnapshot (не знаю почему, если этого не сделать миграции будут пустые)
-- Надо ручками в метод Up файла миграции написать
-  ```csharp
-            migrationBuilder.Sql("CREATE TYPE application_status AS ENUM ('pending', 'approved', 'rejected');");
-            migrationBuilder.Sql("CREATE TYPE event_type AS ENUM ('general', 'personal', 'group');");
-            migrationBuilder.Sql("CREATE TYPE user_role AS ENUM ('member', 'manager', 'administrator');");
-```
-
 ## Структура базы данных
 
 ### Типы ENUM
