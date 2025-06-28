@@ -118,7 +118,8 @@ namespace TemplateService.API
             builder.Services.AddTemplateApplication();
 
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-            builder.Services.AddScoped<TokenService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            
 
             builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
             
