@@ -42,8 +42,8 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUs
             Role: userEntity.Role,
             Email: userEntity.Email,
             TelegramId: userEntity.TelegramId,
-            NotificationPreferencesId: userEntity.NotificationPreferencesId,
-            Avatar: userEntity.Avatar);
+            NotificationPreferencesId: userEntity.NotificationPreferencesId
+            );
 
         var token = _tokenService.CreateToken(userDto);
 
