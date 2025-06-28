@@ -1,6 +1,4 @@
-﻿using MediatR;
-using TemplateService.Application.Event.DTOs;
-using TemplateService.Domain.Entities;
+﻿using TemplateService.Application.Event.DTOs;
 using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.Event.Commands;

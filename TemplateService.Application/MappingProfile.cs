@@ -11,8 +11,8 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<EventEntity, EventDto>();
-        
         CreateMap<UserEntity, UserDto>();
+        
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
     }

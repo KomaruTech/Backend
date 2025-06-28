@@ -1,6 +1,3 @@
-﻿using MediatR;
-using TemplateService.Application.User.DTOs;
-
-namespace TemplateService.Application.Auth.Commands;
+﻿namespace TemplateService.Application.Auth.Commands;
 
 public record LoginUserCommand(string Login, string Password) : IRequest<LoginUserResult>;

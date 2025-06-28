@@ -1,7 +1,4 @@
-﻿using TemplateService.Application.Auth.Services;
-using TemplateService.Domain.Enums;
-
-namespace TemplateService.Application.Event.Commands;
+﻿namespace TemplateService.Application.Event.Commands;
 
 using AutoMapper;
 using DTOs;
@@ -10,6 +7,8 @@ using Infrastructure.Persistence;
 using MediatR;
 using PasswordService;
 using Microsoft.AspNetCore.Http;
+using Auth.Services;
+using Domain.Enums;
 
 internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, EventDto>
 {

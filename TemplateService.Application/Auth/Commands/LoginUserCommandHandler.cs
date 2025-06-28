@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
 using TemplateService.Application.User.DTOs;
