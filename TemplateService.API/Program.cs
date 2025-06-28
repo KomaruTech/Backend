@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using Npgsql;
+using TemplateService.Application.Auth.Services;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
 
@@ -119,6 +120,7 @@ namespace TemplateService.API
 
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             
 
             builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();

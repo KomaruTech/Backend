@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+﻿using TemplateService.Application.Auth.Services;
 using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.Event.Commands;
@@ -10,39 +10,34 @@ using Infrastructure.Persistence;
 using MediatR;
 using PasswordService;
 using Microsoft.AspNetCore.Http;
+
 internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, EventDto>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    
+    private readonly ICurrentUserService _currentUserService;
+
     public CreateEventCommandHandler(
         TemplateDbContext dbContext,
         IMapper mapper,
         IPasswordHasher passwordHasher,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        ICurrentUserService currentUserService
+    )
     {
         _dbContext = dbContext;
         _mapper = mapper;
-        _httpContextAccessor = httpContextAccessor;
+        _currentUserService = currentUserService;
     }
 
     public async Task<EventDto> Handle(CreateEventCommand command, CancellationToken ct)
     {
-        var jwtUser = _httpContextAccessor.HttpContext?.User;
-
-        var idClaim = jwtUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
-        if (!Guid.TryParse(idClaim, out var userId))
-            throw new UnauthorizedAccessException("Incorrect UserId");
-
-        var roleClaim = jwtUser.FindFirst(ClaimTypes.Role)?.Value;
-        if (!Enum.TryParse<UserRoleEnum>(roleClaim, ignoreCase: true, out var userRole))
-            throw new UnauthorizedAccessException("Incorrect Role");
+        var userId = _currentUserService.GetUserId();
+        var userRole = _currentUserService.GetUserRole();
 
         if (userRole == UserRoleEnum.member)
-            throw new InvalidOperationException("User with 'member' role can't create events");
-        
+            throw new InvalidOperationException("User with role 'member' cant create events.");
+
         //Валидация длительности, минимум 10 минут на мероприятие если указан конец.
         if (command.TimeEnd.HasValue)
         {
@@ -50,10 +45,10 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
             if (duration < TimeSpan.FromMinutes(10))
                 throw new ArgumentException("The end time should be at least 10 minutes after the event starts.");
         }
-        
+
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();
-        
+
         var newEvent = new EventEntity
         {
             Id = id,
@@ -66,7 +61,7 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
             Location = command.Location,
             Keywords = command.Keywords,
         };
-        
+
         _dbContext.Events.Add(newEvent);
         await _dbContext.SaveChangesAsync(ct);
 
