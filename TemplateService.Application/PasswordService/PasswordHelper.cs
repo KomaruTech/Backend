@@ -1,10 +1,14 @@
 ﻿using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace TemplateService.Application.PasswordService;
 
-public class PasswordHasher : IPasswordHasher
+public partial class PasswordHelper : IPasswordHelper
 {
+    [GeneratedRegex(@"^[a-zA-Z0-9_!%$]+$", RegexOptions.Compiled)]
+    private static partial Regex PasswordAllowedCharsRegex();
+    
     private static readonly char[] AllowedChars =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_!%$".ToCharArray();
     
