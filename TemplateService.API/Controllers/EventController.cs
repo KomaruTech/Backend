@@ -27,7 +27,7 @@ public class EventController : ControllerBase
         var eventObj = await _mediator.Send(new GetEventQuery(id));
         return eventObj != null ? Ok(eventObj) : NotFound();
     }
-    
+
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -53,6 +53,16 @@ public class EventController : ControllerBase
     {
         var createdEvent = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetEvent), new { id = createdEvent.Id }, createdEvent);
+    }
+
+    [HttpPatch("update")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<EventDto>> UpdateEvent([FromBody] UpdateEventCommand command)
+    {
+        var updatedEvent = await _mediator.Send(command);
+        return Ok(updatedEvent);
     }
 
     [HttpPost("suggest")]

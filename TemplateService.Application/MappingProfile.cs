@@ -1,4 +1,5 @@
 using AutoMapper;
+using TemplateService.Application.Event.Commands;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.User.Commands;
 using TemplateService.Application.User.DTOs;
@@ -15,5 +16,7 @@ public class MappingProfile : Profile
         
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
+        CreateMap<UpdateEventCommand, EventEntity>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }
