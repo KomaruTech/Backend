@@ -46,5 +46,15 @@ public class UserController : ControllerBase
         // Возвращаем 201 Created с Location на нового пользователя
         return CreatedAtAction(nameof(GetUser), new { login = createdUser.Login }, createdUser);
     }
+    
+    [HttpDelete("{login}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeleteEvent(string login)
+    {
+        await _mediator.Send(new DeleteUserQuery(login));
+        return NoContent(); // 204
+    }
 }
 
