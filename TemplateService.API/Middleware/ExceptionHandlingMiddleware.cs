@@ -35,6 +35,12 @@
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsJsonAsync(new { error = ex.Message });
             }
+            catch (FileNotFoundException ex)
+            {
+                _logger.LogWarning("File not found: {Message}", ex.Message);
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled error");
