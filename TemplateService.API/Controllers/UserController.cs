@@ -91,6 +91,9 @@ public class UserController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Обновление аватара
+    /// </summary>
     [HttpPatch("me/avatar")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(UpdatedUserAvatarResult), StatusCodes.Status200OK)]
@@ -102,7 +105,9 @@ public class UserController : ControllerBase
         return Ok(result);
     }
 
-
+    /// <summary>
+    /// Получение аватара
+    /// </summary>
     [HttpGet("{userId:guid}/avatar")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
