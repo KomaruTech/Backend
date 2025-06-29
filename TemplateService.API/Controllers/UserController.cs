@@ -56,5 +56,18 @@ public class UserController : ControllerBase
         await _mediator.Send(new DeleteUserQuery(login));
         return NoContent(); // 204
     }
+    
+    /// <summary>
+    /// Изменение настроек профиля
+    /// </summary>
+    [HttpPatch("me/profile")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<UserDto>> UpdateEvent([FromBody] UpdateUserProfileCommand profileCommand)
+    {
+        var updatedUser = await _mediator.Send(profileCommand);
+        return Ok(updatedUser);
+    }
 }
 

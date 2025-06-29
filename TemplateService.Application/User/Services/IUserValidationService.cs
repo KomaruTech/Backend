@@ -9,5 +9,6 @@ namespace TemplateService.Application.User.Services
         void ValidateEmail(string email);
         void ValidatePassword(string password);
         void ValidateDeletePermissions(UserRoleEnum userRole);
+        void ValidateTelegram(string telegram);
     }
 }

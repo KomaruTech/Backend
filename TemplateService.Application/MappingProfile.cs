@@ -16,7 +16,11 @@ public class MappingProfile : Profile
         
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
+        
         CreateMap<UpdateEventCommand, EventEntity>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+        
+        CreateMap<UpdateUserProfileCommand, UserEntity>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }

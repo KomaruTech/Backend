@@ -5,6 +5,13 @@ namespace TemplateService.Application.User.Services;
 
 public partial class UserValidationService : IUserValidationService
 {
+    
+    [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+    private static partial Regex EmailRegex();
+    
+    [GeneratedRegex(@"^@([a-zA-Z][a-zA-Z0-9_]{4,31})$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+    private static partial Regex TelegramRegex();
+    
     public void ValidateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length < 2 || name.Length > 32)
@@ -19,11 +26,15 @@ public partial class UserValidationService : IUserValidationService
 
     public void ValidateEmail(string email)
     {
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email must not be empty.");
-
         if (!EmailRegex().IsMatch(email))
             throw new ArgumentException("Email format is invalid.");
+    }
+    
+    public void ValidateTelegram(string telegram)
+    {
+        
+        if (!TelegramRegex().IsMatch(telegram))
+            throw new ArgumentException("Telegram format is invalid.");
     }
 
     public void ValidatePassword(string password)
@@ -37,7 +48,4 @@ public partial class UserValidationService : IUserValidationService
         if (userRole != UserRoleEnum.administrator)
             throw new UnauthorizedAccessException("Only administrator can delete users");
     }
-
-    [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
-    private static partial Regex EmailRegex();
 }
