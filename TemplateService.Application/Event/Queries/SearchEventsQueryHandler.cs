@@ -38,17 +38,15 @@ public class SearchEventsHandler : IRequestHandler<SearchEventsQuery, List<Event
         if (request.EndSearchTime.HasValue)
             query = query.Where(e => !e.TimeEnd.HasValue || e.TimeEnd <= request.EndSearchTime.Value);
        
-        // ID групп пользователя
-        var userGroupIds = await _dbContext.UserTeams
-            .Where(ug => ug.UserId == userId)
-            .Select(ug => ug.TeamId)
-            .ToListAsync(cancellationToken);
+        if (request.Status != null)
+            query = query.Where(e => e.Status == request.Status);
         
         // Фильтруем по типам, какие мероприятия пользователь должен видеть
         query = query.Where(e =>
                 e.Type == EventTypeEnum.general || // Все видят
-                (e.Type == EventTypeEnum.personal && e.Participants.Any(p => p.UserId == userId)) || // Видят только выбранные
-                (e.Type == EventTypeEnum.group && e.EventTeams.Any(eg => userGroupIds.Contains(eg.TeamId))) // Видит вся группа
+                (e.Type == EventTypeEnum.personal && e.Participants.Any(p => p.UserId == userId)) || // Только участники
+                (e.Type == EventTypeEnum.group && e.EventTeams.Any(eg =>
+                    _dbContext.UserTeams.Any(ut => ut.UserId == userId && ut.TeamId == eg.TeamId))) // Участник группы
         );
         
         List<EventEntity> events;
