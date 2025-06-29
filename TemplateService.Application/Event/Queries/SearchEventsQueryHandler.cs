@@ -33,13 +33,19 @@ public class SearchEventsHandler : IRequestHandler<SearchEventsQuery, List<Event
             .Include(e => e.Participants) // обязательно для фильтра по участникам
             .AsQueryable();
         
-        query = query.Where(e => e.TimeStart >= request.StartSearchTime);
+        if (request.StartSearchTime.HasValue)
+            query = query.Where(e => e.TimeStart >= request.StartSearchTime);
 
         if (request.EndSearchTime.HasValue)
             query = query.Where(e => !e.TimeEnd.HasValue || e.TimeEnd <= request.EndSearchTime.Value);
        
+        // Фильтрация по определенному статусу
         if (request.Status != null)
             query = query.Where(e => e.Status == request.Status);
+        
+        // Фильтрация по имени (вхождение подстроки, игнор регистра)
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            query = query.Where(e => EF.Functions.ILike(e.Name, $"%{request.Name}%"));
         
         // Фильтруем по типам, какие мероприятия пользователь должен видеть
         query = query.Where(e =>

@@ -5,7 +5,8 @@ using TemplateService.Domain.Enums;
 namespace TemplateService.Application.Event.Queries;
 
 public record SearchEventsQuery(
-    DateTime StartSearchTime, 
+    String? Name,
+    DateTime? StartSearchTime, 
     DateTime? EndSearchTime,
     EventStatusEnum? Status,
     List<string>? Keywords
