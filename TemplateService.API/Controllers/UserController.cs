@@ -90,4 +90,26 @@ public class UserController : ControllerBase
         await _mediator.Send(profileCommand);
         return Ok();
     }
+
+    [HttpPatch("me/avatar")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(UpdatedUserAvatarResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<UpdatedUserAvatarResult>> UpdateAvatar([FromForm] UpdateUserAvatarCommand avatar)
+    {
+        var result = await _mediator.Send(avatar);
+        return Ok(result);
+    }
+
+
+    [HttpGet("{userId:guid}/avatar")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAvatar([FromRoute] Guid userId)
+    {
+        var result = await _mediator.Send(new GetUserAvatarQuery(userId));
+        return File(result.AvatarBytes, result.MimeType);
+    }
 }

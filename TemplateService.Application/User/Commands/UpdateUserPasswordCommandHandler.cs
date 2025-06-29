@@ -29,16 +29,14 @@ internal class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPass
         _passwordHelper = passwordHelper;
     }
 
-    public async Task<Unit> Handle(UpdateUserPasswordCommand command, CancellationToken ct)
+    public async Task<Unit> Handle(UpdateUserPasswordCommand command, CancellationToken cancellationToken)
     {
         // Валидация нового пароля
         _userValidationService.ValidatePassword(command.newPassword);
 
         var userId = _currentUserService.GetUserId();
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
-
-        if (user == null)
-            throw new ArgumentException($"User with ID {userId} not found");
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
+                   ?? throw new InvalidOperationException($"User with id {userId} found.");
 
         // Проверка старого пароля
         if (!_passwordHelper.VerifyPassword(user.PasswordHash, command.oldPassword))
@@ -51,7 +49,7 @@ internal class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPass
         
         user.PasswordHash = newPasswordHash;
         
-        await _dbContext.SaveChangesAsync(ct);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }

@@ -126,6 +126,7 @@ namespace TemplateService.API
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<IUserValidationService, UserValidationService>();
             builder.Services.AddScoped<IEventValidationService, EventValidationService>();
+            builder.Services.AddScoped<IUserHelperService, UserHelperService>();
             
 
             builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();

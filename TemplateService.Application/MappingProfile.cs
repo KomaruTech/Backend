@@ -12,7 +12,17 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<EventEntity, EventDto>();
-        CreateMap<UserEntity, UserDto>();
+        CreateMap<UserEntity, UserDto>()
+            .ConstructUsing(u => new UserDto(
+                u.Id,
+                u.Login,
+                u.Name,
+                u.Surname,
+                u.Role,
+                u.Email,
+                u.TelegramId,
+                null 
+            ));
         
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());

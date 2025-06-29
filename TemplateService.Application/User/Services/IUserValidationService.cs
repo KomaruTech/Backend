@@ -1,4 +1,5 @@
-﻿using TemplateService.Domain.Enums;
+﻿using Microsoft.AspNetCore.Http;
+using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.User.Services
 {
@@ -10,5 +11,6 @@ namespace TemplateService.Application.User.Services
         void ValidatePassword(string password);
         void ValidateDeletePermissions(UserRoleEnum userRole);
         void ValidateTelegram(string telegram);
+        void ValidateAvatar(IFormFile avatar);
     }
 }

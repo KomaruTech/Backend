@@ -14,28 +14,29 @@ internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfi
     private readonly IUserValidationService _userValidationService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
+    private readonly IUserHelperService _userHelperService;
 
     public UpdateUserProfileCommandHandler(
         TemplateDbContext dbContext,
         IUserValidationService userValidationService,
         ICurrentUserService currentUserService,
-        IMapper mapper
+        IMapper mapper,
+        IUserHelperService userHelperService
     )
     {
         _dbContext = dbContext;
         _userValidationService = userValidationService;
         _currentUserService = currentUserService;
         _mapper = mapper;
+        _userHelperService = _userHelperService;
     }
 
-    public async Task<UserDto> Handle(UpdateUserProfileCommand command, CancellationToken ct)
+    public async Task<UserDto> Handle(UpdateUserProfileCommand command, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.GetUserId();
 
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
-
-        if (user == null)
-            throw new ArgumentException($"User with ID {userId} not found");
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
+                   ?? throw new InvalidOperationException($"User with id {userId} found.");
 
 
         if (command.Name != null)
@@ -57,8 +58,8 @@ internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfi
         
         _mapper.Map(command, user);
         
-        await _dbContext.SaveChangesAsync(ct);
-
-        return _mapper.Map<UserDto>(user);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        
+        return _userHelperService.BuildUserDto(user, _mapper);
     }
 }

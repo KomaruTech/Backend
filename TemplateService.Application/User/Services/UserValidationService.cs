@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.User.Services;
@@ -15,6 +16,8 @@ public partial class UserValidationService : IUserValidationService
     [GeneratedRegex(@"^[a-zA-Z0-9_!%$]+$", RegexOptions.Compiled)]
     private static partial Regex PasswordAllowedCharsRegex();
 
+    private static readonly string[] AllowedMimeTypes = { "image/jpeg", "image/png", "image/webp" };
+    private const long MaxFileSize = 2 * 1024 * 1024; // 2MB
     
     public void ValidateName(string name)
     {
@@ -53,5 +56,17 @@ public partial class UserValidationService : IUserValidationService
     {
         if (userRole != UserRoleEnum.administrator)
             throw new UnauthorizedAccessException("Only administrator can delete users");
+    }
+
+    public void ValidateAvatar(IFormFile avatar)
+    {
+        if (avatar == null || avatar.Length == 0)
+            throw new ArgumentException("Avatar is missing.");
+
+        if (avatar.Length > MaxFileSize)
+            throw new ArgumentException("Avatar size should be lower than 2MB.");
+
+        if (!AllowedMimeTypes.Contains(avatar.ContentType))
+            throw new ArgumentException("Forbidden avatar format. Allowed: JPEG, PNG, WEBP.");
     }
 }
