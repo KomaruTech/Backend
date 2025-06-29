@@ -12,5 +12,6 @@ public record EventDto(
     EventTypeEnum Type,
     string? Location,
     Guid CreatedById,
-    List<string> Keywords
+    List<string> Keywords,
+    EventStatusEnum Status
 );

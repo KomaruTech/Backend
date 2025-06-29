@@ -36,10 +36,19 @@ public class EventController : ControllerBase
         return Ok(events);
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EventDto>> CreateEvent([FromBody] CreateEventCommand command)
+    {
+        var createdEvent = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetEvent), new { id = createdEvent.Id }, createdEvent);
+    }
+
+    [HttpPost("suggest")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<EventDto>> SuggestEvent([FromBody] SuggestEventCommand command)
     {
         var createdEvent = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetEvent), new { id = createdEvent.Id }, createdEvent);

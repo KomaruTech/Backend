@@ -52,6 +52,11 @@ public class EventEntity
     public virtual UserEntity CreatedBy { get; set;}
     
     /// <summary>
+    /// Мероприятие одобрено или нет
+    /// </summary>
+    public EventStatusEnum Status { get; set;}
+    
+    /// <summary>
     /// Список ключевых слов мероприятия
     /// </summary>
     public List<string> Keywords { get; set; } = new();
