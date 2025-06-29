@@ -9,18 +9,18 @@ namespace TemplateService.Application.Auth.Commands;
 public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUserResult?>
 {
     private readonly TemplateDbContext _dbContext;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHelper _passwordHelper;
     private readonly ITokenService _tokenService;
 
     public LoginUserCommandHandler
     (
         TemplateDbContext dbContext,
-        IPasswordHasher passwordHasher,
+        IPasswordHelper passwordHelper,
         ITokenService tokenService
     )
     {
         _dbContext = dbContext;
-        _passwordHasher = passwordHasher;
+        _passwordHelper = passwordHelper;
         _tokenService = tokenService;
     }
 
@@ -29,7 +29,7 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUs
         var userEntity = await _dbContext.Users
             .FirstOrDefaultAsync(u => u.Login == request.Login, cancellationToken);
 
-        if (userEntity == null || !_passwordHasher.VerifyPassword(userEntity.PasswordHash, request.Password))
+        if (userEntity == null || !_passwordHelper.VerifyPassword(userEntity.PasswordHash, request.Password))
         {
             return null;
         }
@@ -41,8 +41,7 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUs
             Surname: userEntity.Surname,
             Role: userEntity.Role,
             Email: userEntity.Email,
-            TelegramId: userEntity.TelegramId,
-            NotificationPreferencesId: userEntity.NotificationPreferencesId
+            TelegramId: userEntity.TelegramId
             );
 
         var token = _tokenService.CreateToken(userDto);

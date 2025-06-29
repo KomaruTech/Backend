@@ -10,17 +10,17 @@ public class ConfirmEventQueryHandler : IRequestHandler<ConfirmEventQuery, Unit>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IEventFieldValidationService _eventFieldValidationService;
+    private readonly IEventValidationService _eventValidationService;
     
     public ConfirmEventQueryHandler(
         TemplateDbContext dbContext,
         ICurrentUserService currentUserService,
-        IEventFieldValidationService eventFieldValidationService
+        IEventValidationService eventValidationService
     )
     {
         _dbContext = dbContext;
         _currentUserService = currentUserService;
-        _eventFieldValidationService = eventFieldValidationService;
+        _eventValidationService = eventValidationService;
     }
 
 
@@ -34,7 +34,7 @@ public class ConfirmEventQueryHandler : IRequestHandler<ConfirmEventQuery, Unit>
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
         
-        _eventFieldValidationService.ValidateConfirmPermissions(userId, entity.CreatedById, userRole);
+        _eventValidationService.ValidateConfirmPermissions(userId, entity.CreatedById, userRole);
         
         entity.Status = EventStatusEnum.confirmed;
         await _dbContext.SaveChangesAsync(cancellationToken);

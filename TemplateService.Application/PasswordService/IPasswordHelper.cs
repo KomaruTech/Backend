@@ -1,5 +1,5 @@
 ﻿namespace TemplateService.Application.PasswordService;
-public interface IPasswordHasher
+public interface IPasswordHelper
 {
     string HashPassword(string password);
     bool VerifyPassword(string hash, string password);

@@ -2,7 +2,7 @@
 
 using Domain.Enums;
 
-public class EventFieldValidationService : IEventFieldValidationService
+public class EventValidationService : IEventValidationService
 {
     public void ValidateName(string? name)
     {

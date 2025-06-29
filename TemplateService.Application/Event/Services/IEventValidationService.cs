@@ -1,9 +1,8 @@
 ﻿namespace TemplateService.Application.Event.Services;
 
-using TemplateService.Domain.Enums;
-using TemplateService.Application.Event.Commands;
+using Domain.Enums;
 
-public interface IEventFieldValidationService
+public interface IEventValidationService
 {
     void ValidateName(string? name);
     void ValidateDescription(string? description);

@@ -10,17 +10,17 @@ public class DeleteEventQueryHandler : IRequestHandler<DeleteEventQuery, Unit>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IEventFieldValidationService _eventFieldValidationService;
+    private readonly IEventValidationService _eventValidationService;
 
     public DeleteEventQueryHandler(
         TemplateDbContext dbContext,
         ICurrentUserService currentUserService,
-        IEventFieldValidationService eventFieldValidationService
+        IEventValidationService eventValidationService
     )
     {
         _dbContext = dbContext;
         _currentUserService = currentUserService;
-        _eventFieldValidationService = eventFieldValidationService;
+        _eventValidationService = eventValidationService;
     }
 
 
@@ -33,7 +33,7 @@ public class DeleteEventQueryHandler : IRequestHandler<DeleteEventQuery, Unit>
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
 
-        _eventFieldValidationService.ValidateUpdatePermissions(userId, entity.CreatedById, userRole);
+        _eventValidationService.ValidateUpdatePermissions(userId, entity.CreatedById, userRole);
 
         _dbContext.Events.Remove(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);

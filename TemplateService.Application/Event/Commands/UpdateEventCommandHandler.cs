@@ -17,20 +17,20 @@ internal class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, E
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IEventFieldValidationService _eventFieldValidationService;
+    private readonly IEventValidationService _eventValidationService;
 
     public UpdateEventCommandHandler(
         TemplateDbContext dbContext,
         IMapper mapper,
         IHttpContextAccessor httpContextAccessor,
         ICurrentUserService currentUserService,
-        IEventFieldValidationService eventFieldValidationService
+        IEventValidationService eventValidationService
     )
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _currentUserService = currentUserService;
-        _eventFieldValidationService = eventFieldValidationService;
+        _eventValidationService = eventValidationService;
     }
 
     public async Task<EventDto> Handle(UpdateEventCommand command, CancellationToken ct)
@@ -46,18 +46,18 @@ internal class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, E
         var userRole = _currentUserService.GetUserRole();
 
         if (command.Name != null)
-            _eventFieldValidationService.ValidateName(command.Name);
+            _eventValidationService.ValidateName(command.Name);
         if (command.Description != null)
-            _eventFieldValidationService.ValidateDescription(command.Description);
+            _eventValidationService.ValidateDescription(command.Description);
         if (command.TimeStart.HasValue)
-            _eventFieldValidationService.ValidateTimeStart(command.TimeStart.Value);
+            _eventValidationService.ValidateTimeStart(command.TimeStart.Value);
         if (command.TimeStart.HasValue)
-            _eventFieldValidationService.ValidateDuration(command.TimeStart.Value, command.TimeEnd);
+            _eventValidationService.ValidateDuration(command.TimeStart.Value, command.TimeEnd);
         
         if (command.Location != null)
-            _eventFieldValidationService.ValidateLocation(command.Location);
+            _eventValidationService.ValidateLocation(command.Location);
         
-        _eventFieldValidationService.ValidateUpdatePermissions(userId, existingEvent.CreatedById, userRole);
+        _eventValidationService.ValidateUpdatePermissions(userId, existingEvent.CreatedById, userRole);
 
         var updatedCommand = command;
 

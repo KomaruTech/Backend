@@ -8,8 +8,6 @@ using DTOs;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using MediatR;
-using PasswordService;
-using Microsoft.AspNetCore.Http;
 using Auth.Services;
 using Domain.Enums;
 
@@ -18,20 +16,19 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IEventFieldValidationService _eventFieldValidationService;
+    private readonly IEventValidationService _eventValidationService;
 
     public CreateEventCommandHandler(
         TemplateDbContext dbContext,
         IMapper mapper,
-        IHttpContextAccessor httpContextAccessor,
         ICurrentUserService currentUserService,
-        IEventFieldValidationService eventFieldValidationService
+        IEventValidationService eventValidationService
     )
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _currentUserService = currentUserService;
-        _eventFieldValidationService = eventFieldValidationService;
+        _eventValidationService = eventValidationService;
     }
 
     public async Task<EventDto> Handle(CreateEventCommand command, CancellationToken ct)
@@ -39,12 +36,12 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
 
-        _eventFieldValidationService.ValidateName(command.Name);
-        _eventFieldValidationService.ValidateDescription(command.Description);
-        _eventFieldValidationService.ValidateTimeStart(command.TimeStart);
-        _eventFieldValidationService.ValidateDuration(command.TimeStart, command.TimeEnd);
-        _eventFieldValidationService.ValidateUserRole(userRole);
-        _eventFieldValidationService.ValidateLocation(command.Location);
+        _eventValidationService.ValidateName(command.Name);
+        _eventValidationService.ValidateDescription(command.Description);
+        _eventValidationService.ValidateTimeStart(command.TimeStart);
+        _eventValidationService.ValidateDuration(command.TimeStart, command.TimeEnd);
+        _eventValidationService.ValidateUserRole(userRole);
+        _eventValidationService.ValidateLocation(command.Location);
         
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();

@@ -121,14 +121,14 @@ namespace TemplateService.API
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
 
-            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-            builder.Services.AddScoped<IUserFieldValidationService, UserFieldValidationService>();
-            builder.Services.AddScoped<IEventFieldValidationService, EventFieldValidationService>();
+            builder.Services.AddScoped<IUserValidationService, UserValidationService>();
+            builder.Services.AddScoped<IEventValidationService, EventValidationService>();
             
 
-            builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
             
             // Временно (Разрешены любые CORS)
             builder.Services.AddCors(options =>

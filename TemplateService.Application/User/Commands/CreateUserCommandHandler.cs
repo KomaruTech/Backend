@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using TemplateService.Domain.Entities;
+﻿using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.PasswordService;
@@ -10,32 +9,26 @@ namespace TemplateService.Application.User.Commands;
 internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, CreatedUserResult>
 {
     private readonly TemplateDbContext _dbContext;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IUserFieldValidationService _userFieldValidationService;
+    private readonly IPasswordHelper _passwordHelper;
+    private readonly IUserValidationService _userValidationService;
 
     public CreateUserCommandHandler(
         TemplateDbContext dbContext,
-        IMapper mapper,
-        IPasswordHasher passwordHasher,
-        IUserFieldValidationService userFieldValidationService)
+        IPasswordHelper passwordHelper,
+        IUserValidationService userValidationService)
     {
         _dbContext = dbContext;
-        _passwordHasher = passwordHasher;
-        _userFieldValidationService = userFieldValidationService;
+        _passwordHelper = passwordHelper;
+        _userValidationService = userValidationService;
     }
 
     public async Task<CreatedUserResult> Handle(CreateUserCommand command, CancellationToken ct)
     {
-        if (!_userFieldValidationService.IsValidName(command.Name))
-            throw new ArgumentException("Invalid name, must be 2 <= name_length <= 32");
+        _userValidationService.ValidateName(command.Name);
+        _userValidationService.ValidateSurname(command.Surname);
+        _userValidationService.ValidateEmail(command.Email);
 
-        if (!_userFieldValidationService.IsValidSurname(command.Surname))
-            throw new ArgumentException("Invalid name, must be 2 <= surname_length <= 64");
-
-        if (!_userFieldValidationService.IsValidEmail(command.Email))
-            throw new ArgumentException("Email does not look like Email.");
-
-        var password = _passwordHasher.GeneratePassword();
+        var password = _passwordHelper.GeneratePassword();
 
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();
@@ -61,7 +54,7 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Cre
             Role = command.Role,
             NotificationPreferencesId = id,
             NotificationPreferences = notificationPreferences,
-            PasswordHash = _passwordHasher.HashPassword(password)
+            PasswordHash = _passwordHelper.HashPassword(password)
         };
 
         var resultedUser = new CreatedUserResult(
