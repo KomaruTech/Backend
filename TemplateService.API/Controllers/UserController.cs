@@ -33,10 +33,10 @@ public class UserController : ControllerBase
 
     
     [HttpPost("create")]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(CreatedUserResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [AllowAnonymous]
-    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)
+    public async Task<ActionResult<CreatedUserResult>> CreateUser([FromBody] CreateUserCommand command)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

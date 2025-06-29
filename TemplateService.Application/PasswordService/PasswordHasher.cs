@@ -5,6 +5,9 @@ namespace TemplateService.Application.PasswordService;
 
 public class PasswordHasher : IPasswordHasher
 {
+    private static readonly char[] AllowedChars =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_!%$".ToCharArray();
+    
     public string HashPassword(string password)
     {
         byte[] salt = RandomNumberGenerator.GetBytes(16);
@@ -38,4 +41,24 @@ public class PasswordHasher : IPasswordHasher
 
         return CryptographicOperations.FixedTimeEquals(expectedHash, actualHash);
     }
+    public string GeneratePassword(int length = 16)
+    {
+        if (length <= 0) throw new ArgumentException("Length must be positive", nameof(length));
+
+        var result = new char[length];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            var buffer = new byte[sizeof(uint)];
+
+            for (int i = 0; i < length; i++)
+            {
+                rng.GetBytes(buffer);
+                uint num = BitConverter.ToUInt32(buffer, 0);
+                result[i] = AllowedChars[num % AllowedChars.Length];
+            }
+        }
+
+        return new string(result);
+    }
+    
 }
