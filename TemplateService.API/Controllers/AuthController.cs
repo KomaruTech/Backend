@@ -21,6 +21,9 @@ public class AuthController : ControllerBase
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Вход на сайт (получение JWT токена)
+    /// </summary>
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]

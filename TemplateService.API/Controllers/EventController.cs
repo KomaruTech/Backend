@@ -9,6 +9,9 @@ using TemplateService.Application.Event.Queries;
 
 namespace TemplateService.API.Controllers;
 
+/// <summary>
+/// Мероприятия
+/// </summary>
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [Route("api/v1/[controller]")]
@@ -18,7 +21,10 @@ public class EventController : ControllerBase
     private readonly IMediator _mediator;
 
     public EventController(IMediator mediator) => _mediator = mediator;
-
+    
+    /// <summary>
+    /// Получение мероприятия
+    /// </summary>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -27,7 +33,10 @@ public class EventController : ControllerBase
         var eventObj = await _mediator.Send(new GetEventQuery(id));
         return eventObj != null ? Ok(eventObj) : NotFound();
     }
-
+    
+    /// <summary>
+    /// Удаление мероприятия
+    /// </summary>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -37,7 +46,10 @@ public class EventController : ControllerBase
         await _mediator.Send(new DeleteEventQuery(id));
         return NoContent(); // 204
     }
-
+    
+    /// <summary>
+    /// Поиск мероприятий
+    /// </summary>
     [HttpGet("search")]
     [ProducesResponseType(typeof(List<EventDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<EventDto>>> SearchInInterval([FromQuery] SearchEventsQuery request)
@@ -46,6 +58,9 @@ public class EventController : ControllerBase
         return Ok(events);
     }
 
+    /// <summary>
+    /// Создание мероприятия (только для организаторов/адинистраторов)
+    /// </summary>
     [HttpPost("create")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,6 +70,9 @@ public class EventController : ControllerBase
         return CreatedAtAction(nameof(GetEvent), new { id = createdEvent.Id }, createdEvent);
     }
 
+    /// <summary>
+    /// Обновление полей мероприятия (только создатель и администратор)
+    /// </summary>
     [HttpPatch("update")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -65,6 +83,9 @@ public class EventController : ControllerBase
         return Ok(updatedEvent);
     }
     
+    /// <summary>
+    /// Подтверждение мероприятия (только организатор и администратор)
+    /// </summary>
     [HttpPatch("{id:guid}/confirm")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,6 +95,9 @@ public class EventController : ControllerBase
         return NoContent(); // 204
     }
 
+    /// <summary>
+    /// Предложение провести мероприятие
+    /// </summary>
     [HttpPost("suggest")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

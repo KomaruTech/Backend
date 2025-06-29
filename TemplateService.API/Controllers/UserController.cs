@@ -22,6 +22,9 @@ public class UserController : ControllerBase
 
     public UserController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>
+    /// Получение информации о пользователе по Login
+    /// </summary>
     [HttpGet("{login}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -32,10 +35,13 @@ public class UserController : ControllerBase
     }
 
     
+    /// <summary>
+    /// Создание пользователя
+    /// </summary>
     [HttpPost("create")]
     [ProducesResponseType(typeof(CreatedUserResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [AllowAnonymous]
+    [AllowAnonymous] // TODO Убрать это, после фазы тестирования и добавить проверку на создание только администратором
     public async Task<ActionResult<CreatedUserResult>> CreateUser([FromBody] CreateUserCommand command)
     {
         if (!ModelState.IsValid)
@@ -47,6 +53,9 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUser), new { login = createdUser.Login }, createdUser);
     }
     
+    /// <summary>
+    /// Удаление мероприятия (только администратор или создатель мероприятия)
+    /// </summary>
     [HttpDelete("{login}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
