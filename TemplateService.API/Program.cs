@@ -13,6 +13,7 @@ using System.Text.Json.Serialization;
 using Npgsql;
 using TemplateService.API.Middleware;
 using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Event.Services;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
 using TemplateService.Application.User.Services;
@@ -124,6 +125,7 @@ namespace TemplateService.API
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<IUserFieldValidationService, UserFieldValidationService>();
+            builder.Services.AddScoped<IEventFieldValidationService, EventFieldValidationService>();
             
 
             builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
