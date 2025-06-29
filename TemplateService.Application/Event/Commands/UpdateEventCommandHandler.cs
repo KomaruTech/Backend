@@ -1,4 +1,6 @@
-﻿namespace TemplateService.Application.Event.Commands;
+﻿using TemplateService.Domain.Enums;
+
+namespace TemplateService.Application.Event.Commands;
 
 using Microsoft.EntityFrameworkCore;
 using Services;
@@ -95,7 +97,7 @@ internal class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, E
                     EventId = existingEvent.Id,
                     UserId = participantId,
                     IsSpeaker = false,
-                    AttendanceMarked = false
+                    AttendanceResponse = AttendanceResponseEnum.pending
                 };
                 _dbContext.EventParticipants.Add(participantEntity);
             }
