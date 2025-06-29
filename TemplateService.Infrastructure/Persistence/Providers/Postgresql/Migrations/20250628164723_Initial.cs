@@ -71,9 +71,10 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     description = table.Column<string>(type: "text", nullable: true),
                     time_start = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     time_end = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "general"),
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "general"),
                     location = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     keywords = table.Column<string>(type: "jsonb", nullable: false, defaultValueSql: "'[]'::jsonb")
                 },
                 constraints: table =>
@@ -325,10 +326,28 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 column: "created_by_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_events_status",
+                schema: "DEFAULT",
+                table: "events",
+                column: "status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_events_Status",
+                schema: "DEFAULT",
+                table: "events",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_speaker_applications_event_id",
                 schema: "DEFAULT",
                 table: "speaker_applications",
                 column: "event_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_speaker_applications_status",
+                schema: "DEFAULT",
+                table: "speaker_applications",
+                column: "status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_speaker_applications_user_id",
@@ -368,6 +387,12 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 table: "users",
                 column: "notification_preferences_id",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_role",
+                schema: "DEFAULT",
+                table: "users",
+                column: "role");
         }
 
         /// <inheritdoc />

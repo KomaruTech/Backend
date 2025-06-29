@@ -12,7 +12,7 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     [DbContext(typeof(TemplatePostgresqlDbContext))]
-    [Migration("20250628113010_Initial")]
+    [Migration("20250628164723_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -59,6 +59,9 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("character varying(64)")
                         .HasColumnName("name");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("TimeEnd")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("time_end");
@@ -73,11 +76,15 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasDefaultValue("general")
-                        .HasColumnName("type");
+                        .HasColumnName("status");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Type");
 
                     b.ToTable("events", "DEFAULT", t =>
                         {
@@ -305,6 +312,8 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
 
                     b.HasIndex("EventId");
 
+                    b.HasIndex("Status");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("speaker_applications", "DEFAULT", t =>
@@ -416,6 +425,8 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
 
                     b.HasIndex("NotificationPreferencesId")
                         .IsUnique();
+
+                    b.HasIndex("Role");
 
                     b.ToTable("users", "DEFAULT", t =>
                         {
