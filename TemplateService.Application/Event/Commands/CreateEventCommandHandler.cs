@@ -68,9 +68,26 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
                 .Select(k => k.ToLowerInvariant().Trim()) // приведение к нижнему регистру и обрезка пробелов
                 .Distinct() // убрает дубли
                 .ToList() ?? new List<string>(), // если null — сделать пустой список
+            Status = EventStatusEnum.confirmed // Оно подтверждено т.к не может быть выполнено мембером
         };
 
         _dbContext.Events.Add(newEvent);
+        
+        // Добавляем участников, если они есть
+        if (command.Participants != null && command.Participants.Any())
+        {
+            foreach (var participantId in command.Participants)
+            {
+                var participantEntity = new EventParticipantEntity
+                {
+                    EventId = id,
+                    UserId = participantId,
+                    IsSpeaker = false,
+                    AttendanceMarked = false
+                };
+                _dbContext.EventParticipants.Add(participantEntity);
+            }
+        }
 
         await _dbContext.SaveChangesAsync(ct);
         return _mapper.Map<EventDto>(newEvent);

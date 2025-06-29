@@ -12,7 +12,6 @@ namespace TemplateService.API.Controllers;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [Route("api/v1/[controller]")]
-[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;

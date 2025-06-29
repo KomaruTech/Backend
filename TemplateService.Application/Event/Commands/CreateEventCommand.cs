@@ -10,5 +10,6 @@ public record CreateEventCommand(
     DateTime? TimeEnd,
     EventTypeEnum Type,
     string? Location,
-    List<string> Keywords
+    List<string>? Keywords,
+    List<Guid>? Participants
 ) : IRequest<EventDto>;

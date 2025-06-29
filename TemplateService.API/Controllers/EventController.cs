@@ -6,6 +6,7 @@ using TemplateService.API.Models;
 using TemplateService.Application.Event.Commands;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Queries;
+
 namespace TemplateService.API.Controllers;
 
 [ApiController]
@@ -27,12 +28,21 @@ public class EventController : ControllerBase
         return eventObj != null ? Ok(eventObj) : NotFound();
     }
     
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeleteEvent(Guid id)
+    {
+        await _mediator.Send(new DeleteEventQuery(id));
+        return NoContent(); // 204
+    }
+
     [HttpGet("search")]
     [ProducesResponseType(typeof(List<EventDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<EventDto>>> SearchInInterval([FromQuery] SearchEventsQuery request)
     {
-        var query = new SearchEventsQuery(request.StartSearchTime, request.EndSearchTime, request.Keywords);
-        var events = await _mediator.Send(query);
+        var events = await _mediator.Send(request);
         return Ok(events);
     }
 
