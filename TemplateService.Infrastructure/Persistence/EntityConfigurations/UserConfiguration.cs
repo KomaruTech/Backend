@@ -50,6 +50,8 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasDefaultValue(UserRoleEnum.member)
             .HasConversion<string>()
             .HasMaxLength(32);
+        
+        builder.HasIndex(u => u.Role);
 
         builder.Property(u => u.Email)
             .HasColumnName("email")
