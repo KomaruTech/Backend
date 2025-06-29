@@ -82,7 +82,7 @@ public class UserController : ControllerBase
     /// Изменение пароля
     /// </summary>
     [HttpPatch("me/password")]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Unit), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<Unit>> UpdateUserPassword([FromBody] UpdateUserPasswordCommand profileCommand)
@@ -106,6 +106,18 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
+    /// Удаление аватара
+    /// </summary>
+    [HttpDelete("me/avatar")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> DeleteAvatar()
+    {
+        var result = await _mediator.Send(new DeleteUserAvatarCommand()); // ← если у тебя есть такой Command
+        return Ok(result);
+    }
+    
+    /// <summary>
     /// Получение аватара
     /// </summary>
     [HttpGet("{userId:guid}/avatar")]
@@ -117,4 +129,5 @@ public class UserController : ControllerBase
         var result = await _mediator.Send(new GetUserAvatarQuery(userId));
         return File(result.AvatarBytes, result.MimeType);
     }
+    
 }
