@@ -53,4 +53,10 @@ public class EventFieldValidationService : IEventFieldValidationService
         if (userId != createdById && userRole != UserRoleEnum.administrator)
             throw new UnauthorizedAccessException("You don't have permission to edit this event.");
     }
+
+    public void ValidateConfirmPermissions(Guid userId, Guid createdById, UserRoleEnum userRole)
+    {
+        if (userId != createdById && userRole == UserRoleEnum.member)
+            throw new UnauthorizedAccessException("You don't have permission to confirm this event.");
+    }
 }

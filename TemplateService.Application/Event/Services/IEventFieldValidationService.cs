@@ -12,4 +12,5 @@ public interface IEventFieldValidationService
     void ValidateDuration(DateTime timeStart, DateTime? timeEnd);
     void ValidateLocation(string? location);
     void ValidateUpdatePermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
+    void ValidateConfirmPermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
 }

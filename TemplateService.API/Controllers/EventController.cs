@@ -64,6 +64,15 @@ public class EventController : ControllerBase
         var updatedEvent = await _mediator.Send(command);
         return Ok(updatedEvent);
     }
+    
+    [HttpPatch("{id:guid}/confirm")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ConfirmEvent(Guid id)
+    {
+        await _mediator.Send(new ConfirmEventQuery(id));
+        return NoContent(); // 204
+    }
 
     [HttpPost("suggest")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
