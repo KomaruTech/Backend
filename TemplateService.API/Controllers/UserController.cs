@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TemplateService.Application.Document.Queries;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Application.User.Commands;
 using TemplateService.Application.User.Queries;
@@ -34,7 +33,7 @@ public class UserController : ControllerBase
         return user != null ? Ok(user) : NotFound();
     }
 
-    
+
     /// <summary>
     /// Создание пользователя
     /// </summary>
@@ -52,7 +51,7 @@ public class UserController : ControllerBase
         // Возвращаем 201 Created с Location на нового пользователя
         return CreatedAtAction(nameof(GetUser), new { login = createdUser.Login }, createdUser);
     }
-    
+
     /// <summary>
     /// Удаление мероприятия (только администратор или создатель мероприятия)
     /// </summary>
@@ -60,12 +59,12 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> DeleteEvent(string login)
+    public async Task<IActionResult> DeleteUser(string login)
     {
         await _mediator.Send(new DeleteUserQuery(login));
         return NoContent(); // 204
     }
-    
+
     /// <summary>
     /// Изменение настроек профиля
     /// </summary>
@@ -73,10 +72,22 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<UserDto>> UpdateEvent([FromBody] UpdateUserProfileCommand profileCommand)
+    public async Task<ActionResult<UserDto>> UpdateUserProfile([FromBody] UpdateUserProfileCommand profileCommand)
     {
         var updatedUser = await _mediator.Send(profileCommand);
         return Ok(updatedUser);
     }
-}
 
+    /// <summary>
+    /// Изменение пароля
+    /// </summary>
+    [HttpPatch("me/password")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<Unit>> UpdateUserPassword([FromBody] UpdateUserPasswordCommand profileCommand)
+    {
+        await _mediator.Send(profileCommand);
+        return Ok();
+    }
+}
