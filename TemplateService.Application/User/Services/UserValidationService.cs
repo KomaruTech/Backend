@@ -12,6 +12,10 @@ public partial class UserValidationService : IUserValidationService
     [GeneratedRegex(@"^@([a-zA-Z][a-zA-Z0-9_]{4,31})$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
     private static partial Regex TelegramRegex();
     
+    [GeneratedRegex(@"^[a-zA-Z0-9_!%$]+$", RegexOptions.Compiled)]
+    private static partial Regex PasswordAllowedCharsRegex();
+
+    
     public void ValidateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length < 2 || name.Length > 32)
@@ -41,6 +45,8 @@ public partial class UserValidationService : IUserValidationService
     {
         if (string.IsNullOrEmpty(password) || password.Length < 6 || password.Length > 1024)
             throw new ArgumentException("Password must be between 6 and 1024 characters long.");
+        if (!PasswordAllowedCharsRegex().IsMatch(password))
+            throw new ArgumentException("Ivalid password characters, only \"^[a-zA-Z0-9_!%$]+$\" are allowed");
     }
 
     public void ValidateDeletePermissions(UserRoleEnum userRole)

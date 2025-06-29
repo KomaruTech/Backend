@@ -1,8 +1,8 @@
-﻿using AutoMapper;
-using TemplateService.Application.Auth.Services;
-using TemplateService.Application.User.DTOs;
+﻿namespace TemplateService.Application.User.Commands;
 
-namespace TemplateService.Application.User.Commands;
+using AutoMapper;
+using TemplateService.Application.Auth.Services;
+using DTOs;
 
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
