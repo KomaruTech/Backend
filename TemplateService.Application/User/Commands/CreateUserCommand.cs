@@ -1,5 +1,4 @@
-﻿using TemplateService.Application.User.DTOs;
-using TemplateService.Domain.Enums;
+﻿using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.User.Commands;
 

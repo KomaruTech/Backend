@@ -1,15 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Services;
+using TemplateService.Domain.Entities;
+using TemplateService.Domain.Enums;
+using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Event.Commands;
-
-using AutoMapper;
-using DTOs;
-using Domain.Entities;
-using Infrastructure.Persistence;
-using MediatR;
-using Auth.Services;
-using Domain.Enums;
 
 internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, EventDto>
 {

@@ -1,13 +1,10 @@
-﻿using TemplateService.Application.PasswordService;
+﻿using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.PasswordService;
+using TemplateService.Application.User.Services;
+using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.User.Commands;
-
-using AutoMapper;
-using TemplateService.Application.Auth.Services;
-using DTOs;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Services;
 
 internal class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPasswordCommand, Unit>
 {

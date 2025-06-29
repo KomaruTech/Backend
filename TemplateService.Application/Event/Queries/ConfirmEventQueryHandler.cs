@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using TemplateService.Application.Auth.Services;
+﻿using TemplateService.Application.Auth.Services;
 using TemplateService.Application.Event.Services;
 using TemplateService.Domain.Enums;
 using TemplateService.Infrastructure.Persistence;

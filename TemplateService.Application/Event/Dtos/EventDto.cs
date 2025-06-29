@@ -1,5 +1,4 @@
-﻿using TemplateService.Domain.Entities;
-using TemplateService.Domain.Enums;
+﻿using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.Event.DTOs;
 

@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Event.Commands;
-using TemplateService.Application.Event.Queries;
 using TemplateService.Application.EventParticipant.Dtos;
 using TemplateService.Application.EventParticipant.Queries;
 namespace TemplateService.API.Controllers;

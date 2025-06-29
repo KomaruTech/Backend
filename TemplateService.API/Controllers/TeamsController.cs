@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.EventParticipant.Queries;
 using TemplateService.Application.Teams.Commands;
 using TemplateService.Application.Teams.Dtos;
-using TemplateService.Application.User.Queries;
 
 
 namespace TemplateService.API.Controllers;

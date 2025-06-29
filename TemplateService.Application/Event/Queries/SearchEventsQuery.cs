@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using TemplateService.Application.Event.DTOs;
+﻿using TemplateService.Application.Event.DTOs;
 using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.Event.Queries;

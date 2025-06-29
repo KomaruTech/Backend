@@ -1,16 +1,14 @@
-﻿using TemplateService.Domain.Enums;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Event.DTOs;
+using TemplateService.Application.Event.Services;
+using TemplateService.Domain.Entities;
+using TemplateService.Domain.Enums;
+using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Event.Commands;
-
-using Microsoft.EntityFrameworkCore;
-using Services;
-using AutoMapper;
-using DTOs;
-using Domain.Entities;
-using Infrastructure.Persistence;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Auth.Services;
 
 internal class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, EventDto>
 {
@@ -53,10 +51,10 @@ internal class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, E
             _eventValidationService.ValidateTimeStart(command.TimeStart.Value);
         if (command.TimeStart.HasValue)
             _eventValidationService.ValidateDuration(command.TimeStart.Value, command.TimeEnd);
-        
+
         if (command.Location != null)
             _eventValidationService.ValidateLocation(command.Location);
-        
+
         _eventValidationService.ValidateUpdatePermissions(userId, existingEvent.CreatedById, userRole);
 
         var updatedCommand = command;
@@ -73,12 +71,12 @@ internal class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, E
             if (cleanedKeywords.Count > 0)
                 updatedCommand = command with { Keywords = cleanedKeywords };
         }
-        
+
         _mapper.Map(updatedCommand, existingEvent);
 
         // Сохраняем
         await _dbContext.SaveChangesAsync(ct);
-        
+
 
         // Добавляем участников, если они есть
         if (command.Participants != null && command.Participants.Any())

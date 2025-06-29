@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Application.User.Services;

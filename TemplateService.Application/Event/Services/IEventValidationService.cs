@@ -1,6 +1,7 @@
-﻿namespace TemplateService.Application.Event.Services;
+﻿using TemplateService.Domain.Enums;
 
-using Domain.Enums;
+namespace TemplateService.Application.Event.Services;
+
 
 public interface IEventValidationService
 {

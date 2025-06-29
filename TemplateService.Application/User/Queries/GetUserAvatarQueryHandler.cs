@@ -1,7 +1,7 @@
-﻿namespace TemplateService.Application.User.Queries;
+﻿using Microsoft.EntityFrameworkCore;
+using TemplateService.Infrastructure.Persistence;
 
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Persistence;
+namespace TemplateService.Application.User.Queries;
 
 internal class GetUserAvatarQueryHandler : IRequestHandler<GetUserAvatarQuery, UserAvatarResult>
 {

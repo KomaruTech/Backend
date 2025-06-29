@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TemplateService.API.Models;
 using TemplateService.Application.Event.Commands;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Queries;

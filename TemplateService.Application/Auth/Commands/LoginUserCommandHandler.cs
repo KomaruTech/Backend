@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.TokenService;
-using TemplateService.Application.User.DTOs;
 using TemplateService.Application.User.Services;
 using TemplateService.Infrastructure.Persistence;
 

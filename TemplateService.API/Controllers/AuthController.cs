@@ -6,6 +6,7 @@ using TemplateService.Application.Auth.Commands;
 
 namespace TemplateService.API.Controllers;
 
+
 /// <summary>
 /// Авторизация
 /// </summary>

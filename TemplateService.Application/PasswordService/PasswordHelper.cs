@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace TemplateService.Application.PasswordService;
 
-public partial class PasswordHelper : IPasswordHelper
+public class PasswordHelper : IPasswordHelper
 {
     private static readonly char[] AllowedChars =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_!%$".ToCharArray();

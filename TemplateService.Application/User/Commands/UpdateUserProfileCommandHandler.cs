@@ -1,12 +1,11 @@
-﻿namespace TemplateService.Application.User.Commands;
-
-using AutoMapper;
-using TemplateService.Application.Auth.Services;
-using DTOs;
-
-using Infrastructure.Persistence;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Services;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.User.DTOs;
+using TemplateService.Application.User.Services;
+using TemplateService.Infrastructure.Persistence;
+
+namespace TemplateService.Application.User.Commands;
 
 internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfileCommand, UserDto>
 {
@@ -28,7 +27,7 @@ internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfi
         _userValidationService = userValidationService;
         _currentUserService = currentUserService;
         _mapper = mapper;
-        _userHelperService = _userHelperService;
+        _userHelperService = userHelperService;
     }
 
     public async Task<UserDto> Handle(UpdateUserProfileCommand command, CancellationToken cancellationToken)
@@ -53,13 +52,13 @@ internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfi
             telegramId = telegramId.StartsWith('@') ? telegramId : '@' + telegramId;
             _userValidationService.ValidateTelegram(telegramId);
         }
-        
+
         command = command with { TelegramId = telegramId };
-        
+
         _mapper.Map(command, user);
-        
+
         await _dbContext.SaveChangesAsync(cancellationToken);
-        
+
         return _userHelperService.BuildUserDto(user, _mapper);
     }
 }
