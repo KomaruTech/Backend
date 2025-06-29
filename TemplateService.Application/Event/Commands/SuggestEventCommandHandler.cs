@@ -1,11 +1,13 @@
-﻿namespace TemplateService.Application.Event.Commands;
+﻿using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.Event.Services;
+
+namespace TemplateService.Application.Event.Commands;
 
 using AutoMapper;
 using DTOs;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using MediatR;
-using PasswordService;
 using Microsoft.AspNetCore.Http;
 using Auth.Services;
 using Domain.Enums;
@@ -15,38 +17,34 @@ public class SuggestEventCommandHandler : IRequestHandler<SuggestEventCommand, E
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IEventFieldValidationService _eventFieldValidationService;
 
     public SuggestEventCommandHandler(
         TemplateDbContext dbContext,
         IMapper mapper,
-        IPasswordHasher passwordHasher,
         IHttpContextAccessor httpContextAccessor,
-        ICurrentUserService currentUserService
+        ICurrentUserService currentUserService,
+        IEventFieldValidationService eventFieldValidationService
     )
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _currentUserService = currentUserService;
+        _eventFieldValidationService = eventFieldValidationService;
     }
+
 
     public async Task<EventDto> Handle(SuggestEventCommand command, CancellationToken ct)
     {
         var userId = _currentUserService.GetUserId();
-        var userRole = _currentUserService.GetUserRole();
+        
+        _eventFieldValidationService.ValidateName(command.Name);
+        _eventFieldValidationService.ValidateDescription(command.Description);
+        _eventFieldValidationService.ValidateTimeStart(command.TimeStart);
+        _eventFieldValidationService.ValidateDuration(command.TimeStart, command.TimeEnd);
+        _eventFieldValidationService.ValidateLocation(command.Location);
 
-        // Валидация начала, минимум через 2 часа от текущего времени
-        var now = DateTime.UtcNow;
-        if (command.TimeStart < now.AddHours(2))
-            throw new ArgumentException("The event must start at least 2 hours from now.");
-
-        // Валидация длительности, минимум 10 минут на мероприятие если указан конец.
-        if (command.TimeEnd.HasValue)
-        {
-            var duration = command.TimeEnd.Value - command.TimeStart;
-            if (duration < TimeSpan.FromMinutes(10))
-                throw new ArgumentException("The end time should be at least 10 minutes after the event starts.");
-        }
-
+        
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();
 
@@ -63,9 +61,9 @@ public class SuggestEventCommandHandler : IRequestHandler<SuggestEventCommand, E
             Keywords = command.Keywords?
                 .Where(k => !string.IsNullOrWhiteSpace(k)) // фильтрация пустых
                 .Select(k => k.ToLowerInvariant().Trim()) // приведение к нижнему регистру и обрезка пробелов
-                .Distinct() // убрает дубли
+                .Distinct() // убирает дубли
                 .ToList() ?? new List<string>(), // если null — сделать пустой список
-            Status = EventStatusEnum.suggested // Оно подтверждено т.к не может быть выполнено мембером
+            Status = EventStatusEnum.suggested // Оно предложено, и может быть одобрено
         };
 
         _dbContext.Events.Add(newEvent);
@@ -73,7 +71,14 @@ public class SuggestEventCommandHandler : IRequestHandler<SuggestEventCommand, E
         // Добавляем участников, если они есть
         if (command.Participants != null && command.Participants.Any())
         {
-            foreach (var participantId in command.Participants)
+            // Получаем список существующих пользователей по ID из команды (одним запросом)
+            var existingUserIds = await _dbContext.Users
+                .Where(u => command.Participants.Contains(u.Id))
+                .Select(u => u.Id)
+                .ToListAsync(ct);
+
+            // Добавляем только существующих пользователей
+            foreach (var participantId in existingUserIds)
             {
                 var participantEntity = new EventParticipantEntity
                 {
@@ -85,6 +90,7 @@ public class SuggestEventCommandHandler : IRequestHandler<SuggestEventCommand, E
                 _dbContext.EventParticipants.Add(participantEntity);
             }
         }
+        
         await _dbContext.SaveChangesAsync(ct);
         return _mapper.Map<EventDto>(newEvent);
     }

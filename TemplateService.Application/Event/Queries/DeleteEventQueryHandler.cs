@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Event.Services;
 using TemplateService.Domain.Enums;
 using TemplateService.Infrastructure.Persistence;
 
@@ -8,18 +9,18 @@ namespace TemplateService.Application.Event.Queries;
 public class DeleteEventQueryHandler : IRequestHandler<DeleteEventQuery, Unit>
 {
     private readonly TemplateDbContext _dbContext;
-    private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
-    
+    private readonly IEventFieldValidationService _eventFieldValidationService;
+
     public DeleteEventQueryHandler(
         TemplateDbContext dbContext,
-        IMapper mapper,
-        ICurrentUserService currentUserService
+        ICurrentUserService currentUserService,
+        IEventFieldValidationService eventFieldValidationService
     )
     {
         _dbContext = dbContext;
-        _mapper = mapper;
         _currentUserService = currentUserService;
+        _eventFieldValidationService = eventFieldValidationService;
     }
 
 
@@ -32,9 +33,7 @@ public class DeleteEventQueryHandler : IRequestHandler<DeleteEventQuery, Unit>
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
 
-        // Проверка прав доступа: либо админ, либо создатель мероприятия
-        if (entity.CreatedById != userId && userRole != UserRoleEnum.administrator)
-            throw new UnauthorizedAccessException("You do not have permission to delete this event.");
+        _eventFieldValidationService.ValidateUpdatePermissions(userId, entity.CreatedById, userRole);
 
         _dbContext.Events.Remove(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);
