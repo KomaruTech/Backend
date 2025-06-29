@@ -30,14 +30,15 @@ public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventPart
             .HasColumnName("is_speaker")
             .IsRequired()
             .HasDefaultValue(false)
-            .HasComment("Флаг, выступает ли пользователь на мероприятии");;
-
-        builder.Property(e => e.AttendanceMarked)
-            .HasColumnName("attendance_marked")
+            .HasComment("Флаг, выступает ли пользователь на мероприятии");
+        
+        builder.Property(e => e.AttendanceResponse)
+            .HasColumnName("attendance_response")
             .IsRequired()
-            .HasDefaultValue(false)
-            .HasComment("Флаг, был ли пользователь отмечен на мероприятии");;
-
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .HasComment("Статус, принял ли пользователь приглашение или отказал, или не ответил");
+        
         builder.HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)

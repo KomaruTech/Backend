@@ -80,7 +80,7 @@ public class SuggestEventCommandHandler : IRequestHandler<SuggestEventCommand, E
                     EventId = id,
                     UserId = participantId,
                     IsSpeaker = false,
-                    AttendanceMarked = false
+                    AttendanceResponse = AttendanceResponseEnum.pending
                 };
                 _dbContext.EventParticipants.Add(participantEntity);
             }

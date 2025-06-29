@@ -1,4 +1,6 @@
-﻿namespace TemplateService.Domain.Entities;
+﻿using TemplateService.Domain.Enums;
+
+namespace TemplateService.Domain.Entities;
 
 public class EventParticipantEntity
 {
@@ -28,7 +30,7 @@ public class EventParticipantEntity
     public bool IsSpeaker { get; set; }
 
     /// <summary>
-    /// Посетил ли пользователь мероприятие по итогу
+    /// Статус приглашение (ожидаем ответа, пойдет, не пойдет)
     /// </summary>
-    public bool AttendanceMarked { get; set; }
+    public AttendanceResponseEnum AttendanceResponse { get; set; } 
 }

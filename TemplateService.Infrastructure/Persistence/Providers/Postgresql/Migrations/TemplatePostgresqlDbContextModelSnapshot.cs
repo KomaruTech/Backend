@@ -142,12 +142,12 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("uuid")
                         .HasColumnName("event_id");
 
-                    b.Property<bool>("AttendanceMarked")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("attendance_marked")
-                        .HasComment("Флаг, был ли пользователь отмечен на мероприятии");
+                    b.Property<string>("AttendanceResponse")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("attendance_response")
+                        .HasComment("Статус, принял ли пользователь приглашение или отказал, или не ответил");
 
                     b.Property<bool>("IsSpeaker")
                         .ValueGeneratedOnAdd()
@@ -456,7 +456,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     b.HasOne("TemplateService.Domain.Entities.UserEntity", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CreatedBy");

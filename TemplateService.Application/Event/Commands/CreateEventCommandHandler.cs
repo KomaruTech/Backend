@@ -86,7 +86,7 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
                     EventId = id,
                     UserId = participantId,
                     IsSpeaker = false,
-                    AttendanceMarked = false
+                    AttendanceResponse = AttendanceResponseEnum.pending
                 };
                 _dbContext.EventParticipants.Add(participantEntity);
             }

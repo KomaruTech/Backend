@@ -85,7 +85,8 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         column: x => x.created_by_id,
                         principalSchema: "DEFAULT",
                         principalTable: "users",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 },
                 comment: "Мероприятия");
 
@@ -153,7 +154,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     event_id = table.Column<Guid>(type: "uuid", nullable: false),
                     is_speaker = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Флаг, выступает ли пользователь на мероприятии"),
-                    attendance_marked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Флаг, был ли пользователь отмечен на мероприятии")
+                    attendance_response = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, comment: "Статус, принял ли пользователь приглашение или отказал, или не ответил")
                 },
                 constraints: table =>
                 {
