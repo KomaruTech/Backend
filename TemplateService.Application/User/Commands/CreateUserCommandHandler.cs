@@ -59,7 +59,8 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Cre
 
         var resultedUser = new CreatedUserResult(
             Login: user.Login,
-            Password: password
+            Password: password,
+            UserId:  user.Id
         );
 
         _dbContext.Users.Add(user);
