@@ -1,4 +1,6 @@
-﻿services:
+﻿version: "3.9"
+
+services:
   postgres:
     image: postgres:17
     container_name: template_postgres
@@ -13,7 +15,7 @@
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,7 +23,7 @@
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.api
     container_name: template_api
     mem_limit: 1g
     mem_reservation: 600m
@@ -30,6 +32,23 @@
         condition: service_healthy
     ports:
       - "5124:5124"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
+      ASPNETCORE_ENVIRONMENT: Development
+  
+  
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: template_worker
+    mem_limit: 300m
+    mem_reservation: 200m
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
     environment:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
       ASPNETCORE_ENVIRONMENT: Development
