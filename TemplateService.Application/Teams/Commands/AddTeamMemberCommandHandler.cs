@@ -1,38 +1,77 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.Auth.Services;
 using TemplateService.Application.Teams.Commands;
 using TemplateService.Application.Teams.Dtos;
+using TemplateService.Application.Teams.Services;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Teams.Commands;
 
-internal sealed class AddTeamMemberCommandHandler(
-    TemplateDbContext dbContext,
-    IMapper mapper)
-    : IRequestHandler<AddTeamMemberCommand, TeamsDto>
+internal class AddTeamMemberCommandHandler
 {
+    private readonly TemplateDbContext _dbContext;
+    private readonly ITeamValidationService _teamValidationService;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IMapper _mapper;
+
+    public AddTeamMemberCommandHandler(
+        TemplateDbContext dbContext,
+        ITeamValidationService teamValidationService,
+        ICurrentUserService currentUserService,
+        IMapper mapper)
+    {
+        _dbContext = dbContext;
+        _teamValidationService = teamValidationService;
+        _currentUserService = currentUserService;
+        _mapper = mapper;
+    }
+
     public async Task<TeamsDto> Handle(AddTeamMemberCommand request, CancellationToken ct)
     {
-        var team = await dbContext.Teams
-            .Include(t => t.Users)
-            .FirstOrDefaultAsync(t => t.Id == request.TeamId, ct);
+        var team = await GetTeamAsync(request.TeamId, ct);
+        var userToAdd = await GetUserAsync(request.UserId, ct);
 
-        var userExists = await dbContext.Users
-            .AnyAsync(u => u.Id == request.UserId, ct);
+        if (await IsUserAlreadyMemberAsync(request.TeamId, request.UserId, ct))
+            throw new InvalidOperationException("Пользователь уже состоит в команде.");
 
-        if (team == null || !userExists)
-            throw new ArgumentException("Team or User not found");
+        await AddUserToTeamAsync(request.TeamId, request.UserId, ct);
 
-        if (team.Users.Any(u => u.UserId == request.UserId))
-            throw new ArgumentException("User already in team");
+        return _mapper.Map<TeamsDto>(team);
+    }
 
-        // team.Users.Add(new UserDto { Id = request.UserId });  Здвесь ошибка, надо исправить.
-        // await dbContext.SaveChangesAsync(ct);
+    private async Task<TeamsEntity> GetTeamAsync(Guid teamId, CancellationToken ct)
+    {
+        return await _dbContext.Teams
+            .FirstOrDefaultAsync(t => t.Id == teamId, ct)
+            ?? throw new InvalidOperationException($"Team with id {teamId} not found.");
+    }
 
-        return mapper.Map<TeamsDto>(team);
+    private async Task<UserEntity> GetUserAsync(Guid userId, CancellationToken ct)
+    {
+        return await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId, ct)
+            ?? throw new InvalidOperationException($"User with id {userId} not found.");
+    }
+
+    private async Task<bool> IsUserAlreadyMemberAsync(Guid teamId, Guid userId, CancellationToken ct)
+    {
+        return await _dbContext.UserTeams
+            .AnyAsync(ut => ut.TeamId == teamId && ut.UserId == userId, ct);
+    }
+
+    private async Task AddUserToTeamAsync(Guid teamId, Guid userId, CancellationToken ct)
+    {
+        var userTeam = new UserTeamsEntity
+        {
+            TeamId = teamId,
+            UserId = userId
+        };
+
+        await _dbContext.UserTeams.AddAsync(userTeam, ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

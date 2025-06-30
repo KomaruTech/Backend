@@ -1,25 +1,41 @@
-﻿using MediatR;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using TemplateService.Application.Teams.Commands;
-using TemplateService.Domain.Entities;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Teams.Services;
 using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Teams.Commands;
 
-internal sealed class DeleteTeamCommandHandler(
-    TemplateDbContext dbContext)
-    : IRequestHandler<DeleteTeamCommand, Unit>
+internal class DeleteTeamCommandHandler
 {
+    private readonly TemplateDbContext _dbContext;
+    private readonly ITeamValidationService _teamValidationService;
+    private readonly ICurrentUserService _currentUserService;
+
+    public DeleteTeamCommandHandler(
+        TemplateDbContext dbContext,
+        ITeamValidationService teamValidationService,
+        ICurrentUserService currentUserService
+    )
+    {
+        _dbContext = dbContext;
+        _teamValidationService = teamValidationService;
+        _currentUserService = currentUserService;
+    }
+
     public async Task<Unit> Handle(DeleteTeamCommand request, CancellationToken ct)
     {
-        var team = await dbContext.Teams
-            .FirstOrDefaultAsync(t => t.Id == request.TeamId, ct);
+        var userId = _currentUserService.GetUserId();
+        var userRole = _currentUserService.GetUserRole();
 
-        if (team == null) 
-            return Unit.Value;
+        var team = await _dbContext.Teams
+                       .FirstOrDefaultAsync(t => t.Id == request.TeamId, ct)
+                   ?? throw new InvalidOperationException($"Team with id {request.TeamId} not found.");
 
-        dbContext.Teams.Remove(team);
-        await dbContext.SaveChangesAsync(ct);
+        _teamValidationService.ValidateDeletePermission(userId, team.OwnerId, userRole);
+
+        _dbContext.Teams.Remove(team);
+        await _dbContext.SaveChangesAsync(ct);
 
         return Unit.Value;
     }

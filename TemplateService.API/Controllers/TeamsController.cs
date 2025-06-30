@@ -9,7 +9,7 @@ using TemplateService.Application.Teams.Dtos;
 
 namespace TemplateService.API.Controllers;
 [ApiController]
-[Produces(MediaTypeNames.Application.Json)] // Изменено с Multipart.ByteRanges
+[Produces(MediaTypeNames.Application.Json)]
 [Route("api/v1/teams")] // Явное указание пути
 [Authorize]
 public class TeamsController : ControllerBase
@@ -30,7 +30,7 @@ public class TeamsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TeamsDto>> CreateTeam([FromBody] CreateTeamsCommand command) // Используем команду
+    public async Task<ActionResult<TeamsDto>> CreateTeam([FromBody] CreateTeamCommand command) // Используем команду
     {
         var createdTeam = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetTeam), new { id = createdTeam.Id }, createdTeam);

@@ -15,7 +15,7 @@ internal class GetUserAvatarQueryHandler : IRequestHandler<GetUserAvatarQuery, U
     public async Task<UserAvatarResult> Handle(GetUserAvatarQuery query, CancellationToken cancellationToken)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == query.UserId, cancellationToken)
-                   ?? throw new InvalidOperationException($"User with id {query.UserId} found.");
+                   ?? throw new InvalidOperationException($"User with id {query.UserId} not found.");
 
         if (user.Avatar == null || string.IsNullOrWhiteSpace(user.AvatarMimeType))
             throw new FileNotFoundException("Avatar not found.");

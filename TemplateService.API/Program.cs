@@ -15,6 +15,7 @@ using TemplateService.API.Middleware;
 using TemplateService.Application.Auth.Services;
 using TemplateService.Application.Event.Services;
 using TemplateService.Application.PasswordService;
+using TemplateService.Application.Teams.Services;
 using TemplateService.Application.TokenService;
 using TemplateService.Application.User.Services;
 
@@ -127,6 +128,7 @@ namespace TemplateService.API
             builder.Services.AddScoped<IUserValidationService, UserValidationService>();
             builder.Services.AddScoped<IEventValidationService, EventValidationService>();
             builder.Services.AddScoped<IUserHelperService, UserHelperService>();
+            builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
             
 
             builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
