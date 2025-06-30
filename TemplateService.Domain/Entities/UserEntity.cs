@@ -50,7 +50,7 @@ public class UserEntity
     /// <summary>
     /// Telegram ID (может быть null)
     /// </summary>
-    public long TelegramId { get; set; }
+    public long? TelegramId { get; set; }
 
     /// <summary>
     /// ID настроек уведомлений (внешний ключ)

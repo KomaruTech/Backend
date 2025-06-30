@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
@@ -11,9 +12,11 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     [DbContext(typeof(TemplatePostgresqlDbContext))]
-    partial class TemplatePostgresqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250630135647_0.0.3")]
+    partial class _003
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -59,7 +59,8 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 
         builder.Property(u => u.TelegramId)
             .HasColumnName("telegram_id")
-            .HasColumnType("bigint");
+            .HasColumnType("bigint")
+            .IsRequired(false); // разрешить null;
         
         builder.HasIndex(u => u.TelegramId)
             .IsUnique();
