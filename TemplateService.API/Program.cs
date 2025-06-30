@@ -1,20 +1,34 @@
+#nullable enable
+
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using Telegram.Bot;
+using TemplateService.API.Controllers;
 using TemplateService.API.Extensions;
+using TemplateService.API.Middleware;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Event.Services;
 //using TemplateService.API.TelegramBot.Services;
 using TemplateService.Application.Extensions;
 using TemplateService.Application.PasswordService;
+using TemplateService.Application.Teams.Services;
 using TemplateService.Application.TokenService;
+using TemplateService.Application.User.Services;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence;
+using TemplateService.Telegram.Jobs;
+using TemplateService.Telegram.Services;
+
 
 namespace TemplateService.API
 {
@@ -29,6 +43,7 @@ namespace TemplateService.API
             dataSourceBuilder.EnableDynamicJson();
 
             var dataSource = dataSourceBuilder.Build();
+
             
             builder.Services.AddSingleton(dataSource);
             builder.Services.AddDbContext<TemplateDbContext>((provider, options) =>
@@ -60,8 +75,25 @@ namespace TemplateService.API
             var jwtSettings = builder.Configuration.GetSection("Jwt");
 
             var botToken = builder.Configuration["Telegram:BotToken"];
-            builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
-          //  builder.Services.AddHostedService<TelegramBotService>();
+            if (!string.IsNullOrEmpty(botToken))
+            {
+                // Регистрируем сервисы
+                builder.Services.AddSingleton(provider =>
+                    new TelegramService(
+                        botToken,
+                        provider.GetRequiredService<ILogger<TelegramService>>()));
+
+                builder.Services.AddScoped<NotificationService>();
+                builder.Services.AddHostedService<NotificationJob>();
+            }
+            else
+            {
+                Console.WriteLine("WARNING: Telegram BotToken не настроен!");
+            }
+
+            // var botToken = builder.Configuration["Telegram:BotToken"];
+            // builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+            //  builder.Services.AddHostedService<TelegramBotService>();
 
             builder.Services.AddAuthentication(options =>
                 {
@@ -81,6 +113,8 @@ namespace TemplateService.API
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
                     };
                 });
+
+
 
 
             builder.Services.AddSwaggerGen(config =>
@@ -123,10 +157,18 @@ namespace TemplateService.API
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
 
-            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-            builder.Services.AddScoped<TokenService>();
+            
+            builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<IUserValidationService, UserValidationService>();
+            builder.Services.AddScoped<IEventValidationService, EventValidationService>();
+            builder.Services.AddScoped<IUserHelperService, UserHelperService>();
+            builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
+            builder.Services.AddScoped<TelegramService>();
+            builder.Services.AddScoped<TelegramController>();
 
-            builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
             
             // Временно (Разрешены любые CORS)
             builder.Services.AddCors(options =>
@@ -138,7 +180,20 @@ namespace TemplateService.API
                         .AllowAnyMethod();
                 });
             });
+
+
             
+            if (!string.IsNullOrEmpty(botToken))
+            {
+                builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+                builder.Services.AddScoped<NotificationService>();
+                builder.Services.AddHostedService<NotificationJob>();
+            }
+            else
+            {
+                Console.WriteLine("WARNING: Telegram BotToken not configured!");
+            }
+
             var app = builder.Build();
 
             MigrateDatabase(app.Services);
@@ -151,6 +206,9 @@ namespace TemplateService.API
             
             // Временно (Разрешены любые CORS)
             app.UseCors();
+            
+            // Миддлвейр для обработки ошибок
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

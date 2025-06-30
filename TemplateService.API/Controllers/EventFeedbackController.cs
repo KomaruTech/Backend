@@ -2,8 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TemplateService.Application.Event.DTOs;
-using TemplateService.Application.Event.Queries;
 using TemplateService.Application.EventFeedback.DTOs;
 using TemplateService.Application.EventFeedback.Queries;
 

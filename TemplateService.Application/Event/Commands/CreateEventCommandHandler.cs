@@ -1,58 +1,49 @@
-﻿using System.Security.Claims;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Event.DTOs;
+using TemplateService.Application.Event.Services;
+using TemplateService.Domain.Entities;
 using TemplateService.Domain.Enums;
+using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Event.Commands;
 
-using AutoMapper;
-using TemplateService.Application.Event.DTOs;
-using TemplateService.Domain.Entities;
-using TemplateService.Infrastructure.Persistence;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using TemplateService.Application.PasswordService;
-using Microsoft.AspNetCore.Http;
 internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, EventDto>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IEventValidationService _eventValidationService;
+
     public CreateEventCommandHandler(
         TemplateDbContext dbContext,
         IMapper mapper,
-        IPasswordHasher passwordHasher,
-        IHttpContextAccessor httpContextAccessor)
+        ICurrentUserService currentUserService,
+        IEventValidationService eventValidationService
+    )
     {
         _dbContext = dbContext;
         _mapper = mapper;
-        _passwordHasher = passwordHasher;
-        _httpContextAccessor = httpContextAccessor;
+        _currentUserService = currentUserService;
+        _eventValidationService = eventValidationService;
     }
 
     public async Task<EventDto> Handle(CreateEventCommand command, CancellationToken ct)
     {
-        var jwtUser = _httpContextAccessor.HttpContext?.User;
-        
-        var idClaim = jwtUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
-        if (!Guid.TryParse(idClaim, out var userId))
-            throw new UnauthorizedAccessException("Неверный формат userId в токене");
-        
-        var roleClaim = jwtUser.FindFirst(ClaimTypes.Role)?.Value;
-        
-        if (roleClaim == null)
-            throw new UnauthorizedAccessException("Not found role in token");
-        
-        if (!Enum.TryParse<UserRoleEnum>(roleClaim, ignoreCase: true, out var userRole))
-            throw new UnauthorizedAccessException("InvalidRole");
+        var userId = _currentUserService.GetUserId();
+        var userRole = _currentUserService.GetUserRole();
 
-        if (userRole == UserRoleEnum.member)
-            throw new InvalidOperationException("Пользователь с ролью 'member' не может создавать мероприятия");
-
+        _eventValidationService.ValidateName(command.Name);
+        _eventValidationService.ValidateDescription(command.Description);
+        _eventValidationService.ValidateTimeStart(command.TimeStart);
+        _eventValidationService.ValidateDuration(command.TimeStart, command.TimeEnd);
+        _eventValidationService.ValidateUserRole(userRole);
+        _eventValidationService.ValidateLocation(command.Location);
+        
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();
-        
+
         var newEvent = new EventEntity
         {
             Id = id,
@@ -63,12 +54,40 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
             CreatedById = userId,
             Type = command.Type,
             Location = command.Location,
-            Keywords = command.Keywords,
+            Keywords = command.Keywords?
+                .Where(k => !string.IsNullOrWhiteSpace(k)) // фильтрация пустых
+                .Select(k => k.ToLowerInvariant().Trim()) // приведение к нижнему регистру и обрезка пробелов
+                .Distinct() // убрает дубли
+                .ToList() ?? new List<string>(), // если null — сделать пустой список
+            Status = EventStatusEnum.confirmed // Оно подтверждено т.к не может быть выполнено мембером
         };
-        
-        _dbContext.Events.Add(newEvent);
-        await _dbContext.SaveChangesAsync(ct);
 
+        _dbContext.Events.Add(newEvent);
+
+        // Добавляем участников, если они есть
+        if (command.Participants != null && command.Participants.Any())
+        {
+            // Получаем список существующих пользователей по ID из команды (одним запросом)
+            var existingUserIds = await _dbContext.Users
+                .Where(u => command.Participants.Contains(u.Id))
+                .Select(u => u.Id)
+                .ToListAsync(ct);
+
+            // Добавляем только существующих пользователей
+            foreach (var participantId in existingUserIds)
+            {
+                var participantEntity = new EventParticipantEntity
+                {
+                    EventId = id,
+                    UserId = participantId,
+                    IsSpeaker = false,
+                    AttendanceResponse = AttendanceResponseEnum.pending
+                };
+                _dbContext.EventParticipants.Add(participantEntity);
+            }
+        }
+
+        await _dbContext.SaveChangesAsync(ct);
         return _mapper.Map<EventDto>(newEvent);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System;using TemplateService.Application.User.DTOs;
 using TemplateService.Domain.Entities;
 using TemplateService.Domain.Enums;
 
@@ -8,9 +8,4 @@ public record TeamsDto(
     Guid Id,
     string Name,
     string Description,
-    ICollection<UserBriefDto> Users); // Заменили UserTeamsEntity на UserBriefDto
-
-public record UserBriefDto(
-    Guid Id,
-    string Name,
-    string Email);
+    ICollection<UserDto> Users);

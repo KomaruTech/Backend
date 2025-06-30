@@ -5,12 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.EventParticipant.Queries;
 using TemplateService.Application.Teams.Commands;
 using TemplateService.Application.Teams.Dtos;
-using TemplateService.Application.User.Queries;
 
 
 namespace TemplateService.API.Controllers;
 [ApiController]
-[Produces(MediaTypeNames.Application.Json)] // Изменено с Multipart.ByteRanges
+[Produces(MediaTypeNames.Application.Json)]
 [Route("api/v1/teams")] // Явное указание пути
 [Authorize]
 public class TeamsController : ControllerBase
@@ -18,7 +17,6 @@ public class TeamsController : ControllerBase
     private readonly IMediator _mediator;
 
     public TeamsController(IMediator mediator) => _mediator = mediator;
-
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -28,10 +26,10 @@ public class TeamsController : ControllerBase
         return team != null ? Ok(team) : NotFound();
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TeamsDto>> CreateTeam([FromBody] CreateTeamsCommand command) // Используем команду
+    public async Task<ActionResult<TeamsDto>> CreateTeam([FromBody] CreateTeamCommand command)
     {
         var createdTeam = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetTeam), new { id = createdTeam.Id }, createdTeam);

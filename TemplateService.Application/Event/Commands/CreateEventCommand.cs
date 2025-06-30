@@ -1,6 +1,4 @@
-﻿using MediatR;
-using TemplateService.Application.Event.DTOs;
-using TemplateService.Domain.Entities;
+﻿using TemplateService.Application.Event.DTOs;
 using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.Event.Commands;
@@ -12,5 +10,6 @@ public record CreateEventCommand(
     DateTime? TimeEnd,
     EventTypeEnum Type,
     string? Location,
-    List<string> Keywords
+    List<string>? Keywords,
+    List<Guid>? Participants
 ) : IRequest<EventDto>;

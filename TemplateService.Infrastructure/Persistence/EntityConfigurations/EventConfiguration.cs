@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TemplateService.Domain.Enums;
 
 namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
@@ -39,6 +40,16 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
             .HasDefaultValue(EventTypeEnum.general)
             .HasConversion<string>()
             .HasMaxLength(32);
+        
+        builder.HasIndex(u => u.Type);
+        
+        builder.Property(e => e.Type)
+            .HasColumnName("status")
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(32);
+
+        builder.HasIndex(u => u.Status);
 
         builder.Property(u => u.Location)
             .HasColumnName("location")
@@ -57,17 +68,32 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
                 v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)
+            ).Metadata.SetValueComparer(
+                new ValueComparer<List<string>>(
+                    (c1, c2) => c1!.SequenceEqual(c2!),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList())
             );
 
         builder.HasOne(e => e.CreatedBy)
             .WithMany()
             .HasForeignKey(e => e.CreatedById)
-            .OnDelete(DeleteBehavior.NoAction)
+            .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
         builder.HasMany(e => e.Photos)
             .WithOne(p => p.Event)
             .HasForeignKey(p => p.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(e => e.Participants)
+            .WithOne(p => p.Event)
+            .HasForeignKey(p => p.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(e => e.EventTeams)
+            .WithOne(eg => eg.Event)
+            .HasForeignKey(eg => eg.EventId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
