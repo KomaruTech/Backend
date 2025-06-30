@@ -12,8 +12,8 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     [DbContext(typeof(TemplatePostgresqlDbContext))]
-    [Migration("20250629085202_Initial")]
-    partial class Initial
+    [Migration("20250630115435_0.0.2")]
+    partial class _002
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -413,10 +413,14 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("character varying(64)")
                         .HasColumnName("surname");
 
-                    b.Property<string>("TelegramId")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                    b.Property<long>("TelegramId")
+                        .HasColumnType("bigint")
                         .HasColumnName("telegram_id");
+
+                    b.Property<string>("TelegramUsername")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("telegram_username");
 
                     b.HasKey("Id");
 
@@ -427,6 +431,12 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .IsUnique();
 
                     b.HasIndex("Role");
+
+                    b.HasIndex("TelegramId")
+                        .IsUnique();
+
+                    b.HasIndex("TelegramUsername")
+                        .IsUnique();
 
                     b.ToTable("users", "DEFAULT", t =>
                         {

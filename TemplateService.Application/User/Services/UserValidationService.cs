@@ -37,7 +37,7 @@ public partial class UserValidationService : IUserValidationService
             throw new ArgumentException("Email format is invalid.");
     }
     
-    public void ValidateTelegram(string telegram)
+    public void ValidateTelegramUsername(string telegram)
     {
         
         if (!TelegramRegex().IsMatch(telegram))

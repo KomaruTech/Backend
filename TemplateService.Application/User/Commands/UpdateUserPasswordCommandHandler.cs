@@ -29,18 +29,18 @@ internal class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPass
     public async Task<Unit> Handle(UpdateUserPasswordCommand command, CancellationToken cancellationToken)
     {
         // Валидация нового пароля
-        _userValidationService.ValidatePassword(command.newPassword);
+        _userValidationService.ValidatePassword(command.NewPassword);
 
         var userId = _currentUserService.GetUserId();
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
-                   ?? throw new InvalidOperationException($"User with id {userId} found.");
+                   ?? throw new InvalidOperationException($"User with id {userId} not found.");
 
         // Проверка старого пароля
-        if (!_passwordHelper.VerifyPassword(user.PasswordHash, command.oldPassword))
+        if (!_passwordHelper.VerifyPassword(user.PasswordHash, command.OldPassword))
             throw new UnauthorizedAccessException("Password is incorrect");
 
         // Проверка, что новый пароль не совпадает со старым (по хэшу)
-        var newPasswordHash = _passwordHelper.HashPassword(command.newPassword);
+        var newPasswordHash = _passwordHelper.HashPassword(command.NewPassword);
         if (newPasswordHash == user.PasswordHash)
             throw new ArgumentException("New password must be different from the old password");
         

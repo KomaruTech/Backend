@@ -35,7 +35,7 @@ internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfi
         var userId = _currentUserService.GetUserId();
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
-                   ?? throw new InvalidOperationException($"User with id {userId} found.");
+                   ?? throw new InvalidOperationException($"User with id {userId} not found.");
 
 
         if (command.Name != null)
@@ -45,15 +45,15 @@ internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfi
         if (command.Email != null)
             _userValidationService.ValidateEmail(command.Email);
 
-        var telegramId = command.TelegramId;
+        var telegramUsername = command.TelegramUsername;
 
-        if (!string.IsNullOrWhiteSpace(telegramId))
+        if (!string.IsNullOrWhiteSpace(telegramUsername))
         {
-            telegramId = telegramId.StartsWith('@') ? telegramId : '@' + telegramId;
-            _userValidationService.ValidateTelegram(telegramId);
+            telegramUsername = telegramUsername.StartsWith('@') ? telegramUsername : '@' + telegramUsername;
+            _userValidationService.ValidateTelegramUsername(telegramUsername);
         }
 
-        command = command with { TelegramId = telegramId };
+        command = command with { TelegramUsername = telegramUsername };
 
         _mapper.Map(command, user);
 

@@ -6,5 +6,5 @@ public record UpdateUserProfileCommand(
     string? Name,
     string? Surname,
     string? Email,
-    string? TelegramId
+    string? TelegramUsername
 ): IRequest<UserDto>; // Вернём созданного пользователя;

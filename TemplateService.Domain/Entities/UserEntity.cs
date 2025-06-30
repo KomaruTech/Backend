@@ -43,9 +43,14 @@ public class UserEntity
     public UserRoleEnum Role { get; set; }
 
     /// <summary>
+    /// Telegram Username пользователя (может быть null)
+    /// </summary>
+    public string? TelegramUsername { get; set; }
+    
+    /// <summary>
     /// Telegram ID (может быть null)
     /// </summary>
-    public string? TelegramId { get; set; }
+    public long TelegramId { get; set; }
 
     /// <summary>
     /// ID настроек уведомлений (внешний ключ)

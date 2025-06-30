@@ -59,7 +59,17 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 
         builder.Property(u => u.TelegramId)
             .HasColumnName("telegram_id")
-            .HasMaxLength(50);
+            .HasColumnType("bigint");
+        
+        builder.HasIndex(u => u.TelegramId)
+            .IsUnique();
+        
+        builder.Property(u => u.TelegramUsername)
+            .HasColumnName("telegram_username")
+            .HasMaxLength(32);
+        
+        builder.HasIndex(u => u.TelegramUsername)
+            .IsUnique();
 
         builder.Property(u => u.NotificationPreferencesId)
             .HasColumnName("notification_preferences_id")

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class _002 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,7 +43,8 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     surname = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     email = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     role = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "member"),
-                    telegram_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    telegram_username = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    telegram_id = table.Column<long>(type: "bigint", nullable: false),
                     notification_preferences_id = table.Column<Guid>(type: "uuid", nullable: false),
                     avatar = table.Column<byte[]>(type: "bytea", nullable: true),
                     avatar_mime_type = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true)
@@ -394,6 +395,20 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 schema: "DEFAULT",
                 table: "users",
                 column: "role");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_telegram_id",
+                schema: "DEFAULT",
+                table: "users",
+                column: "telegram_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_telegram_username",
+                schema: "DEFAULT",
+                table: "users",
+                column: "telegram_username",
+                unique: true);
         }
 
         /// <inheritdoc />
