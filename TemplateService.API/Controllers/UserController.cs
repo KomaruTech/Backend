@@ -33,6 +33,17 @@ public class UserController : ControllerBase
         return user != null ? Ok(user) : NotFound();
     }
 
+    /// <summary>
+    /// Поиск пользователя
+    /// </summary>
+    [HttpPost("search")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<UserDto>>> SearchUser([FromBody] SearchUserQuery query)
+    {
+        var user = await _mediator.Send(query);
+        return user.Count != 0 ? Ok(user) : NotFound();
+    }
 
     /// <summary>
     /// Создание пользователя
@@ -49,7 +60,7 @@ public class UserController : ControllerBase
         var createdUser = await _mediator.Send(command);
 
         // Возвращаем 201 Created с Location на нового пользователя
-        return CreatedAtAction(nameof(GetUser), new { login = createdUser.Login }, createdUser);
+        return CreatedAtAction(nameof(GetUser), new { id = createdUser.UserId }, createdUser);
     }
 
     /// <summary>
@@ -116,7 +127,7 @@ public class UserController : ControllerBase
         var result = await _mediator.Send(new DeleteUserAvatarCommand()); // ← если у тебя есть такой Command
         return Ok(result);
     }
-    
+
     /// <summary>
     /// Получение аватара по ID
     /// </summary>
@@ -129,5 +140,4 @@ public class UserController : ControllerBase
         var result = await _mediator.Send(new GetUserAvatarQuery(userId));
         return File(result.AvatarBytes, result.MimeType);
     }
-    
 }
