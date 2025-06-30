@@ -23,6 +23,7 @@ public class TemplateDbContext : DbContext
     public DbSet<EventParticipantEntity> EventParticipants { get; set; }
     public DbSet<SpeakerApplicationEntity> SpeakerApplications { get; set; }
     public DbSet<EventPhotoEntity> EventPhotos { get; set; }
+    public DbSet<EventNotificationsEntity> EventNotifications { get; set; }
 
     public void Migrate()
     {
