@@ -2,8 +2,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TemplateService.Application.User.DTOs;
 using TemplateService.Application.User.Commands;
+using TemplateService.Application.User.DTOs;
 using TemplateService.Application.User.Queries;
 
 namespace TemplateService.API.Controllers;
@@ -138,6 +138,12 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAvatar([FromRoute] Guid userId)
     {
         var result = await _mediator.Send(new GetUserAvatarQuery(userId));
+
+        if (result == null || result.AvatarBytes == null || result.AvatarBytes.Length == 0)
+        {
+            // Аватар не найден — возвращаем 404
+            return NotFound();
+        }
         return File(result.AvatarBytes, result.MimeType);
     }
 }
