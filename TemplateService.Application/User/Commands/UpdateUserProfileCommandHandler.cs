@@ -47,10 +47,16 @@ internal class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfi
 
         var telegramUsername = command.TelegramUsername;
 
-        if (!string.IsNullOrWhiteSpace(telegramUsername))
+        if (telegramUsername != null)
         {
             telegramUsername = telegramUsername.StartsWith('@') ? telegramUsername : '@' + telegramUsername;
             _userValidationService.ValidateTelegramUsername(telegramUsername);
+
+            // Проверяем уникальность telegramUsername среди других пользователей
+            var exists = await _dbContext.Users
+                .AnyAsync(u => u.TelegramUsername == telegramUsername && u.Id != userId, cancellationToken);
+            if (exists)
+                throw new ArgumentException($"Telegram username '{telegramUsername}' is already taken by another user.");
         }
 
         command = command with { TelegramUsername = telegramUsername };
