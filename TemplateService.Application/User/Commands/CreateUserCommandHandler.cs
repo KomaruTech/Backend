@@ -1,8 +1,8 @@
-﻿using TemplateService.Domain.Entities;
-using TemplateService.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.User.Services;
+using TemplateService.Domain.Entities;
+using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.User.Commands;
 

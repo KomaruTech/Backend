@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TemplateService.Application\TemplateService.Application.csproj" />
+    <ProjectReference Include="..\TemplateService.Worker\TemplateService.Worker.csproj" />
   </ItemGroup>
 
 </Project>
