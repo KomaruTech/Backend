@@ -1,3 +1,3 @@
 ﻿namespace TemplateService.Application.User.Queries;
 
-public record DeleteUserQuery(string Login) : IRequest<Unit>;
+public record DeleteUserQuery(Guid Id) : IRequest<Unit>;

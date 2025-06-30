@@ -20,7 +20,7 @@ public class EventController : ControllerBase
     private readonly IMediator _mediator;
 
     public EventController(IMediator mediator) => _mediator = mediator;
-    
+
     /// <summary>
     /// Получение мероприятия
     /// </summary>
@@ -32,7 +32,7 @@ public class EventController : ControllerBase
         var eventObj = await _mediator.Send(new GetEventQuery(id));
         return eventObj != null ? Ok(eventObj) : NotFound();
     }
-    
+
     /// <summary>
     /// Удаление мероприятия
     /// </summary>
@@ -45,22 +45,22 @@ public class EventController : ControllerBase
         await _mediator.Send(new DeleteEventQuery(id));
         return NoContent(); // 204
     }
-    
+
     /// <summary>
     /// Поиск мероприятий
     /// </summary>
     [HttpGet("search")]
     [ProducesResponseType(typeof(List<EventDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<EventDto>>> SearchInInterval([FromQuery] SearchEventsQuery request)
+    public async Task<ActionResult<List<EventDto>>> SearchEvents([FromQuery] SearchEventsQuery request)
     {
         var events = await _mediator.Send(request);
         return Ok(events);
     }
 
     /// <summary>
-    /// Создание мероприятия (только для организаторов/адинистраторов)
+    /// Создание мероприятия (только для организаторов/администраторов)
     /// </summary>
-    [HttpPost("create")]
+    [HttpPost]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EventDto>> CreateEvent([FromBody] CreateEventCommand command)
@@ -70,22 +70,27 @@ public class EventController : ControllerBase
     }
 
     /// <summary>
-    /// Обновление полей мероприятия (только создатель и администратор)
+    /// Частичное обновление мероприятия (только создатель и администратор)
     /// </summary>
-    [HttpPatch("update")]
+    [HttpPatch("{id:guid}")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<EventDto>> UpdateEvent([FromBody] UpdateEventCommand command)
+    public async Task<ActionResult<EventDto>> UpdateEvent(Guid id, [FromBody] UpdateEventCommand command)
     {
+        if (id != command.Id)
+        {
+            return BadRequest("Id in URL and body should be the same.");
+        }
+
         var updatedEvent = await _mediator.Send(command);
         return Ok(updatedEvent);
     }
-    
+
     /// <summary>
     /// Подтверждение мероприятия (только организатор и администратор)
     /// </summary>
-    [HttpPatch("{id:guid}/confirm")]
+    [HttpPost("{id:guid}/confirm")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ConfirmEvent(Guid id)

@@ -22,14 +22,14 @@ public class UserController : ControllerBase
     public UserController(IMediator mediator) => _mediator = mediator;
 
     /// <summary>
-    /// Получение информации о пользователе по Login
+    /// Получение информации о пользователе по guid
     /// </summary>
-    [HttpGet("{login}")]
+    [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserDto>> GetUser(string login)
+    public async Task<ActionResult<UserDto>> GetUser(Guid id)
     {
-        var user = await _mediator.Send(new GetUserQuery(login));
+        var user = await _mediator.Send(new GetUserQuery(id));
         return user != null ? Ok(user) : NotFound();
     }
 
@@ -37,7 +37,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// Создание пользователя
     /// </summary>
-    [HttpPost("create")]
+    [HttpPost]
     [ProducesResponseType(typeof(CreatedUserResult), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [AllowAnonymous] // TODO Убрать это, после фазы тестирования и добавить проверку на создание только администратором
@@ -55,13 +55,13 @@ public class UserController : ControllerBase
     /// <summary>
     /// Удаление пользователя (только администратор)
     /// </summary>
-    [HttpDelete("{login}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> DeleteUser(string login)
+    public async Task<IActionResult> DeleteUser(Guid id)
     {
-        await _mediator.Send(new DeleteUserQuery(login));
+        await _mediator.Send(new DeleteUserQuery(id));
         return NoContent(); // 204
     }
 
@@ -118,7 +118,7 @@ public class UserController : ControllerBase
     }
     
     /// <summary>
-    /// Получение своего аватара
+    /// Получение аватара по ID
     /// </summary>
     [HttpGet("{userId:guid}/avatar")]
     [ProducesResponseType(StatusCodes.Status200OK)]

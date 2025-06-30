@@ -27,7 +27,7 @@ internal class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDto>
     {
         var user = await _dbContext.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Login == query.Login, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == query.Id, cancellationToken);
 
         return user == null ? null : _userHelperService.BuildUserDto(user, _mapper);
     }

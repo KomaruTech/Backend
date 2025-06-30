@@ -17,7 +17,6 @@ public class TeamsController : ControllerBase
     private readonly IMediator _mediator;
 
     public TeamsController(IMediator mediator) => _mediator = mediator;
-
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -27,10 +26,10 @@ public class TeamsController : ControllerBase
         return team != null ? Ok(team) : NotFound();
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TeamsDto>> CreateTeam([FromBody] CreateTeamCommand command) // Используем команду
+    public async Task<ActionResult<TeamsDto>> CreateTeam([FromBody] CreateTeamCommand command)
     {
         var createdTeam = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetTeam), new { id = createdTeam.Id }, createdTeam);

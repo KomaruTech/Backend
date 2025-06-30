@@ -29,10 +29,10 @@ internal class DeleteUserQueryHandler : IRequestHandler<DeleteUserQuery, Unit>
         _userValidationService.ValidateDeletePermissions(userRole);
         
         var user = await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.Login == query.Login, ct);
+            .FirstOrDefaultAsync(u => u.Id == query.Id, ct);
         
         if (user == null)
-            throw new InvalidOperationException($"User with Login {query.Login} not found.");
+            throw new InvalidOperationException($"User with Id {query.Id} not found.");
         
         _dbContext.Users.Remove(user);
         await _dbContext.SaveChangesAsync(ct);
