@@ -53,7 +53,7 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Удаление мероприятия (только администратор или создатель мероприятия)
+    /// Удаление пользователя (только администратор)
     /// </summary>
     [HttpDelete("{login}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -66,7 +66,7 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Изменение настроек профиля
+    /// Изменение настроек своего профиля
     /// </summary>
     [HttpPatch("me/profile")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
@@ -79,7 +79,7 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Изменение пароля
+    /// Изменение своего пароля
     /// </summary>
     [HttpPatch("me/password")]
     [ProducesResponseType(typeof(Unit), StatusCodes.Status200OK)]
@@ -92,7 +92,7 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Обновление аватара
+    /// Обновление своего аватара
     /// </summary>
     [HttpPatch("me/avatar")]
     [Consumes("multipart/form-data")]
@@ -106,7 +106,7 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Удаление аватара
+    /// Удаление своего аватара
     /// </summary>
     [HttpDelete("me/avatar")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -118,7 +118,7 @@ public class UserController : ControllerBase
     }
     
     /// <summary>
-    /// Получение аватара
+    /// Получение своего аватара
     /// </summary>
     [HttpGet("{userId:guid}/avatar")]
     [ProducesResponseType(StatusCodes.Status200OK)]
