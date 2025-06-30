@@ -1,7 +1,7 @@
-﻿using TemplateService.Application.User.DTOs;
-using TemplateService.Infrastructure.Persistence;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.User.DTOs;
+using TemplateService.Infrastructure.Persistence;
 
 
 namespace TemplateService.Application.User.Queries;

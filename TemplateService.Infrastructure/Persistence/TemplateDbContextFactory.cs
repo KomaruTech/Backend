@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
-using System.IO;
 
 namespace TemplateService.Infrastructure.Persistence;
 

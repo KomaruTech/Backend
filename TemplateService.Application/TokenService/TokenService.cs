@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
-using TemplateService.Application.User.DTOs;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using TemplateService.Application.User.DTOs;
 
 namespace TemplateService.Application.TokenService;
 

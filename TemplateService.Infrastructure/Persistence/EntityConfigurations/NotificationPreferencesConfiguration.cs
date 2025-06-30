@@ -1,8 +1,8 @@
 ﻿namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Domain.Entities;
 
 
 public class NotificationPreferencesConfiguration: IEntityTypeConfiguration<NotificationPreferencesEntity>

@@ -1,7 +1,7 @@
 ﻿using System.Net.Mime;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatR;
 using TemplateService.Application.Auth.Commands;
 
 namespace TemplateService.API.Controllers;
