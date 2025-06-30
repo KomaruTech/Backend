@@ -49,12 +49,17 @@ public class EventController : ControllerBase
     /// <summary>
     /// Поиск мероприятий
     /// </summary>
-    [HttpGet("search")]
+    [HttpPost("search")]
     [ProducesResponseType(typeof(List<EventDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<EventDto>>> SearchEvents([FromQuery] SearchEventsQuery request)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<List<EventDto>>> SearchEvents([FromBody] SearchEventsQuery request)
     {
         var events = await _mediator.Send(request);
-        return Ok(events);
+    
+        if (events.Count == 0)
+            return NoContent();
+
+        return Ok(events); // 200 OK
     }
 
     /// <summary>
