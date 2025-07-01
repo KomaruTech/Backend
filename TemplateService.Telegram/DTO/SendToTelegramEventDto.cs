@@ -9,6 +9,6 @@ public record SendToTelegramEventDto
     DateTime TimeStart,
     DateTime? TimeEnd,
     EventTypeEnum Type,
-    string? Location,
+    string Location,
     long TelegramUserId
 );
