@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemplateService.Domain", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemplateService.Application", "TemplateService.Application\TemplateService.Application.csproj", "{8F0A012C-B533-4020-97B4-5E83C9EF4DF7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemplateService.Worker", "TemplateService.Worker\TemplateService.Worker.csproj", "{8F0A012C-B533-4020-97B4-5E83C9EF4DF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplateService.Telegram", "TemplateService.Telegram\TemplateService.Telegram.csproj", "{8A1769BD-22EF-42CC-8BA4-A23A2BA6D931}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,12 @@ Global
 		{8F0A012C-B533-4020-97B4-5E83C9EF4DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F0A012C-B533-4020-97B4-5E83C9EF4DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F0A012C-B533-4020-97B4-5E83C9EF4DF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F0A012C-B533-4020-97B4-5E83C9EF4DF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F0A012C-B533-4020-97B4-5E83C9EF4DF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A1769BD-22EF-42CC-8BA4-A23A2BA6D931}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A1769BD-22EF-42CC-8BA4-A23A2BA6D931}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A1769BD-22EF-42CC-8BA4-A23A2BA6D931}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A1769BD-22EF-42CC-8BA4-A23A2BA6D931}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

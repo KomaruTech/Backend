@@ -1,8 +1,8 @@
 ﻿namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Domain.Entities;
 
 
 public class TeamsConfiguration : IEntityTypeConfiguration<TeamsEntity>
@@ -43,6 +43,11 @@ public class TeamsConfiguration : IEntityTypeConfiguration<TeamsEntity>
         builder.HasMany(u => u.Users)
             .WithOne(ut => ut.Team)
             .HasForeignKey(ut => ut.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(t => t.EventTeams)
+            .WithOne(eg => eg.Team)
+            .HasForeignKey(eg => eg.TeamId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

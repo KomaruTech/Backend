@@ -1,5 +1,4 @@
-﻿using MediatR;
-using TemplateService.Application.Event.DTOs;
+﻿using TemplateService.Application.Event.DTOs;
 
 namespace TemplateService.Application.Event.Queries;
 

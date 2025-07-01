@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.EventParticipant.Queries;
 using TemplateService.Application.SpeakerApplication.Dtos;
-using TemplateService.Application.SpeakerApplication.Queries;
 
 
 namespace TemplateService.API.Controllers;

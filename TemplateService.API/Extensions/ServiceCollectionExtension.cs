@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-
-namespace TemplateService.API.Extensions;
+﻿namespace TemplateService.API.Extensions;
 
 public static class ServiceCollectionExtension
 {

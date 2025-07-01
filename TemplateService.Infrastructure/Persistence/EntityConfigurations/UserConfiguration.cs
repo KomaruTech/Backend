@@ -2,9 +2,9 @@
 
 namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Domain.Entities;
 
 
 public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
@@ -50,6 +50,8 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasDefaultValue(UserRoleEnum.member)
             .HasConversion<string>()
             .HasMaxLength(32);
+        
+        builder.HasIndex(u => u.Role);
 
         builder.Property(u => u.Email)
             .HasColumnName("email")
@@ -57,7 +59,18 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 
         builder.Property(u => u.TelegramId)
             .HasColumnName("telegram_id")
-            .HasMaxLength(50);
+            .HasColumnType("bigint")
+            .IsRequired(false); // разрешить null;
+        
+        builder.HasIndex(u => u.TelegramId)
+            .IsUnique();
+        
+        builder.Property(u => u.TelegramUsername)
+            .HasColumnName("telegram_username")
+            .HasMaxLength(32);
+        
+        builder.HasIndex(u => u.TelegramUsername)
+            .IsUnique();
 
         builder.Property(u => u.NotificationPreferencesId)
             .HasColumnName("notification_preferences_id")

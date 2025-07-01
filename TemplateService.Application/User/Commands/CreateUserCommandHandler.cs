@@ -1,31 +1,35 @@
-﻿using AutoMapper;
-using TemplateService.Application.User.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.PasswordService;
+using TemplateService.Application.User.Services;
 using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using TemplateService.Application.PasswordService;
 
 namespace TemplateService.Application.User.Commands;
 
-internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
+internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, CreatedUserResult>
 {
     private readonly TemplateDbContext _dbContext;
-    private readonly IMapper _mapper;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHelper _passwordHelper;
+    private readonly IUserValidationService _userValidationService;
 
     public CreateUserCommandHandler(
         TemplateDbContext dbContext,
-        IMapper mapper,
-        IPasswordHasher passwordHasher)
+        IPasswordHelper passwordHelper,
+        IUserValidationService userValidationService)
     {
         _dbContext = dbContext;
-        _mapper = mapper;
-        _passwordHasher = passwordHasher;
+        _passwordHelper = passwordHelper;
+        _userValidationService = userValidationService;
     }
 
-    public async Task<UserDto> Handle(CreateUserCommand command, CancellationToken ct)
+    public async Task<CreatedUserResult> Handle(CreateUserCommand command, CancellationToken ct)
     {
+        _userValidationService.ValidateName(command.Name);
+        _userValidationService.ValidateSurname(command.Surname);
+        _userValidationService.ValidateEmail(command.Email);
+
+        var password = _passwordHelper.GeneratePassword();
+
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();
 
@@ -34,12 +38,12 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Use
             Id = id
             // Остальные поля не заполняем, они возьмутся из БД
         };
-        
+
         // Генерация логина
         var baseLogin = GenerateBaseLogin(command.Name, command.Surname); // например, LeushkinM
-        var finalLogin = await GenerateUniqueLoginAsync(baseLogin, ct);   // LeushkinM, LeushkinM1, ...
-        
-        
+        var finalLogin = await GenerateUniqueLoginAsync(baseLogin, ct); // LeushkinM, LeushkinM1, ...
+
+
         var user = new UserEntity
         {
             Id = id,
@@ -50,14 +54,21 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Use
             Role = command.Role,
             NotificationPreferencesId = id,
             NotificationPreferences = notificationPreferences,
-            PasswordHash = _passwordHasher.HashPassword(command.Password)
+            PasswordHash = _passwordHelper.HashPassword(password)
         };
+
+        var resultedUser = new CreatedUserResult(
+            Login: user.Login,
+            Password: password,
+            UserId:  user.Id
+        );
 
         _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync(ct);
 
-        return _mapper.Map<UserDto>(user);
+        return resultedUser;
     }
+
     /// <summary>
     /// Создает логин из имени + фамилии пользователя
     /// </summary>
@@ -70,7 +81,7 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Use
 
         return $"{surnameFormatted}{firstLetter}";
     }
-    
+
     /// <summary>
     /// Создает уникальный логин, т.е добавляет к логину, например LeushkinM цифру при повторении
     /// </summary>
@@ -88,12 +99,11 @@ internal class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Use
         // Фильтруем логины, которые соответствуют шаблону: baseLogin + число
         var maxSuffix = existingLogins
             .Select(login => login.Substring(baseLogin.Length)) // всё после baseLogin
-            .Where(suffix => int.TryParse(suffix, out _))       // оставляем только числа
+            .Where(suffix => int.TryParse(suffix, out _)) // оставляем только числа
             .Select(int.Parse)
-            .DefaultIfEmpty(0)                                   // если ничего нет — 0
+            .DefaultIfEmpty(0) // если ничего нет — 0
             .Max();
 
         return $"{baseLogin}{maxSuffix + 1}"; // Возвращаем Логин с +1
     }
-    
 }

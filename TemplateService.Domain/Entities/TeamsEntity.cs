@@ -31,4 +31,9 @@ public class TeamsEntity
     /// Промежуточная сущность для связи с пользователями
     /// </summary>
     public virtual ICollection<UserTeamsEntity> Users { get; set; } = new List<UserTeamsEntity>();
+    
+    /// <summary>
+    /// Список мероприятий на которых участвует команда
+    /// </summary>
+    public virtual ICollection<EventTeamsEntity> EventTeams { get; set; } = new List<EventTeamsEntity>();
 }

@@ -1,18 +1,26 @@
+#nullable enable
+
 using System.Net;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using TemplateService.API.Extensions;
-using TemplateService.Application.Extensions;
-using TemplateService.Infrastructure.Extensions;
-using TemplateService.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Npgsql;
+using TemplateService.API.Extensions;
+using TemplateService.API.Middleware;
+using TemplateService.Application.Auth.Services;
+using TemplateService.Application.Event.Services;
+using TemplateService.Application.Extensions;
 using TemplateService.Application.PasswordService;
+using TemplateService.Application.Teams.Services;
+using TemplateService.Application.Telegram.Services;
 using TemplateService.Application.TokenService;
+using TemplateService.Application.User.Services;
+using TemplateService.Infrastructure.Extensions;
+using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.API
 {
@@ -27,6 +35,7 @@ namespace TemplateService.API
             dataSourceBuilder.EnableDynamicJson();
 
             var dataSource = dataSourceBuilder.Build();
+
             
             builder.Services.AddSingleton(dataSource);
             builder.Services.AddDbContext<TemplateDbContext>((provider, options) =>
@@ -116,11 +125,20 @@ namespace TemplateService.API
 
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
+            
+            builder.Services.AddHttpClient();
+            
+            builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<IUserValidationService, UserValidationService>();
+            builder.Services.AddScoped<IEventValidationService, EventValidationService>();
+            builder.Services.AddScoped<IUserHelperService, UserHelperService>();
+            builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
+            builder.Services.AddScoped<ITelegramNotificationSender, TelegramNotificationSender>();
+            builder.Services.AddScoped<ITelegramNotificationService, TelegramNotificationService>();
 
-            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-            builder.Services.AddScoped<TokenService>();
-
-            builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
             
             // Временно (Разрешены любые CORS)
             builder.Services.AddCors(options =>
@@ -132,7 +150,7 @@ namespace TemplateService.API
                         .AllowAnyMethod();
                 });
             });
-            
+
             var app = builder.Build();
 
             MigrateDatabase(app.Services);
@@ -145,6 +163,9 @@ namespace TemplateService.API
             
             // Временно (Разрешены любые CORS)
             app.UseCors();
+            
+            // Миддлвейр для обработки ошибок
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

@@ -52,13 +52,27 @@ public class EventEntity
     public virtual UserEntity CreatedBy { get; set;}
     
     /// <summary>
+    /// Мероприятие одобрено или нет
+    /// </summary>
+    public EventStatusEnum Status { get; set;}
+    
+    /// <summary>
     /// Список ключевых слов мероприятия
     /// </summary>
     public List<string> Keywords { get; set; } = new();
     
     /// <summary>
+    /// Список участников мероприятия
+    /// </summary>
+    public virtual ICollection<EventParticipantEntity> Participants { get; set; } = new List<EventParticipantEntity>();
+   
+    /// <summary>
     /// Список фото мероприятия
     /// </summary>
     public virtual ICollection<EventPhotoEntity> Photos { get; set; } = new List<EventPhotoEntity>();
 
+    /// <summary>
+    /// Список групп добавленных на мероприятие
+    /// </summary>
+    public virtual ICollection<EventTeamsEntity> EventTeams { get; set; } = new List<EventTeamsEntity>();
 }

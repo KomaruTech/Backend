@@ -2,7 +2,6 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.Event.DTOs;
-using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Event.Queries;

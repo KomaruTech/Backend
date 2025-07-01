@@ -2,18 +2,15 @@
 
 namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Domain.Entities;
 
 public class SpeakerApplicationsConfiguration : IEntityTypeConfiguration<SpeakerApplicationEntity>
 {
     public void Configure(EntityTypeBuilder<SpeakerApplicationEntity> builder)
     {
-        builder.ToTable("speaker_applications", opts =>
-        {
-            opts.HasComment("Заявки на выступление");
-        });
+        builder.ToTable("speaker_applications", opts => { opts.HasComment("Заявки на выступление"); });
 
         builder.HasKey(e => e.Id);
 
@@ -47,6 +44,8 @@ public class SpeakerApplicationsConfiguration : IEntityTypeConfiguration<Speaker
             .HasDefaultValue(ApplicationStatusEnum.pending)
             .HasConversion<string>()
             .HasMaxLength(32);
+
+        builder.HasIndex(u => u.Status);
 
         builder.HasOne(e => e.User)
             .WithMany()

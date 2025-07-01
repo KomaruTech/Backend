@@ -1,8 +1,8 @@
 ﻿namespace TemplateService.Infrastructure.Persistence.EntityConfigurations;
 
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Domain.Entities;
 
 
 public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventParticipantEntity>
@@ -20,6 +20,7 @@ public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventPart
         builder.Property(e => e.UserId)
             .HasColumnName("user_id")
             .IsRequired();
+        
 
         builder.Property(e => e.EventId)
             .HasColumnName("event_id")
@@ -28,20 +29,23 @@ public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventPart
         builder.Property(e => e.IsSpeaker)
             .HasColumnName("is_speaker")
             .IsRequired()
-            .HasDefaultValue(false);
-
-        builder.Property(e => e.AttendanceMarked)
-            .HasColumnName("attendance_marked")
+            .HasDefaultValue(false)
+            .HasComment("Флаг, выступает ли пользователь на мероприятии");
+        
+        builder.Property(e => e.AttendanceResponse)
+            .HasColumnName("attendance_response")
             .IsRequired()
-            .HasDefaultValue(false);
-
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .HasComment("Статус, принял ли пользователь приглашение или отказал, или не ответил");
+        
         builder.HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(e => e.Event)
-            .WithMany() // Или .WithMany(ev => ev.Participants), если есть навигация у мероприятия
+            .WithMany(ev => ev.Participants)
             .HasForeignKey(e => e.EventId)
             .OnDelete(DeleteBehavior.Cascade);
     }

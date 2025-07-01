@@ -9,6 +9,6 @@ public record UserDto(
     string Surname,
     UserRoleEnum Role,
     string Email,
-    string? TelegramId,
-    Guid NotificationPreferencesId,
-    byte[]? Avatar);
+    string? TelegramUsername,
+    string? AvatarUrl
+    );
