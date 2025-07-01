@@ -99,6 +99,30 @@ namespace TemplateService.API
 
                 xmlDocs.ForEach(xmlDoc => { config.IncludeXmlComments(xmlDoc, includeControllerXmlComments: true); });
 
+                config.AddSecurityDefinition("X-TG-API-Key", new OpenApiSecurityScheme
+                {
+                    Name = "X-TG-API-Key",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "ApiKey",
+                    In = ParameterLocation.Header,
+                    Description = "Секретный ключ для доступа к Telegram API"
+                });
+
+                config.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                        Reference = new OpenApiReference
+                        {
+                             Type = ReferenceType.SecurityScheme,
+                            Id = "X-TG-API-Key"
+                         }
+                     },
+                     new string[] {}
+                    }
+                });
+
                 var securitySchema = new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",

@@ -13,13 +13,13 @@ public class TelegramService : ITelegramService
     private readonly IEnumerable<ITelegramUpdateHandler> _handlers;
 
     public TelegramService(
-        string token,
-        ILogger<TelegramService> logger,
-        IEnumerable<ITelegramUpdateHandler> handlers)
+       ITelegramBotClient botClient, // Принимаем бота из DI
+       ILogger<TelegramService> logger,
+       IEnumerable<ITelegramUpdateHandler> handlers)
     {
+        _botClient = botClient;
         _logger = logger;
         _handlers = handlers;
-        _botClient = new TelegramBotClient(token);
     }
 
     public async Task StartReceiving(CancellationToken cancellationToken)
