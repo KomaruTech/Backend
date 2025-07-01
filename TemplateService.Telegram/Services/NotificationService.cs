@@ -1,4 +1,6 @@
-﻿using Telegram.Bot;
+﻿using Microsoft.Extensions.Logging;
+using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
 using TemplateService.Telegram.DTO;
 
 namespace TemplateService.Telegram.Services;
@@ -6,29 +8,24 @@ namespace TemplateService.Telegram.Services;
 public class NotificationService : INotificationService
 {
     private readonly ILogger<NotificationService> _logger;
-    private readonly ITelegramService _telegramService;
     private readonly ITelegramBotClient _botClient;
 
     public NotificationService(
         ILogger<NotificationService> logger,
-        ITelegramBotClient botClient,
-        ITelegramService telegramService
-        )
+        ITelegramBotClient botClient)
     {
         _logger = logger;
         _botClient = botClient;
-        _telegramService = telegramService;
     }
 
     public async Task SendNotification(SendToTelegramEventDto dto, CancellationToken cancellationToken)
     {
-        var message = dto.Description;
-        
         try
         {
-            await _botClient.SendMessage(
+            await _botClient.SendTextMessageAsync(
                 chatId: dto.TelegramUserId,
-                text: message,
+                text: dto.Description,
+                parseMode: ParseMode.MarkdownV2,
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Сообщение отправлено в чат {ChatId}", dto.TelegramUserId);
@@ -38,5 +35,4 @@ public class NotificationService : INotificationService
             _logger.LogError(ex, "Ошибка при отправке сообщения в чат {ChatId}", dto.TelegramUserId);
         }
     }
-
 }

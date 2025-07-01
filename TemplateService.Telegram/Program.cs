@@ -1,5 +1,6 @@
-﻿using Telegram.Bot;
-using Telegram.Bot.Polling;
+﻿#nullable enable
+using Microsoft.Extensions.DependencyInjection;
+using Telegram.Bot;
 using TemplateService.Telegram.Services;
 
 namespace TemplateService.Telegram;
@@ -12,52 +13,43 @@ public class Program
 
         builder.Configuration
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("tmp-appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables();
-        
-        builder.Services.AddControllers();
+
+        var configuration = builder.Configuration;
+
+        // Минимальный набор сервисов для бота
+        builder.Services.AddLogging();
         builder.Services.AddHttpClient();
-        
+
+        // Регистрация Telegram Bot Client
         builder.Services.AddSingleton<ITelegramBotClient>(sp =>
         {
-            var token = builder.Configuration["Telegram:BotToken"]!;
+            var token = configuration["Telegram:BotToken"]!;
             return new TelegramBotClient(token);
         });
 
-        // Добавляем HttpClient через фабрику
-        builder.Services.AddHttpClient();
+        // Регистрируем наши обработчики
+        builder.Services.AddScoped<ITelegramUpdateHandler, StartDialogHandler>();
+        builder.Services.AddScoped<ITelegramUpdateHandler, EventsCommandHandler>();
 
-        // Регистрируем IUpdateHandler как Scoped или Transient (лучше Scoped)
-        builder.Services.AddScoped<IUpdateHandler, StartDialogHandler>();
+        // Регистрация сервиса уведомлений
         builder.Services.AddScoped<INotificationService, NotificationService>();
 
-        // TelegramService тоже делаем Scoped, т.к. зависит от IUpdateHandler
+        // Регистрация TelegramService
         builder.Services.AddScoped<ITelegramService>(sp =>
         {
             var logger = sp.GetRequiredService<ILogger<TelegramService>>();
-            var startDialogHandler = sp.GetRequiredService<IUpdateHandler>();
-            var token = builder.Configuration["Telegram:BotToken"]!;
-    
-            return new TelegramService(token, logger, startDialogHandler);
+            var handlers = sp.GetServices<ITelegramUpdateHandler>();
+            var token = configuration["Telegram:BotToken"]!;
+
+            return new TelegramService(token, logger, handlers);
         });
-        
+
+        // Фоновый сервис для бота
         builder.Services.AddHostedService<TelegramBackgroundService>();
 
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-
         var app = builder.Build();
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-
-        app.UseRouting();
-        app.MapControllers();
-
         app.Run();
     }
 }

@@ -1,4 +1,6 @@
-﻿using TemplateService.Telegram.DTO;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using TemplateService.Telegram.DTO;
 
 namespace TemplateService.Telegram.Services;
 
