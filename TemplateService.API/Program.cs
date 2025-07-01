@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -34,6 +36,7 @@ namespace TemplateService.API
             dataSourceBuilder.EnableDynamicJson();
 
             var dataSource = dataSourceBuilder.Build();
+
             
             builder.Services.AddSingleton(dataSource);
             builder.Services.AddDbContext<TemplateDbContext>((provider, options) =>
@@ -151,6 +154,19 @@ namespace TemplateService.API
                 });
             });
 
+
+            
+            if (!string.IsNullOrEmpty(botToken))
+            {
+                builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+                builder.Services.AddScoped<NotificationService>();
+                builder.Services.AddHostedService<NotificationJob>();
+            }
+            else
+            {
+                Console.WriteLine("WARNING: Telegram BotToken not configured!");
+            }
+
             var app = builder.Build();
 
             MigrateDatabase(app.Services);
@@ -160,6 +176,7 @@ namespace TemplateService.API
             {
                 app.UseDeveloperExceptionPage();
             }
+            
             // Временно (Разрешены любые CORS)
             app.UseCors();
             

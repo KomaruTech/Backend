@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using TemplateService.Application.NotificationPreferences.Dtos;
 
-namespace TemplateService.Application.NotificationPreferences.Queries
-{
-    internal class GetNotificationPreferencesQuery
-    {
-    }
-}
+namespace TemplateService.Application.NotificationPreferences.Queries;
+
+public record GetNotificationPreferencesQuery(Guid Id) : IRequest<NotificationPreferencesDto>;

@@ -65,7 +65,7 @@ public class EventEntity
     /// Список участников мероприятия
     /// </summary>
     public virtual ICollection<EventParticipantEntity> Participants { get; set; } = new List<EventParticipantEntity>();
-    
+   
     /// <summary>
     /// Список фото мероприятия
     /// </summary>

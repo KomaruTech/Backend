@@ -1,10 +1,11 @@
-﻿using TemplateService.Domain.Enums;
+﻿#nullable enable
+using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.Event.DTOs;
 
 public record EventDto(
     Guid Id,
-    string Name,
+    string Name, // Изменено с Name на Title
     string Description,
     DateTime TimeStart,
     DateTime? TimeEnd,
@@ -12,5 +13,8 @@ public record EventDto(
     string? Location,
     Guid CreatedById,
     List<string> Keywords,
-    EventStatusEnum Status
+    bool NotificationsEnabled = true,
+    bool Reminder1DaySent = false,
+    bool Reminder1HourSent = false,
+    List<Guid> ParticipantIds = null
 );
