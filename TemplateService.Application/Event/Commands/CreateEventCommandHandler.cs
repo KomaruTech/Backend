@@ -40,7 +40,7 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
         _eventValidationService.ValidateDuration(command.TimeStart, command.TimeEnd);
         _eventValidationService.ValidateUserRole(userRole);
         _eventValidationService.ValidateLocation(command.Location);
-        
+
         // Генерируем общий ID для связки
         var id = Guid.NewGuid();
 
@@ -64,30 +64,44 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
 
         _dbContext.Events.Add(newEvent);
 
-        // Добавляем участников, если они есть
-        if (command.Participants != null && command.Participants.Any())
-        {
-            // Получаем список существующих пользователей по ID из команды (одним запросом)
-            var existingUserIds = await _dbContext.Users
-                .Where(u => command.Participants.Contains(u.Id))
-                .Select(u => u.Id)
-                .ToListAsync(ct);
+        // Список участников из команды (без дубликатов и без null)
+        var commandParticipantIds = command.Participants?.Where(id => id != userId).Distinct().ToList() ?? new();
 
-            // Добавляем только существующих пользователей
-            foreach (var participantId in existingUserIds)
+// Получаем список существующих пользователей по ID из команды
+        var existingUserIds = await _dbContext.Users
+            .Where(u => commandParticipantIds.Contains(u.Id))
+            .Select(u => u.Id)
+            .ToListAsync(ct);
+
+        // Добавляем участников из команды
+        foreach (var participantId in existingUserIds)
+        {
+            _dbContext.EventParticipants.Add(new EventParticipantEntity
             {
-                var participantEntity = new EventParticipantEntity
-                {
-                    EventId = id,
-                    UserId = participantId,
-                    IsSpeaker = false,
-                    AttendanceResponse = AttendanceResponseEnum.pending
-                };
-                _dbContext.EventParticipants.Add(participantEntity);
-            }
+                EventId = id,
+                UserId = participantId,
+                IsSpeaker = false,
+                AttendanceResponse = AttendanceResponseEnum.pending
+            });
         }
 
+        // Добавляем самого создателя в участники, если его ещё нет
+        _dbContext.EventParticipants.Add(new EventParticipantEntity
+        {
+            EventId = id,
+            UserId = userId,
+            IsSpeaker = false, // при необходимости можешь сделать true
+            AttendanceResponse = AttendanceResponseEnum.approved // логично, что он подтвердил
+        });
+
         await _dbContext.SaveChangesAsync(ct);
-        return _mapper.Map<EventDto>(newEvent);
+
+        // Заново загружаем Event с участниками
+        var fullEvent = await _dbContext.Events
+            .Include(e => e.Participants)
+            .FirstAsync(e => e.Id == id, ct);
+
+        // Преобразуем в DTO уже с участниками
+        return _mapper.Map<EventDto>(fullEvent);
     }
 }

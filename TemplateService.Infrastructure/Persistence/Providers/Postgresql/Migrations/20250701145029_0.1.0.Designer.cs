@@ -12,8 +12,8 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     [DbContext(typeof(TemplatePostgresqlDbContext))]
-    [Migration("20250630135647_0.0.3")]
-    partial class _003
+    [Migration("20250701145029_0.1.0")]
+    partial class _010
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,8 +59,13 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("character varying(64)")
                         .HasColumnName("name");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("suggested")
+                        .HasColumnName("status");
 
                     b.Property<DateTime?>("TimeEnd")
                         .HasColumnType("timestamp with time zone")
@@ -76,7 +81,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasDefaultValue("general")
-                        .HasColumnName("status");
+                        .HasColumnName("type");
 
                     b.HasKey("Id");
 
@@ -133,6 +138,32 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
 
                             t.HasCheckConstraint("CK_event_feedback_rating_range", "rating BETWEEN 1 AND 5");
                         });
+                });
+
+            modelBuilder.Entity("TemplateService.Domain.Entities.EventNotificationsEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("UserId", "EventId", "NotificationType");
+
+                    b.ToTable("event_notifications", "DEFAULT");
                 });
 
             modelBuilder.Entity("TemplateService.Domain.Entities.EventParticipantEntity", b =>
@@ -476,6 +507,25 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 });
 
             modelBuilder.Entity("TemplateService.Domain.Entities.EventFeedbackEntity", b =>
+                {
+                    b.HasOne("TemplateService.Domain.Entities.EventEntity", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TemplateService.Domain.Entities.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TemplateService.Domain.Entities.EventNotificationsEntity", b =>
                 {
                     b.HasOne("TemplateService.Domain.Entities.EventEntity", "Event")
                         .WithMany()

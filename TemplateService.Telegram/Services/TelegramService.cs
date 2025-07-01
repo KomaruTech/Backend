@@ -1,35 +1,40 @@
-﻿#nullable enable
-using Microsoft.Extensions.Logging;
-using Telegram.Bot;
-using Telegram.Bot.Types;
+﻿using Telegram.Bot;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types.Enums;
 
 namespace TemplateService.Telegram.Services;
 
-public class TelegramService
+public class TelegramService : ITelegramService
 {
     private readonly ITelegramBotClient _botClient;
     private readonly ILogger<TelegramService> _logger;
+    private readonly IUpdateHandler _startDialogHandler;
 
-    public TelegramService(string botToken, ILogger<TelegramService> logger)
+    public TelegramService(
+        string token,
+        ILogger<TelegramService> logger,
+        IUpdateHandler startDialogHandler
+        )
     {
         _logger = logger;
-        _botClient = new TelegramBotClient(botToken);
+        _startDialogHandler = startDialogHandler;
+        _botClient = new TelegramBotClient(token);
     }
 
-    // Добавляем async и возвращаем Task
-    public async Task SendMessage(long chatId, string message)
+    public async Task StartReceiving(CancellationToken cancellationToken)
     {
-        try
+        var receiverOptions = new ReceiverOptions
         {
-            await _botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: message);
+            AllowedUpdates = new[] { UpdateType.Message }
+        };
 
-            _logger.LogInformation("Сообщение отправлено в чат {ChatId}", chatId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка при отправке сообщения в чат {ChatId}", chatId);
-        }
+        _botClient.StartReceiving(
+            _startDialogHandler,
+            receiverOptions,
+            cancellationToken
+        );
+
+        var me = await _botClient.GetMe(cancellationToken);
+        _logger.LogInformation("Бот запущен. Username: {Username}", me.Username);
     }
 }

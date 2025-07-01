@@ -1,5 +1,4 @@
-﻿namespace TemplateService.Application.TelegramService;
-
+﻿namespace TemplateService.Application.Telegram.Services;
 public interface ITelegramNotificationService
 {
     /// <summary>

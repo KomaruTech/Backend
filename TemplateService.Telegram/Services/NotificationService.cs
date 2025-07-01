@@ -1,65 +1,42 @@
-﻿#nullable enable
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using TemplateService.Domain.Entities;
-using TemplateService.Infrastructure.Persistence;
+﻿using Telegram.Bot;
+using TemplateService.Telegram.DTO;
 
 namespace TemplateService.Telegram.Services;
 
-public class NotificationService
+public class NotificationService : INotificationService
 {
-    private readonly TemplateDbContext _dbContext;
     private readonly ILogger<NotificationService> _logger;
-    private readonly TelegramService _telegramService;
+    private readonly ITelegramService _telegramService;
+    private readonly ITelegramBotClient _botClient;
 
     public NotificationService(
-        TemplateDbContext dbContext,
         ILogger<NotificationService> logger,
-        TelegramService telegramService)
+        ITelegramBotClient botClient,
+        ITelegramService telegramService
+        )
     {
-        _dbContext = dbContext;
         _logger = logger;
+        _botClient = botClient;
         _telegramService = telegramService;
     }
 
-    public async Task CheckEventsAndSendNotifications()
+    public async Task SendNotification(SendToTelegramEventDto dto, CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
-
-        var events = await _dbContext.Events
-            .Include(e => e.CreatedBy)
-            .Where(e => e.TimeStart > now && e.TimeStart < now.AddHours(25))
-            .ToListAsync();
-
-        foreach (var evt in events)
+        var message = dto.Description;
+        
+        try
         {
-            // Проверяем уведомление за 1 день
-            if (evt.TimeStart.AddDays(-1) <= now && now < evt.TimeStart)
-            {
-                await SendNotification(
-                    evt.CreatedBy,
-                    $"Напоминание: {evt.Name} начнётся через 1 день ({evt.TimeStart:dd.MM.yyyy HH:mm})");
-            }
+            await _botClient.SendMessage(
+                chatId: dto.TelegramUserId,
+                text: message,
+                cancellationToken: cancellationToken);
 
-            // Проверяем уведомление за 1 час
-            if (evt.TimeStart.AddHours(-1) <= now && now < evt.TimeStart)
-            {
-                await SendNotification(
-                    evt.CreatedBy,
-                    $"Скоро начало: {evt.Name} через 1 час!");
-            }
+            _logger.LogInformation("Сообщение отправлено в чат {ChatId}", dto.TelegramUserId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при отправке сообщения в чат {ChatId}", dto.TelegramUserId);
         }
     }
 
-    // Добавляем async и возвращаем Task
-    private async Task SendNotification(UserEntity user, string message)
-    {
-        if (user.TelegramId == null)
-        {
-            _logger.LogWarning("У пользователя {UserId} не указан Telegram ID", user.Id);
-            return;
-        }
-
-        await _telegramService.SendMessage(user.TelegramId.Value, message);
-    }
 }

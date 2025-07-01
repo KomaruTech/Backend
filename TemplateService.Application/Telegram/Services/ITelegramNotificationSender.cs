@@ -1,4 +1,6 @@
-﻿namespace TemplateService.Application.TelegramService;
+﻿using TemplateService.Application.TelegramService;
+
+namespace TemplateService.Application.Telegram.Services;
 
 public interface ITelegramNotificationSender
 {

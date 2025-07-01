@@ -43,9 +43,10 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
         
         builder.HasIndex(u => u.Type);
         
-        builder.Property(e => e.Type)
+        builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()
+            .HasDefaultValue(EventStatusEnum.suggested)
             .HasConversion<string>()
             .HasMaxLength(32);
 

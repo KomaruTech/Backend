@@ -1,0 +1,31 @@
+﻿# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Копируем только нужные .csproj и восстанавливаем зависимости
+COPY TemplateService.Domain/TemplateService.Domain.csproj TemplateService.Domain/
+COPY TemplateService.Infrastructure/TemplateService.Infrastructure.csproj TemplateService.Infrastructure/
+COPY TemplateService.Telegram/TemplateService.Telegram.csproj TemplateService.Telegram/
+
+RUN dotnet restore TemplateService.Telegram/TemplateService.Telegram.csproj
+
+# Копируем весь исходный код
+COPY . .
+
+# Публикуем проект Telegram
+WORKDIR /app/TemplateService.Telegram
+RUN dotnet publish -c Release -o /out
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+
+# Копируем собранное приложение из предыдущего этапа
+COPY --from=build /out ./
+
+# Устанавливаем URL и порт для запуска
+ENV ASPNETCORE_URLS=http://+:5125
+EXPOSE 5125
+
+# Запускаем приложение
+ENTRYPOINT ["dotnet", "TemplateService.Telegram.dll"]

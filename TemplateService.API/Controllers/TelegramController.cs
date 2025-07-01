@@ -1,37 +1,38 @@
-﻿#nullable enable
+﻿
+using System.Net.Mime;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TemplateService.Telegram.Services;
+using TemplateService.Application.Telegram.Commands;
+
 
 namespace TemplateService.API.Controllers;
-
+/// <summary>
+/// Связывание ТГ и пользователя
+/// </summary>
 [ApiController]
-[Route("api/telegram")]
+[AllowAnonymous]
+[Produces(MediaTypeNames.Application.Json)]
+[Route("api/v1/[controller]")]
 public class TelegramController : ControllerBase
 {
-    private readonly TelegramService _telegramService;
-    private readonly ILogger<TelegramController> _logger;
+    private readonly IMediator _mediator;
 
-    public TelegramController(
-        TelegramService telegramService,
-        ILogger<TelegramController> logger)
+    public TelegramController(IMediator mediator)
     {
-        _telegramService = telegramService;
-        _logger = logger;
+        _mediator = mediator;
     }
 
-    [HttpPost("test")]
-    public async Task<IActionResult> SendTestMessage([FromQuery] long chatId)
+    /// <summary>
+    /// Получение Username пользователя, и его ID (только от ТГ БОТА)
+    /// </summary>
+    [HttpPost("connect")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ConnectTgUserNameWithId([FromBody] UserConnectCommand command)
     {
-        try
-        {
-            // Добавляем await
-            await _telegramService.SendMessage(chatId, "✅ Это тестовое сообщение от бота");
-            return Ok(new { status = "success", message = "Сообщение отправлено" });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка отправки тестового сообщения");
-            return StatusCode(500, new { status = "error", message = ex.Message });
-        }
+        await _mediator.Send(command);
+        return Ok();
     }
 }

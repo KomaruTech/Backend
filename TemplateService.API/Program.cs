@@ -16,12 +16,11 @@ using TemplateService.Application.Event.Services;
 using TemplateService.Application.Extensions;
 using TemplateService.Application.PasswordService;
 using TemplateService.Application.Teams.Services;
-using TemplateService.Application.TelegramService;
+using TemplateService.Application.Telegram.Services;
 using TemplateService.Application.TokenService;
 using TemplateService.Application.User.Services;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence;
-using TemplateService.Worker;
 
 namespace TemplateService.API
 {
@@ -138,8 +137,6 @@ namespace TemplateService.API
             builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
             builder.Services.AddScoped<ITelegramNotificationSender, TelegramNotificationSender>();
             builder.Services.AddScoped<ITelegramNotificationService, TelegramNotificationService>();
-                
-            builder.Services.AddHostedService<TelegramNotificationWorker>();
 
             builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
             
@@ -153,19 +150,6 @@ namespace TemplateService.API
                         .AllowAnyMethod();
                 });
             });
-
-
-            
-            if (!string.IsNullOrEmpty(botToken))
-            {
-                builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
-                builder.Services.AddScoped<NotificationService>();
-                builder.Services.AddHostedService<NotificationJob>();
-            }
-            else
-            {
-                Console.WriteLine("WARNING: Telegram BotToken not configured!");
-            }
 
             var app = builder.Build();
 

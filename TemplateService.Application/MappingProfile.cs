@@ -12,7 +12,9 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<EventEntity, EventDto>();
+        CreateMap<EventEntity, EventDto>()
+            .ForMember(dest => dest.ParticipantIds,
+                opt => opt.MapFrom(src => src.Participants.Select(p => p.UserId).ToList()));
         CreateMap<UserEntity, UserDto>()
             .ConstructUsing(u => new UserDto( 
                 u.Id,

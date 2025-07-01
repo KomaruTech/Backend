@@ -1,4 +1,4 @@
-﻿using TemplateService.Application.TelegramService;
+﻿using TemplateService.Application.Telegram.Services;
 
 namespace TemplateService.Worker;
 
@@ -21,8 +21,7 @@ public class TelegramNotificationWorker : BackgroundService
             var eventService = scope.ServiceProvider.GetRequiredService<ITelegramNotificationService>();
 
             await eventService.SendDailyNotificationAsync(stoppingToken);
-
-            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
 }

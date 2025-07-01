@@ -56,8 +56,13 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasColumnType("character varying(64)")
                         .HasColumnName("name");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("suggested")
+                        .HasColumnName("status");
 
                     b.Property<DateTime?>("TimeEnd")
                         .HasColumnType("timestamp with time zone")
@@ -73,7 +78,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasDefaultValue("general")
-                        .HasColumnName("status");
+                        .HasColumnName("type");
 
                     b.HasKey("Id");
 

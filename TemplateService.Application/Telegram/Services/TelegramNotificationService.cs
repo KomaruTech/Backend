@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TemplateService.Application.TelegramService;
 using TemplateService.Domain.Entities;
 using TemplateService.Domain.Enums;
 using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 
-namespace TemplateService.Application.TelegramService;
+namespace TemplateService.Application.Telegram.Services;
 
 public class TelegramNotificationService : ITelegramNotificationService
 {

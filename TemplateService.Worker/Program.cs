@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TemplateService.Application.Extensions;
-using TemplateService.Application.TelegramService;
+using TemplateService.Application.Telegram.Services;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     /// <inheritdoc />
-    public partial class _002 : Migration
+    public partial class _010 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -44,7 +44,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     email = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     role = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "member"),
                     telegram_username = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
-                    telegram_id = table.Column<long>(type: "bigint", nullable: false),
+                    telegram_id = table.Column<long>(type: "bigint", nullable: true),
                     notification_preferences_id = table.Column<Guid>(type: "uuid", nullable: false),
                     avatar = table.Column<byte[]>(type: "bytea", nullable: true),
                     avatar_mime_type = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true)
@@ -72,10 +72,10 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     description = table.Column<string>(type: "text", nullable: true),
                     time_start = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     time_end = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "general"),
+                    type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "general"),
                     location = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "suggested"),
                     keywords = table.Column<string>(type: "jsonb", nullable: false, defaultValueSql: "'[]'::jsonb")
                 },
                 constraints: table =>
@@ -146,6 +146,35 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         onDelete: ReferentialAction.Cascade);
                 },
                 comment: "Отзывы на мероприятия");
+
+            migrationBuilder.CreateTable(
+                name: "event_notifications",
+                schema: "DEFAULT",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    EventId = table.Column<Guid>(type: "uuid", nullable: false),
+                    NotificationType = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_event_notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_event_notifications_events_EventId",
+                        column: x => x.EventId,
+                        principalSchema: "DEFAULT",
+                        principalTable: "events",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_event_notifications_users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "DEFAULT",
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "event_participants",
@@ -310,6 +339,18 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 column: "group_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_event_notifications_EventId",
+                schema: "DEFAULT",
+                table: "event_notifications",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_event_notifications_UserId_EventId_NotificationType",
+                schema: "DEFAULT",
+                table: "event_notifications",
+                columns: new[] { "UserId", "EventId", "NotificationType" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_event_participants_event_id",
                 schema: "DEFAULT",
                 table: "event_participants",
@@ -334,10 +375,10 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                 column: "status");
 
             migrationBuilder.CreateIndex(
-                name: "IX_events_Status",
+                name: "IX_events_type",
                 schema: "DEFAULT",
                 table: "events",
-                column: "Status");
+                column: "type");
 
             migrationBuilder.CreateIndex(
                 name: "IX_speaker_applications_event_id",
@@ -420,6 +461,10 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
 
             migrationBuilder.DropTable(
                 name: "event_groups",
+                schema: "DEFAULT");
+
+            migrationBuilder.DropTable(
+                name: "event_notifications",
                 schema: "DEFAULT");
 
             migrationBuilder.DropTable(

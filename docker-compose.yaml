@@ -35,8 +35,7 @@ services:
     environment:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
       ASPNETCORE_ENVIRONMENT: Development
-  
-  
+
   worker:
     build:
       context: .
@@ -49,6 +48,26 @@ services:
         condition: service_healthy
       api:
         condition: service_started
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
+      ASPNETCORE_ENVIRONMENT: Development
+
+  telegram:
+    build:
+      context: .
+      dockerfile: Dockerfile.telegram
+    container_name: template_telegram
+    mem_limit: 500m
+    mem_reservation: 300m
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+      worker:
+        condition: service_started
+    ports:
+      - "5125:5125"
     environment:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=server;Username=postgres;Password=postgres;Timeout=300"
       ASPNETCORE_ENVIRONMENT: Development
