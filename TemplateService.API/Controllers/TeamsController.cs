@@ -91,7 +91,7 @@ public class TeamsController : ControllerBase
     /// <summary>
     /// Удаление участника из команды и возврат обновлённой информации о команде
     /// </summary>
-    [HttpDelete("{teamId:guid}/members/{userId:guid}")]
+    [HttpDelete("{teamId:guid}/member/{userId:guid}")]
     [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
