@@ -101,11 +101,16 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ secrets.GH_USER }} --password-stdin
-            docker pull ghcr.io/komarutech/backend:devops
-            docker stop backend || true 
-            docker rm backend || true
-            docker run -d --name backend --restart=always -p 5124:38231 \
+                        docker pull ghcr.io/komarutech/backend:devops
+            docker stop template_backend || true
+            docker rm template_backend || true
+            docker run -d --name template_backend \
+              --network app-network \
+              -p 5124:5124 \
+              -e "ConnectionStrings__DefaultConnection=Server=template_postgres;Port=5432;Database=server;UserId=postgres;Password=postgres;" \
               -e ASPNETCORE_ENVIRONMENT=Production \
+              -e WEB_PORT=5124 \
+              --restart unless-stopped \
               ghcr.io/komarutech/backend:devops
 
   security:
