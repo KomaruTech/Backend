@@ -47,14 +47,14 @@ public class EventEntity
     public Guid CreatedById { get; set; }
     
     /// <summary>
-    /// Тот, кто создал мероприятие
-    /// </summary>
-    public virtual UserEntity CreatedBy { get; set;}
-    
-    /// <summary>
     /// Мероприятие одобрено или нет
     /// </summary>
     public EventStatusEnum Status { get; set;}
+    
+    /// <summary>
+    /// Тот, кто создал мероприятие
+    /// </summary>
+    public virtual UserEntity CreatedBy { get; set;}
     
     /// <summary>
     /// Список ключевых слов мероприятия

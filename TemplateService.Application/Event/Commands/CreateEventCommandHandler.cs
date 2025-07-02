@@ -29,7 +29,7 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
         _eventValidationService = eventValidationService;
     }
 
-    public async Task<EventDto> Handle(CreateEventCommand command, CancellationToken ct)
+    public async Task<EventDto> Handle(CreateEventCommand command, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
@@ -47,6 +47,7 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
         var newEvent = new EventEntity
         {
             Id = id,
+            Status = EventStatusEnum.confirmed, // // Оно подтверждено т.к не может быть выполнено мембером
             Name = command.Name,
             Description = command.Description,
             TimeStart = command.TimeStart,
@@ -58,8 +59,7 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
                 .Where(k => !string.IsNullOrWhiteSpace(k)) // фильтрация пустых
                 .Select(k => k.ToLowerInvariant().Trim()) // приведение к нижнему регистру и обрезка пробелов
                 .Distinct() // убрает дубли
-                .ToList() ?? new List<string>(), // если null — сделать пустой список
-            Status = EventStatusEnum.confirmed // Оно подтверждено т.к не может быть выполнено мембером
+                .ToList() ?? new List<string>() // если null — сделать пустой список
         };
 
         _dbContext.Events.Add(newEvent);
@@ -71,7 +71,7 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
         var existingUserIds = await _dbContext.Users
             .Where(u => commandParticipantIds.Contains(u.Id))
             .Select(u => u.Id)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
 
         // Добавляем участников из команды
         foreach (var participantId in existingUserIds)
@@ -94,13 +94,14 @@ internal class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, E
             AttendanceResponse = AttendanceResponseEnum.approved // логично, что он подтвердил
         });
 
-        await _dbContext.SaveChangesAsync(ct);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         // Заново загружаем Event с участниками
         var fullEvent = await _dbContext.Events
             .Include(e => e.Participants)
-            .FirstAsync(e => e.Id == id, ct);
-
+            .FirstAsync(e => e.Id == id, cancellationToken);
+        
+        
         // Преобразуем в DTO уже с участниками
         return _mapper.Map<EventDto>(fullEvent);
     }

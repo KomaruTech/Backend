@@ -46,7 +46,6 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()
-            .HasDefaultValue(EventStatusEnum.suggested)
             .HasConversion<string>()
             .HasMaxLength(32);
 

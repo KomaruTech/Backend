@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     /// <inheritdoc />
-    public partial class _010 : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,7 +75,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                     type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "general"),
                     location = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false, defaultValue: "suggested"),
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     keywords = table.Column<string>(type: "jsonb", nullable: false, defaultValueSql: "'[]'::jsonb")
                 },
                 constraints: table =>
