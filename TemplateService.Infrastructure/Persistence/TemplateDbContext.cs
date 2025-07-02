@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection; // Добавьте это
 using TemplateService.Domain.Entities;
 
 namespace TemplateService.Infrastructure.Persistence;
@@ -24,6 +23,7 @@ public class TemplateDbContext : DbContext
     public DbSet<SpeakerApplicationEntity> SpeakerApplications { get; set; }
     public DbSet<EventPhotoEntity> EventPhotos { get; set; }
     public DbSet<EventNotificationsEntity> EventNotifications { get; set; }
+    public DbSet<EventTeamsEntity> EventTeams { get; set; }
 
     public void Migrate()
     {
@@ -32,8 +32,7 @@ public class TemplateDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
-
-    // Подключение конфигураций сущностей
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

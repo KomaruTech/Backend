@@ -4,19 +4,18 @@ using TemplateService.Application.Auth.Services;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Services;
 using TemplateService.Domain.Entities;
-using TemplateService.Domain.Enums;
 using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Event.Commands;
 
-internal class InviteUserToEventCommandHandler : IRequestHandler<InviteUserToEventCommand, EventDto>
+internal class RemoveTeamFromEventCommandHandler : IRequestHandler<RemoveTeamFromEventCommand, EventDto>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IEventValidationService _eventValidationService;
     private readonly IMapper _mapper;
 
-    public InviteUserToEventCommandHandler(
+    public RemoveTeamFromEventCommandHandler(
         TemplateDbContext dbContext,
         ICurrentUserService currentUserService,
         IEventValidationService eventValidationService,
@@ -29,47 +28,39 @@ internal class InviteUserToEventCommandHandler : IRequestHandler<InviteUserToEve
         _mapper = mapper;
     }
 
-    public async Task<EventDto> Handle(InviteUserToEventCommand command, CancellationToken cancellationToken)
+    public async Task<EventDto> Handle(RemoveTeamFromEventCommand command, CancellationToken cancellationToken)
     {
         var eventEntity = await _dbContext.Events.FindAsync([command.EventId], cancellationToken);
         if (eventEntity == null)
             throw new InvalidOperationException($"Event with ID {command.EventId} not found.");
-
-        var userEntity = await _dbContext.Users.FindAsync([command.UserId], cancellationToken);
-        if (userEntity == null)
-            throw new InvalidOperationException($"User with ID {command.UserId} not found.");
-
+        
+        var teamEntity = await _dbContext.Teams.FindAsync([command.TeamId], cancellationToken);
+        if (teamEntity == null)
+            throw new InvalidOperationException($"Team with ID {command.TeamId} not found.");
+        
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
 
         _eventValidationService.ValidateInvitePermissions(userId, eventEntity.CreatedById, userRole);
 
-        // Проверяем, существует ли уже приглашение/участие для command.UserId на это мероприятие
-        var existingParticipant = await _dbContext.EventParticipants
-            .FirstOrDefaultAsync(ep => ep.EventId == command.EventId && ep.UserId == command.UserId, cancellationToken);
+        // Проверяем, добавлена ли команда к мероприятию
+        var existingTeam = await _dbContext.EventTeams
+            .FirstOrDefaultAsync(et => et.EventId == command.EventId && et.TeamId == command.TeamId, cancellationToken);
 
-        if (existingParticipant != null)
+        if (existingTeam == null)
         {
-            throw new InvalidOperationException($"User with ID {command.UserId} is already invited or participating in the event.");
+            throw new InvalidOperationException($"Team with ID {command.TeamId} is not added to the event.");
         }
 
-        // Создаём новую запись участия со статусом приглашения pending
-        var newParticipant = new EventParticipantEntity
-        {
-            EventId = command.EventId,
-            UserId = command.UserId,
-            IsSpeaker = command.AsSpeaker,
-            AttendanceResponse = AttendanceResponseEnum.pending
-        };
-
-        _dbContext.EventParticipants.Add(newParticipant);
+        _dbContext.EventTeams.Remove(existingTeam);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
         // Актуальные данные
         var updatedEvent = await _dbContext.Events
             .Include(e => e.Participants)
             .Include(e => e.EventTeams)
             .FirstOrDefaultAsync(e => e.Id == command.EventId, cancellationToken);
 
-        return _mapper.Map<EventDto>(updatedEvent);
+        return _mapper.Map<EventDto>(updatedEvent!);
     }
 }

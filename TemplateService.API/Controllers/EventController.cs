@@ -148,7 +148,7 @@ public class EventController : ControllerBase
 
         return Ok(events); // 200 OK
     }
-    
+
     /// <summary>
     /// Список мероприятий, куда меня позвали
     /// </summary>
@@ -164,21 +164,63 @@ public class EventController : ControllerBase
 
         return Ok(events); // 200 OK
     }
-    
+
     /// <summary>
     /// Пригласить пользователя на мероприятие
     /// </summary>
     [HttpPost("{eventId}/invite/{userId}")]
-    [ProducesResponseType(typeof(Unit), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> InviteUserToEvent(Guid eventId, Guid userId, bool asSpeaker)
+    public async Task<ActionResult<EventDto>> InviteUserToEvent(Guid eventId, Guid userId, bool asSpeaker)
     {
         var command = new InviteUserToEventCommand(eventId, userId, asSpeaker);
-        await _mediator.Send(command);
-        return Ok();
+        var updatedEvent = await _mediator.Send(command);
+        return Ok(updatedEvent);
     }
     
+    /// <summary>
+    /// Удалить пользователя из мероприятия
+    /// </summary>
+    [HttpPost("{eventId}/remove/{userId}")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<EventDto>> RemoveUserFromEvent(Guid eventId, Guid userId)
+    {
+        var command = new RemoveUserFromEventCommand(eventId, userId);
+        var updatedEvent = await _mediator.Send(command);
+        return Ok(updatedEvent);
+    }
+
+    /// <summary>
+    /// Добавить команду к мероприятию, только для групповых мероприятий
+    /// </summary>
+    [HttpPost("{eventId}/invite_team/{teamId}")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<EventDto>> AddTeamToEvent(Guid eventId, Guid teamId)
+    {
+        var command = new AddTeamToEventCommand(eventId, teamId);
+        var updatedEvent = await _mediator.Send(command);
+        return Ok(updatedEvent);
+    }
+    
+    /// <summary>
+    /// Удалить команду из мероприятия, только для групповых мероприятий
+    /// </summary>
+    [HttpPost("{eventId}/remove_team/{teamId}")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<EventDto>> RemoveFromEvent(Guid eventId, Guid teamId)
+    {
+        var command = new RemoveTeamFromEventCommand(eventId, teamId);
+        var updatedEvent = await _mediator.Send(command);
+        return Ok(updatedEvent);
+    }
+
     /// <summary>
     /// Ответ на приглашение на мероприятие
     /// </summary>
@@ -186,7 +228,7 @@ public class EventController : ControllerBase
     [ProducesResponseType(typeof(Unit), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> RespondInvitation(Guid eventId, RespondInvitationStatus status)
+    public async Task<ActionResult> RespondInvitation(Guid eventId, RespondInvitationStatus status)
     {
         var command = new RespondInvitationCommand(eventId, status);
         await _mediator.Send(command);

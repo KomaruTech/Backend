@@ -14,4 +14,5 @@ public interface IEventValidationService
     void ValidateUpdatePermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
     void ValidateConfirmPermissions(UserRoleEnum userRole);
     void ValidateInvitePermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
+    void ValidateRemovePermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
 }

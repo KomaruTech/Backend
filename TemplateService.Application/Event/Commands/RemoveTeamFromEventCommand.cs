@@ -2,9 +2,8 @@
 
 namespace TemplateService.Application.Event.Commands;
 
-public record InviteUserToEventCommand
+public record RemoveTeamFromEventCommand
 (
     Guid EventId,
-    Guid UserId,
-    bool AsSpeaker = false
+    Guid TeamId
 ) : IRequest<EventDto>;

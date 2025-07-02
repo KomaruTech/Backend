@@ -57,7 +57,13 @@ public class EventValidationService : IEventValidationService
     public void ValidateInvitePermissions(Guid userId, Guid createdById, UserRoleEnum userRole)
     {
         if (userId != createdById && userRole != UserRoleEnum.administrator)
-            throw new UnauthorizedAccessException("You don't have permission to invite users to this event.");
+            throw new UnauthorizedAccessException("You don't have permission to invite users/teams to this event.");
+    }
+    
+    public void ValidateRemovePermissions(Guid userId, Guid createdById, UserRoleEnum userRole)
+    {
+        if (userId != createdById && userRole != UserRoleEnum.administrator)
+            throw new UnauthorizedAccessException("You don't have permission to remove users/teams from this event.");
     }
 
     public void ValidateConfirmPermissions(UserRoleEnum userRole)

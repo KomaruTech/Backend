@@ -1,5 +1,4 @@
-﻿#nullable enable
-using TemplateService.Domain.Enums;
+﻿using TemplateService.Domain.Enums;
 
 namespace TemplateService.Application.Event.DTOs;
 
@@ -16,4 +15,5 @@ public class EventDto
     public Guid CreatedById { get; set; }
     public List<string> Keywords { get; set; } = new();
     public List<Guid> ParticipantIds { get; set; } = new();
+    public List<Guid> TeamIds { get; set; } = new();
 }

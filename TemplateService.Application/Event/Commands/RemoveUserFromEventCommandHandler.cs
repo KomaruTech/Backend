@@ -9,14 +9,14 @@ using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Event.Commands;
 
-internal class InviteUserToEventCommandHandler : IRequestHandler<InviteUserToEventCommand, EventDto>
+internal class RemoveUserFromEventCommandHandler : IRequestHandler<RemoveUserFromEventCommand, EventDto>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IEventValidationService _eventValidationService;
     private readonly IMapper _mapper;
 
-    public InviteUserToEventCommandHandler(
+    public RemoveUserFromEventCommandHandler(
         TemplateDbContext dbContext,
         ICurrentUserService currentUserService,
         IEventValidationService eventValidationService,
@@ -29,16 +29,16 @@ internal class InviteUserToEventCommandHandler : IRequestHandler<InviteUserToEve
         _mapper = mapper;
     }
 
-    public async Task<EventDto> Handle(InviteUserToEventCommand command, CancellationToken cancellationToken)
+    public async Task<EventDto> Handle(RemoveUserFromEventCommand command, CancellationToken cancellationToken)
     {
         var eventEntity = await _dbContext.Events.FindAsync([command.EventId], cancellationToken);
         if (eventEntity == null)
             throw new InvalidOperationException($"Event with ID {command.EventId} not found.");
-
+        
         var userEntity = await _dbContext.Users.FindAsync([command.UserId], cancellationToken);
         if (userEntity == null)
             throw new InvalidOperationException($"User with ID {command.UserId} not found.");
-
+        
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
 
@@ -48,21 +48,12 @@ internal class InviteUserToEventCommandHandler : IRequestHandler<InviteUserToEve
         var existingParticipant = await _dbContext.EventParticipants
             .FirstOrDefaultAsync(ep => ep.EventId == command.EventId && ep.UserId == command.UserId, cancellationToken);
 
-        if (existingParticipant != null)
+        if (existingParticipant == null)
         {
-            throw new InvalidOperationException($"User with ID {command.UserId} is already invited or participating in the event.");
+            throw new InvalidOperationException($"User with ID {command.UserId} is not invited or participating in the event.");
         }
-
-        // Создаём новую запись участия со статусом приглашения pending
-        var newParticipant = new EventParticipantEntity
-        {
-            EventId = command.EventId,
-            UserId = command.UserId,
-            IsSpeaker = command.AsSpeaker,
-            AttendanceResponse = AttendanceResponseEnum.pending
-        };
-
-        _dbContext.EventParticipants.Add(newParticipant);
+        
+        _dbContext.EventParticipants.Remove(existingParticipant);
         await _dbContext.SaveChangesAsync(cancellationToken);
         // Актуальные данные
         var updatedEvent = await _dbContext.Events

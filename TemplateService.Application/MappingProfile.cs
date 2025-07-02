@@ -14,7 +14,10 @@ public class MappingProfile : Profile
     {
         CreateMap<EventEntity, EventDto>()
             .ForMember(dest => dest.ParticipantIds,
-                opt => opt.MapFrom(src => src.Participants.Select(p => p.UserId).ToList()));
+                opt => opt.MapFrom(src => src.Participants.Select(p => p.UserId).ToList()))
+            .ForMember(dest => dest.TeamIds,
+                opt => opt.MapFrom(src => src.EventTeams.Select(et => et.TeamId).ToList()));;
+        
         CreateMap<UserEntity, UserDto>()
             .ConstructUsing(u => new UserDto( 
                 u.Id,
