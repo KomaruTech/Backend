@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace TemplateService.Application.NotificationPreferences.Dtos
 {
-    internal class NotificationPreferencesDto
+    public class NotificationPreferencesDto
     {
+        public Guid Id { get; set; }
     }
 }

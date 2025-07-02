@@ -1,12 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using TemplateService.Application.NotificationPreferences.Dtos;
 
 namespace TemplateService.Application.NotificationPreferences.Queries
 {
-    internal class GetNotificationPreferencesQueryHandler
+    public class GetNotificationPreferencesQueryHandler : IRequestHandler<GetNotificationPreferencesQuery, NotificationPreferencesDto>
     {
+        public async Task<NotificationPreferencesDto> Handle(GetNotificationPreferencesQuery request, CancellationToken cancellationToken)
+        {
+            return await Task.FromResult(new NotificationPreferencesDto { Id = request.Id });
+        }
     }
 }
