@@ -28,8 +28,10 @@ public class Program
             var token = configuration["Telegram:BotToken"]!;
             return new TelegramBotClient(token);
         });
+      //  builder.Services.AddHostedService(provider =>
+       //      provider.GetRequiredService<ITelegramService>());
 
-        builder.Services.AddScoped<ITelegramService>(sp =>
+        builder.Services.AddSingleton<ITelegramService>(sp =>
         {
             var logger = sp.GetRequiredService<ILogger<TelegramService>>();
             var handlers = sp.GetServices<ITelegramUpdateHandler>();
@@ -38,11 +40,11 @@ public class Program
             return new TelegramService(botClient, logger, handlers); // Передаем в конструктор
         });
         // Регистрируем наши обработчики
-        builder.Services.AddScoped<ITelegramUpdateHandler, StartDialogHandler>();
-        builder.Services.AddScoped<ITelegramUpdateHandler, EventsCommandHandler>();
+        builder.Services.AddSingleton<ITelegramUpdateHandler, StartDialogHandler>();
+        builder.Services.AddSingleton<ITelegramUpdateHandler, EventsCommandHandler>();
 
         // Регистрация сервиса уведомлений
-        builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddSingleton<INotificationService, NotificationService>();
 
         // Регистрация TelegramService
         //builder.Services.AddScoped<ITelegramService>(sp =>

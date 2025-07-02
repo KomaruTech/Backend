@@ -104,7 +104,6 @@ public class StartDialogHandler : ITelegramUpdateHandler
 
     public async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
-        _logger.LogError(exception, "Ошибка при получении обновлений Telegram");
         await Task.CompletedTask;
     }
 }

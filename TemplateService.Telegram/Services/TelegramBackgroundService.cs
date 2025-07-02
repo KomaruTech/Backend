@@ -19,23 +19,26 @@ public class TelegramBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Starting Telegram polling...");
-
-        using (var scope = _serviceProvider.CreateScope())
+        while (!stoppingToken.IsCancellationRequested)
         {
-            var telegramService = scope.ServiceProvider.GetRequiredService<ITelegramService>();
-
             try
             {
+                _logger.LogInformation("Starting Telegram polling...");
+                using var scope = _serviceProvider.CreateScope();
+                var telegramService = scope.ServiceProvider.GetRequiredService<ITelegramService>();
                 await telegramService.StartReceiving(stoppingToken);
-                await Task.Delay(Timeout.Infinite, stoppingToken);
+                await Task.Delay(Timeout.Infinite, stoppingToken); // Ожидаем бесконечно
+            }
+            catch (OperationCanceledException)
+            {
+                break; // Корректное завершение
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Telegram polling stopped with error");
+                _logger.LogError(ex, "Telegram polling error. Restarting in 10 seconds...");
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // Пауза перед перезапуском
             }
         }
-
         _logger.LogInformation("Telegram polling stopped");
     }
 }

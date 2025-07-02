@@ -50,9 +50,20 @@ public class TelegramService : ITelegramService
 
     private async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
+        // Логируем ошибку только здесь
+        _logger.LogError(exception, "Global Telegram polling error");
+
+        // Оповещаем обработчики БЕЗ повторного логирования
         foreach (var handler in _handlers)
         {
-            await handler.HandlePollingErrorAsync(botClient, exception, cancellationToken);
+            try
+            {
+                await handler.HandlePollingErrorAsync(botClient, exception, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error in handler's error processing");
+            }
         }
     }
 }

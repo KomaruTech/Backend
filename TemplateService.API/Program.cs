@@ -159,8 +159,8 @@ namespace TemplateService.API
             builder.Services.AddScoped<IEventValidationService, EventValidationService>();
             builder.Services.AddScoped<IUserHelperService, UserHelperService>();
             builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
-            builder.Services.AddScoped<ITelegramNotificationSender, TelegramNotificationSender>();
-            builder.Services.AddScoped<ITelegramNotificationService, TelegramNotificationService>();
+           // builder.Services.AddScoped<ITelegramNotificationSender, TelegramNotificationSender>();
+           // builder.Services.AddScoped<ITelegramNotificationService, TelegramNotificationService>();
 
             builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
             

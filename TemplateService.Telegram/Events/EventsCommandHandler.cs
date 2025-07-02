@@ -100,7 +100,6 @@ public class EventsCommandHandler : ITelegramUpdateHandler
 
     public async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
-        _logger.LogError(exception, "Ошибка обработки команды /events");
         await Task.CompletedTask;
     }
 }
