@@ -122,6 +122,6 @@ jobs:
       - name: Run security audit
         run: dotnet list package --vulnerable --include-transitive || echo "No vulnerabilities found"
 
-      - name: Run CodeQL Analysis (опционально)
-        if: github.event_name == 'push'
-        run: echo "CodeQL analysis can be configured here" 
+      # - name: Run CodeQL Analysis (опционально)
+      #   if: github.event_name == 'push'
+      #   run: echo "CodeQL analysis can be configured here" 
