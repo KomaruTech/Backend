@@ -32,11 +32,15 @@ internal class AddTeamMemberCommandHandler
 
     public async Task<TeamsDto> Handle(AddTeamMemberCommand request, CancellationToken ct)
     {
+        var userId = _currentUserService.GetUserId();
+        var userRole = _currentUserService.GetUserRole();
         var team = await GetTeamAsync(request.TeamId, ct);
         var userToAdd = await GetUserAsync(request.UserId, ct);
 
         if (await IsUserAlreadyMemberAsync(request.TeamId, request.UserId, ct))
-            throw new InvalidOperationException("Пользователь уже состоит в команде.");
+            throw new InvalidOperationException("User is already in a team");
+        
+        _teamValidationService.ValidateAddToTeamPermission(userId, userToAdd.Id, userRole);
 
         await AddUserToTeamAsync(request.TeamId, request.UserId, ct);
 

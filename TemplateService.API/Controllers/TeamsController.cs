@@ -35,6 +35,18 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
+    /// Удаление команды по UUID (для создателя команды и администратора)
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(typeof(Unit), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Unit>> DeleteTeam(Guid id)
+    {
+        await _mediator.Send(new DeleteTeamCommand(id));
+        return NoContent();
+    }
+
+    /// <summary>
     /// Создание команды
     /// </summary>
     [HttpPost("create")]
@@ -55,12 +67,12 @@ public class TeamsController : ControllerBase
     public async Task<ActionResult<List<TeamsDto>>> SearchTeams([FromBody] SearchTeamsQuery command)
     {
         var teams = await _mediator.Send(command);
-        
+
         if (teams.Count() == 0)
             return NoContent();
         return Ok(teams);
     }
-    
+
     /// <summary>
     /// Поиск команд по названию (только тех, где человек состоит)
     /// </summary>
@@ -70,10 +82,23 @@ public class TeamsController : ControllerBase
     public async Task<ActionResult<List<TeamsDto>>> SearchTeams([FromBody] SearchMyTeamsQuery command)
     {
         var teams = await _mediator.Send(command);
-        
+
         if (teams.Count() == 0)
             return NoContent();
         return Ok(teams);
+    }
+    
+    /// <summary>
+    /// Удаление участника из команды и возврат обновлённой информации о команде
+    /// </summary>
+    [HttpDelete("{teamId:guid}/members/{userId:guid}")]
+    [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<TeamsDto>> RemoveTeamMember(Guid teamId, Guid userId)
+    {
+        var updatedTeam = await _mediator.Send(new DeleteTeamMemberCommand(teamId, userId));
+        return Ok(updatedTeam);
     }
     
 }

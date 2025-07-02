@@ -27,4 +27,13 @@ public class TeamValidationService : ITeamValidationService
         if (userId != teamOwnerId && role != UserRoleEnum.administrator)
             throw new ArgumentException("You don't have permission to add users to this team");
     }
+
+    public void ValidateDeleteMemberPermission(Guid userThatDeletesId,Guid userToDeleteId, Guid teamOwnerId, UserRoleEnum userThatDeletesRoles)
+    {
+        if (userToDeleteId == teamOwnerId)
+            throw new ArgumentException("You can't delete owner of the team");
+        
+        if (userThatDeletesId != teamOwnerId && userThatDeletesRoles != UserRoleEnum.administrator)
+            throw new ArgumentException("You don't have permission to delete members of the team");
+    }
 }
