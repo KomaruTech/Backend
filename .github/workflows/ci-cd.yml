@@ -102,9 +102,9 @@ jobs:
           script: |
             echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ secrets.GH_USER }} --password-stdin
             docker pull ghcr.io/komarutech/backend:devops
-            docker stop backend || true
+            docker stop backend || true 
             docker rm backend || true
-            docker run -d --name backend --restart=always -p 5124:5124 \
+            docker run -d --name backend --restart=always -p 5124:38231 \
               -e ASPNETCORE_ENVIRONMENT=Production \
               ghcr.io/komarutech/backend:devops
 
