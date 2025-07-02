@@ -53,10 +53,16 @@ public class EventValidationService : IEventValidationService
         if (userId != createdById && userRole != UserRoleEnum.administrator)
             throw new UnauthorizedAccessException("You don't have permission to edit this event.");
     }
-
-    public void ValidateConfirmPermissions(Guid userId, Guid createdById, UserRoleEnum userRole)
+    
+    public void ValidateInvitePermissions(Guid userId, Guid createdById, UserRoleEnum userRole)
     {
-        if (userId != createdById && userRole == UserRoleEnum.member)
+        if (userId != createdById && userRole != UserRoleEnum.administrator)
+            throw new UnauthorizedAccessException("You don't have permission to invite users to this event.");
+    }
+
+    public void ValidateConfirmPermissions(UserRoleEnum userRole)
+    {
+        if (userRole == UserRoleEnum.member)
             throw new UnauthorizedAccessException("You don't have permission to confirm this event.");
     }
 }

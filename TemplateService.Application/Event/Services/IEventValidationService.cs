@@ -12,5 +12,6 @@ public interface IEventValidationService
     void ValidateDuration(DateTime timeStart, DateTime? timeEnd);
     void ValidateLocation(string? location);
     void ValidateUpdatePermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
-    void ValidateConfirmPermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
+    void ValidateConfirmPermissions(UserRoleEnum userRole);
+    void ValidateInvitePermissions(Guid userId, Guid createdById, UserRoleEnum userRole);
 }
