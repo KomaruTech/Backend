@@ -48,5 +48,10 @@ public class EventParticipantsConfiguration : IEntityTypeConfiguration<EventPart
             .WithMany(ev => ev.Participants)
             .HasForeignKey(e => e.EventId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasOne(e => e.User)
+            .WithMany(u => u.EventParticipants)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

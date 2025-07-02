@@ -82,4 +82,9 @@ public class UserEntity
     /// </summary>
     public virtual ICollection<UserTeamsEntity> Teams { get; set; } = new List<UserTeamsEntity>();
     
+    /// <summary>
+    /// Участия пользователя в мероприятиях
+    /// </summary>
+    public virtual ICollection<EventParticipantEntity> EventParticipants { get; set; } = new List<EventParticipantEntity>();
+    
 }

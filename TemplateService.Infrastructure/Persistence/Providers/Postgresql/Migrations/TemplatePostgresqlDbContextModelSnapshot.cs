@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
@@ -12,11 +11,9 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrations
 {
     [DbContext(typeof(TemplatePostgresqlDbContext))]
-    [Migration("20250702084052_Initial")]
-    partial class Initial
+    partial class TemplatePostgresqlDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -551,7 +548,7 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
                         .IsRequired();
 
                     b.HasOne("TemplateService.Domain.Entities.UserEntity", "User")
-                        .WithMany()
+                        .WithMany("EventParticipants")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -670,6 +667,8 @@ namespace TemplateService.Infrastructure.Persistence.Providers.Postgresql.Migrat
             modelBuilder.Entity("TemplateService.Domain.Entities.UserEntity", b =>
                 {
                     b.Navigation("CreatedTeams");
+
+                    b.Navigation("EventParticipants");
 
                     b.Navigation("Teams");
                 });
