@@ -27,7 +27,11 @@ public class MappingProfile : Profile
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
-        CreateMap<NotificationPreferencesEntity, UserNotificationPreferencesDto>();
+        CreateMap<NotificationPreferencesEntity, UserNotificationPreferencesDto>()
+            .ForMember(dest => dest.NotifyBeforeOneDay, opt => opt.MapFrom(src => src.ReminderBefore1Day))
+            .ForMember(dest => dest.NotifyBeforeOneHour, opt => opt.MapFrom(src => src.ReminderBefore1Hour))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.NotifyTelegram, opt => opt.MapFrom(src => src.NotifyTelegram));
         
         CreateMap<UpdateEventCommand, EventEntity>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

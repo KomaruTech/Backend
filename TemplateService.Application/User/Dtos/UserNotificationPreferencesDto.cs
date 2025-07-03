@@ -1,10 +1,10 @@
 ﻿namespace TemplateService.Application.User.Dtos;
 
 
-public record UserNotificationPreferencesDto
+public class UserNotificationPreferencesDto
 {
-    public Guid Id { get; init; }
-    public bool NotifyTelegram { get; init; }
-    public bool NotifyBeforeOneDay { get; init; }
-    public bool NotifyBeforeOneHour { get; init; }
+    public Guid Id { get; set; }
+    public bool NotifyTelegram { get; set; }
+    public bool NotifyBeforeOneDay { get; set; }
+    public bool NotifyBeforeOneHour { get; set; }
 }
