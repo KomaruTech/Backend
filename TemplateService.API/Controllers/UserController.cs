@@ -96,7 +96,7 @@ public class UserController : ControllerBase
     [HttpPatch("me/notification_preferences")]
     [ProducesResponseType(typeof(UserNotificationPreferencesDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UserNotificationPreferencesDto>> GetUserNotificationPreferences([FromBody] GetNotificationPreferencesQuery command)
+    public async Task<ActionResult<UserNotificationPreferencesDto>> UpdateUserNotificationPreferences([FromBody] UpdateNotificationPreferencesCommand command)
     {
         var updatedUser = await _mediator.Send(command);
         return Ok(updatedUser);
@@ -108,7 +108,7 @@ public class UserController : ControllerBase
     [HttpGet("me/notification_preferences")]
     [ProducesResponseType(typeof(UserNotificationPreferencesDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UserNotificationPreferencesDto>> UpdateUserNotificationPreferences([FromBody] UpdateNotificationPreferencesCommand command)
+    public async Task<ActionResult<UserNotificationPreferencesDto>> GetUserNotificationPreferences(GetNotificationPreferencesQuery command)
     {
         var userNotificationPreferences = await _mediator.Send(command);
         return Ok(userNotificationPreferences);
