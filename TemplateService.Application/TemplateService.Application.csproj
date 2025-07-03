@@ -25,7 +25,6 @@
     <ItemGroup>
         <Folder Include="EventFeedback\" />
         <Folder Include="EventPhotos\" />
-        <Folder Include="NotificationPreferences\" />
         <Folder Include="SpeakerApplication\" />
         <Folder Include="UserTeams\" />
     </ItemGroup>

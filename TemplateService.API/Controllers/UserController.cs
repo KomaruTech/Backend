@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.User.Commands;
+using TemplateService.Application.User.Dtos;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Application.User.Queries;
 
@@ -87,6 +88,30 @@ public class UserController : ControllerBase
     {
         var updatedUser = await _mediator.Send(profileCommand);
         return Ok(updatedUser);
+    }
+    
+    /// <summary>
+    /// Изменение настроек получения уведомлений
+    /// </summary>
+    [HttpPatch("me/notification_preferences")]
+    [ProducesResponseType(typeof(UserNotificationPreferencesDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<UserNotificationPreferencesDto>> GetUserNotificationPreferences([FromBody] UpdateNotificationPreferencesCommand command)
+    {
+        var updatedUser = await _mediator.Send(command);
+        return Ok(updatedUser);
+    }
+    
+    /// <summary>
+    /// Получение настроек получения уведомлений
+    /// </summary>
+    [HttpGet("me/notification_preferences")]
+    [ProducesResponseType(typeof(UserNotificationPreferencesDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<UserNotificationPreferencesDto>> UpdateUserNotificationPreferences([FromBody] GetNotificationPreferencesQuery command)
+    {
+        var userNotificationPreferences = await _mediator.Send(command);
+        return Ok(userNotificationPreferences);
     }
 
     /// <summary>

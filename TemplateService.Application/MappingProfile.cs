@@ -3,6 +3,7 @@ using TemplateService.Application.Event.Commands;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Teams.Dtos;
 using TemplateService.Application.User.Commands;
+using TemplateService.Application.User.Dtos;
 using TemplateService.Application.User.DTOs;
 using TemplateService.Application.User.Services;
 using TemplateService.Domain.Entities;
@@ -25,6 +26,8 @@ public class MappingProfile : Profile
         
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+        CreateMap<UserNotificationPreferencesDto, NotificationPreferencesEntity>();
         
         CreateMap<UpdateEventCommand, EventEntity>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
