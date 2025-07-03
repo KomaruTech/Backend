@@ -3,7 +3,6 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.Auth.Services;
 using TemplateService.Application.EventParticipant.Queries;
-using TemplateService.Application.SpeakerApplication.Dtos;
 using TemplateService.Application.Teams.Dtos;
 using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
