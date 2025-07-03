@@ -27,7 +27,7 @@ public class MappingProfile : Profile
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
-        CreateMap<UserNotificationPreferencesDto, NotificationPreferencesEntity>();
+        CreateMap<NotificationPreferencesEntity, UserNotificationPreferencesDto>();
         
         CreateMap<UpdateEventCommand, EventEntity>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
