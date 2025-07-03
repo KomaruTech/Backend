@@ -21,6 +21,7 @@ using TemplateService.Application.TokenService;
 using TemplateService.Application.User.Services;
 using TemplateService.Infrastructure.Extensions;
 using TemplateService.Infrastructure.Persistence;
+using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 
 namespace TemplateService.API
 {
@@ -33,9 +34,7 @@ namespace TemplateService.API
 
             var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
             dataSourceBuilder.EnableDynamicJson();
-
             var dataSource = dataSourceBuilder.Build();
-
 
             builder.Services.AddSingleton(dataSource);
             builder.Services.AddDbContext<TemplateDbContext>((provider, options) =>
@@ -49,44 +48,61 @@ namespace TemplateService.API
             builder.WebHost.ConfigureKestrel(options =>
             {
                 var httpPort = GetDefinedPorts(builder.Configuration);
-
-                options.Listen(IPAddress.Any, httpPort, listenOptions => { listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2; });
+                options.Listen(IPAddress.Any, httpPort, listenOptions =>
+                {
+                    listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+                });
             });
 
+            // Регистрация сервисов
             builder.Services
                 .AddControllers()
                 .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddCors();
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHttpClient();
 
+            // Регистрация DbContext
+            builder.Services.AddDbContext<TemplatePostgresqlDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")),
+                contextLifetime: ServiceLifetime.Scoped,
+                optionsLifetime: ServiceLifetime.Singleton);
+
+            // Регистрация Telegram сервисов
+            builder.Services.AddScoped<ITelegramNotificationSender, TelegramNotificationSender>();
+            builder.Services.AddScoped<ITelegramNotificationService, TelegramNotificationService>();
+            builder.Services.AddSingleton<IHostedService>(provider =>
+                new TelegramNotificationBackgroundService(
+                provider.GetRequiredService<ILogger<TelegramNotificationBackgroundService>>(),
+                provider.GetRequiredService<IServiceProvider>()));
+
+            // Регистрация аутентификации
             var jwtSettings = builder.Configuration.GetSection("Jwt");
-
             builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings["Issuer"],
-                        ValidAudience = jwtSettings["Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
-                    };
-                });
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+                };
+            });
 
-
+            // Настройка Swagger
             builder.Services.AddSwaggerGen(config =>
             {
                 config.SwaggerDoc("v1", new OpenApiInfo { Title = "TemplateService.Api", Version = "v1" });
 
-                // Add swagger documentation
                 var currentAssembly = Assembly.GetExecutingAssembly();
                 var xmlDocs = currentAssembly.GetReferencedAssemblies()
                     .Union(new[] { currentAssembly.GetName() })
@@ -95,6 +111,7 @@ namespace TemplateService.API
 
                 xmlDocs.ForEach(xmlDoc => { config.IncludeXmlComments(xmlDoc, includeControllerXmlComments: true); });
 
+                // Настройка безопасности для Telegram API Key
                 config.AddSecurityDefinition("X-TG-API-Key", new OpenApiSecurityScheme
                 {
                     Name = "X-TG-API-Key",
@@ -115,10 +132,11 @@ namespace TemplateService.API
                                 Id = "X-TG-API-Key"
                             }
                         },
-                        new string[] { }
+                        Array.Empty<string>()
                     }
                 });
 
+                // Настройка JWT авторизации
                 var securitySchema = new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -134,20 +152,17 @@ namespace TemplateService.API
                 };
 
                 config.AddSecurityDefinition("Bearer", securitySchema);
-
-                var securityRequirement = new OpenApiSecurityRequirement
+                config.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     { securitySchema, new[] { "Bearer" } }
-                };
-
-                config.AddSecurityRequirement(securityRequirement);
+                });
             });
 
+            // Регистрация application и infrastructure сервисов
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
 
-            builder.Services.AddHttpClient();
-
+            // Регистрация других сервисов
             builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -157,9 +172,7 @@ namespace TemplateService.API
             builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
             builder.Services.AddAutoMapper(typeof(AvatarUrlResolver).Assembly);
 
-            builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
-
-            // Временно (Разрешены любые CORS)
+            // Настройка CORS (временно разрешены все запросы)
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policy =>
@@ -172,18 +185,16 @@ namespace TemplateService.API
 
             var app = builder.Build();
 
+            // Применение миграций
             MigrateDatabase(app.Services);
 
-            // Configure the HTTP request pipeline.
+            // Конфигурация pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            // Временно (Разрешены любые CORS)
             app.UseCors();
-
-            // Миддлвейр для обработки ошибок
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseSwagger();
@@ -193,12 +204,9 @@ namespace TemplateService.API
                 c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
             });
 
-
             app.UseHttpsRedirection();
-
             app.UseDefaultFiles();
             app.UseStaticFiles();
-
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -210,17 +218,13 @@ namespace TemplateService.API
 
         private static int GetDefinedPorts(IConfiguration config)
         {
-            var port = config.GetValue<int>("WEB_PORT");
-            return port;
+            return config.GetValue<int>("WEB_PORT");
         }
 
         private static void MigrateDatabase(IServiceProvider service)
         {
             using var scope = service.CreateScope();
-            var services = scope.ServiceProvider;
-
-            var context = services.GetRequiredService<TemplateDbContext>();
-
+            var context = scope.ServiceProvider.GetRequiredService<TemplateDbContext>();
             context.Migrate();
         }
     }
