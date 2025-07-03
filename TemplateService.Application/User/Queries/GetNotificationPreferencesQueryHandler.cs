@@ -29,7 +29,7 @@ internal class GetNotificationPreferencesQueryHandler : IRequestHandler<GetNotif
     {
         var userId = _currentUserService.GetUserId();
         
-        var userNotificationPreferences = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
+        var userNotificationPreferences = await _dbContext.NotificationPreferences.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken)
                    ?? throw new InvalidOperationException($"User with id {userId} not found.");
 
         return _mapper.Map<UserNotificationPreferencesDto>(userNotificationPreferences);
