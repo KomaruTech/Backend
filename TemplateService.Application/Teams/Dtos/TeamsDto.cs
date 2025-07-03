@@ -8,4 +8,5 @@ public record TeamsDto(
     Guid Id,
     string Name,
     string Description,
+    Guid OwnerId,
     ICollection<UserDto> Users);

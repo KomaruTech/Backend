@@ -4,6 +4,7 @@ using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Teams.Dtos;
 using TemplateService.Application.User.Commands;
 using TemplateService.Application.User.DTOs;
+using TemplateService.Application.User.Services;
 using TemplateService.Domain.Entities;
 
 namespace TemplateService.Application;
@@ -19,16 +20,8 @@ public class MappingProfile : Profile
                 opt => opt.MapFrom(src => src.EventTeams.Select(et => et.TeamId).ToList()));;
         
         CreateMap<UserEntity, UserDto>()
-            .ConstructUsing(u => new UserDto( 
-                u.Id,
-                u.Login,
-                u.Name,
-                u.Surname,
-                u.Role,
-                u.Email,
-                u.TelegramUsername,
-                null 
-            ));
+            .ForMember(dest => dest.AvatarUrl, opt =>
+                opt.MapFrom<AvatarUrlResolver>());
         
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
@@ -40,19 +33,26 @@ public class MappingProfile : Profile
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         
         CreateMap<UserTeamsEntity, UserDto>()
-            .ConvertUsing(ut => ut.User == null 
-                ? null! 
-                : new UserDto(
+            .ConvertUsing((ut, dest, context) =>
+            {
+                if (ut.User == null)
+                    return null!;
+
+                var userDto = new UserDto(
                     ut.User.Id,
                     ut.User.Login,
                     ut.User.Name,
                     ut.User.Surname,
                     ut.User.Role,
                     ut.User.Email,
-                    ut.User.TelegramUsername,
-                    null
-                ));
-        
+                    ut.User.TelegramUsername
+                );
+
+                // Теперь заполняем AvatarUrl через маппер
+                userDto.AvatarUrl = context.Mapper.Map<UserDto>(ut.User).AvatarUrl;
+
+                return userDto;
+            });
         // Маппинг TeamsEntity -> TeamsDto
         CreateMap<TeamsEntity, TeamsDto>()
             .ForMember(dest => dest.Users, opt => opt

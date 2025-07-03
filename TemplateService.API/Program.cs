@@ -36,7 +36,7 @@ namespace TemplateService.API
 
             var dataSource = dataSourceBuilder.Build();
 
-            
+
             builder.Services.AddSingleton(dataSource);
             builder.Services.AddDbContext<TemplateDbContext>((provider, options) =>
             {
@@ -51,15 +51,11 @@ namespace TemplateService.API
                 var httpPort = GetDefinedPorts(builder.Configuration);
 
                 options.Listen(IPAddress.Any, httpPort, listenOptions => { listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2; });
-                
             });
 
             builder.Services
                 .AddControllers()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                });
+                .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddCors();
             builder.Services.AddHttpContextAccessor();
@@ -113,13 +109,13 @@ namespace TemplateService.API
                     {
                         new OpenApiSecurityScheme
                         {
-                        Reference = new OpenApiReference
-                        {
-                             Type = ReferenceType.SecurityScheme,
-                            Id = "X-TG-API-Key"
-                         }
-                     },
-                     new string[] {}
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "X-TG-API-Key"
+                            }
+                        },
+                        new string[] { }
                     }
                 });
 
@@ -149,9 +145,9 @@ namespace TemplateService.API
 
             builder.Services.AddTemplateInfrastructure(builder.Configuration);
             builder.Services.AddTemplateApplication();
-            
+
             builder.Services.AddHttpClient();
-            
+
             builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -159,11 +155,10 @@ namespace TemplateService.API
             builder.Services.AddScoped<IEventValidationService, EventValidationService>();
             builder.Services.AddScoped<IUserHelperService, UserHelperService>();
             builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
-           // builder.Services.AddScoped<ITelegramNotificationSender, TelegramNotificationSender>();
-           // builder.Services.AddScoped<ITelegramNotificationService, TelegramNotificationService>();
+            builder.Services.AddAutoMapper(typeof(AvatarUrlResolver).Assembly);
 
             builder.Services.AddSingleton<IPasswordHelper, PasswordHelper>();
-            
+
             // Временно (Разрешены любые CORS)
             builder.Services.AddCors(options =>
             {
@@ -184,10 +179,10 @@ namespace TemplateService.API
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             // Временно (Разрешены любые CORS)
             app.UseCors();
-            
+
             // Миддлвейр для обработки ошибок
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 

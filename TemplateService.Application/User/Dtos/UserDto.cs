@@ -9,6 +9,8 @@ public record UserDto(
     string Surname,
     UserRoleEnum Role,
     string Email,
-    string? TelegramUsername,
-    string? AvatarUrl
-    );
+    string? TelegramUsername
+)
+{
+    public string? AvatarUrl { get; set; }
+}
