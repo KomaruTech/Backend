@@ -36,6 +36,7 @@ internal class UserConnectCommandHandler : IRequestHandler<UserConnectCommand, U
 
         // Поиск пользователя по TelegramUserName
         var user = await _dbContext.Users
+            // СДЕЛАТЬ ЧТОБЫ ДОБАВЛЯЛО ЕСЛИ СОБАКИ НЕТ
             .FirstOrDefaultAsync(u => u.TelegramUsername == "@" + request.TelegramUserName, cancellationToken);
 
         if (user == null)
