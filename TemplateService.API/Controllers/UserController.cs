@@ -89,7 +89,7 @@ public class UserController : ControllerBase
         var updatedUser = await _mediator.Send(profileCommand);
         return Ok(updatedUser);
     }
-    
+
     /// <summary>
     /// Изменение настроек получения уведомлений
     /// </summary>
@@ -101,14 +101,14 @@ public class UserController : ControllerBase
         var updatedUser = await _mediator.Send(command);
         return Ok(updatedUser);
     }
-    
+
     /// <summary>
     /// Получение настроек получения уведомлений
     /// </summary>
     [HttpGet("me/notification_preferences")]
     [ProducesResponseType(typeof(UserNotificationPreferencesDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UserNotificationPreferencesDto>> GetUserNotificationPreferences(GetNotificationPreferencesQuery command)
+    public async Task<ActionResult<UserNotificationPreferencesDto>> GetUserNotificationPreferences([FromQuery] GetNotificationPreferencesQuery command)
     {
         var userNotificationPreferences = await _mediator.Send(command);
         return Ok(userNotificationPreferences);
