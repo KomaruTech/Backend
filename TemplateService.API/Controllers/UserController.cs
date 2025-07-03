@@ -42,7 +42,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<List<UserDto>>> SearchUser([FromBody] SearchUserQuery query)
     {
         var user = await _mediator.Send(query);
-        return user.Count != 0 ? Ok(user) : NotFound();
+        return user.Count != 0 ? Ok(user) : NoContent();
     }
 
     /// <summary>
