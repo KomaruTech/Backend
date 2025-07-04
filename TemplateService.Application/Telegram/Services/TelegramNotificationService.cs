@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using TemplateService.Application.TelegramService;
 using TemplateService.Domain.Entities;
 using TemplateService.Domain.Enums;
@@ -6,19 +7,20 @@ using TemplateService.Infrastructure.Persistence.Providers.Postgresql;
 
 namespace TemplateService.Application.Telegram.Services;
 
-
 public class TelegramNotificationService : ITelegramNotificationService
 {
     private readonly TemplatePostgresqlDbContext _dbContext;
-    private readonly ITelegramNotificationSender _notificationSender; // В инфраструктуре сервис отправки HTTP
+    private readonly ITelegramNotificationSender _notificationSender;
+    private readonly ILogger<TelegramNotificationService> _logger;
 
     public TelegramNotificationService(
         TemplatePostgresqlDbContext dbContext,
-        ITelegramNotificationSender notificationSender
-    )
+        ITelegramNotificationSender notificationSender,
+        ILogger<TelegramNotificationService> logger)
     {
         _dbContext = dbContext;
         _notificationSender = notificationSender;
+        _logger = logger;
     }
 
     public async Task SendDailyNotificationAsync(CancellationToken cancellationToken)
@@ -31,57 +33,114 @@ public class TelegramNotificationService : ITelegramNotificationService
         await SendNotificationBeforeEventAsync(TimeSpan.FromHours(1), NotificationTypeEnum.hourly, cancellationToken);
     }
 
-    private async Task SendNotificationBeforeEventAsync(TimeSpan timeBefore, NotificationTypeEnum notificationType, CancellationToken cancellationToken)
+    private async Task SendNotificationBeforeEventAsync(
+        TimeSpan timeBefore,
+        NotificationTypeEnum notificationType,
+        CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
-        var notificationTime = now.Add(timeBefore);
-
-        var participantsWithEvents = await (
-                from e in _dbContext.Events
-                where e.TimeStart > now && e.TimeStart <= notificationTime
-                join p in _dbContext.EventParticipants on e.Id equals p.EventId
-                join u in _dbContext.Users on p.UserId equals u.Id
-                where u.TelegramId != null && u.TelegramId != 0
-                join en in _dbContext.EventNotifications.Where(en => en.NotificationType == notificationType)
-                    on new { p.UserId, p.EventId } equals new { en.UserId, en.EventId } into sentNotifications
-                from sn in sentNotifications.DefaultIfEmpty()
-                select new
-                {
-                    Event = e,
-                    Participant = p,
-                    UserTelegramId = u.TelegramId,
-                    NotificationSent = sn != null
-                })
-            .Where(x => !x.NotificationSent)
-            .ToListAsync(cancellationToken);
-
-        if (participantsWithEvents.Count == 0)
-            return;
-
-        foreach (var item in participantsWithEvents)
+        try
         {
-            var sendToTgDto = new SendToTelegramEventDto(
-            EventId: item.Event.Id, // Добавлено
-            Name: item.Event.Name,
-            Description: item.Event.Description,
-            TimeStart: item.Event.TimeStart,
-            TimeEnd: item.Event.TimeEnd,
-            Type: item.Event.Type,
-            Location: item.Event.Location,
-            TelegramUserId: item.UserTelegramId.Value
-            );
+            var now = DateTime.UtcNow;
+            var notificationTime = now.Add(timeBefore);
 
-            await _notificationSender.SendEventNotificationToTgService(sendToTgDto, cancellationToken);
+            var participantsWithEvents = await GetParticipantsForNotificationAsync(now, notificationTime, notificationType, cancellationToken);
 
-            _dbContext.EventNotifications.Add(new EventNotificationsEntity
+            if (participantsWithEvents.Count == 0)
             {
-                Id = Guid.NewGuid(),
-                UserId = item.Participant.UserId,
-                EventId = item.Participant.EventId,
-                NotificationType = notificationType,
-            });
+                _logger.LogInformation("No participants found for {NotificationType} notification", notificationType);
+                return;
+            }
+
+            await ProcessNotificationsAsync(participantsWithEvents, notificationType, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending {NotificationType} notifications", notificationType);
+            throw;
+        }
+    }
+
+    private async Task<List<ParticipantNotificationInfo>> GetParticipantsForNotificationAsync(
+        DateTime now,
+        DateTime notificationTime,
+        NotificationTypeEnum notificationType,
+        CancellationToken cancellationToken)
+    {
+        return await (
+            from e in _dbContext.Events
+            where e.TimeStart > now && e.TimeStart <= notificationTime
+            join p in _dbContext.EventParticipants on e.Id equals p.EventId
+            join u in _dbContext.Users on p.UserId equals u.Id
+            where u.TelegramId != null && u.TelegramId != 0
+            join en in _dbContext.EventNotifications
+                .Where(en => en.NotificationType == notificationType)
+                on new { p.UserId, p.EventId } equals new { en.UserId, en.EventId }
+                into sentNotifications
+            from sn in sentNotifications.DefaultIfEmpty()
+            where sn == null
+            select new ParticipantNotificationInfo
+            {
+                Event = e,
+                Participant = p,
+                UserTelegramId = u.TelegramId.Value
+            })
+        .ToListAsync(cancellationToken);
+    }
+
+    private async Task ProcessNotificationsAsync(
+        List<ParticipantNotificationInfo> participants,
+        NotificationTypeEnum notificationType,
+        CancellationToken cancellationToken)
+    {
+        foreach (var item in participants)
+        {
+            try
+            {
+                var notificationDto = CreateNotificationDto(item);
+                await _notificationSender.SendEventNotificationToTgService(notificationDto, cancellationToken);
+
+                AddNotificationToContext(item, notificationType);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process notification for user {UserId} and event {EventId}",
+                    item.Participant.UserId, item.Event.Id);
+            }
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private SendToTelegramEventDto CreateNotificationDto(ParticipantNotificationInfo item)
+    {
+        return new SendToTelegramEventDto(
+            EventId: item.Event.Id,
+            Name: item.Event.Name ?? "Название мероприятия",
+            Description: item.Event.Description ?? "Описание отсутствует",
+            TimeStart: item.Event.TimeStart,
+            TimeEnd: item.Event.TimeEnd,
+            Type: item.Event.Type,
+            Location: item.Event.Location ?? "Место не указано",
+            TelegramUserId: item.UserTelegramId
+        );
+    }
+
+    private void AddNotificationToContext(ParticipantNotificationInfo item, NotificationTypeEnum notificationType)
+    {
+        _dbContext.EventNotifications.Add(new EventNotificationsEntity
+        {
+            Id = Guid.NewGuid(),
+            UserId = item.Participant.UserId,
+            EventId = item.Participant.EventId,
+            NotificationType = notificationType,
+          //  CreatedAt = DateTime.UtcNow
+        });
+    }
+
+    private class ParticipantNotificationInfo
+    {
+        public EventEntity Event { get; set; }
+        public EventParticipantEntity Participant { get; set; }
+        public long UserTelegramId { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using TemplateService.Application.TelegramService;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,47 +11,125 @@ public class TelegramNotificationSender : ITelegramNotificationSender
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TelegramNotificationSender> _logger;
-    private const string Url = "http://template_telegram:5125/api/v1/telegram/notifications/send";
+    private readonly string _notificationUrl;
+    private readonly TimeSpan _logInterval = TimeSpan.FromMinutes(1);
 
     public TelegramNotificationSender(
         HttpClient httpClient,
-        ILogger<TelegramNotificationSender> logger)
+        ILogger<TelegramNotificationSender> logger,
+        IConfiguration configuration)
     {
         _httpClient = httpClient;
         _logger = logger;
+        _notificationUrl = configuration["Telegram:NotificationUrl"]
+            ?? "http://template_api:5124/api/v1/telegram/notifications/send";
+
+        _httpClient.DefaultRequestHeaders.Accept.Add(
+            new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     }
 
     public async Task SendEventNotificationToTgService(SendToTelegramEventDto dto, CancellationToken cancellationToken)
     {
         try
         {
-            var timeLeft = dto.TimeStart - DateTime.UtcNow;
-            var notificationRequest = new
+            // Валидация и подстановка значений по умолчанию
+            dto = ValidateAndSetDefaults(dto);
+
+            // Логирование времени до события
+            var timeUntilEvent = dto.TimeStart - DateTime.UtcNow;
+            LogTimeUntilNotification(dto, timeUntilEvent);
+
+            // Формируем запрос в формате, ожидаемом API
+            var apiRequest = new
             {
-                ChatId = dto.TelegramUserId,
-                Text = FormatNotificationMessage(dto, timeLeft),
-                ParseMode = "HTML",
-                DisableWebPagePreview = true,
-                EventId = dto.EventId
+                // Обязательные поля
+                Name = dto.Name,
+                Description = dto.Description,
+
+                // Дополнительные поля
+                EventId = dto.EventId,
+                TimeStart = dto.TimeStart,
+                TimeEnd = dto.TimeEnd,
+                Type = dto.Type.ToString(),
+                Location = dto.Location,
+                TelegramUserId = dto.TelegramUserId,
+
+                // Форматированное сообщение для Telegram
+                Text = FormatNotificationMessage(dto, timeUntilEvent),
+                ParseMode = "HTML"
             };
 
-            var response = await _httpClient.PostAsJsonAsync(Url, notificationRequest, cancellationToken);
+            _logger.LogDebug("Sending notification request: {@Request}", apiRequest);
+
+            var response = await _httpClient.PostAsJsonAsync(
+                _notificationUrl,
+                apiRequest,
+                cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                _logger.LogError("Failed to send Telegram notification. Status: {StatusCode}, Error: {Error}",
+                _logger.LogError("Failed to send notification. Status: {StatusCode}, Error: {Error}",
                     response.StatusCode, errorContent);
-                throw new HttpRequestException($"Telegram notification failed with status {response.StatusCode}");
+                throw new HttpRequestException($"Notification failed with status {response.StatusCode}");
             }
 
-            _logger.LogInformation("Notification sent to {TelegramUserId} for event {EventName}",
-                dto.TelegramUserId, dto.Name);
+            _logger.LogInformation("Notification successfully sent to {TelegramUserId}", dto.TelegramUserId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending Telegram notification to {TelegramUserId}", dto.TelegramUserId);
+            _logger.LogError(ex, "Error sending notification for event {EventId}", dto.EventId);
             throw;
+        }
+    }
+
+    private SendToTelegramEventDto ValidateAndSetDefaults(SendToTelegramEventDto dto)
+    {
+        // Проверка и подстановка значений по умолчанию
+        if (string.IsNullOrWhiteSpace(dto.Name))
+        {
+            _logger.LogWarning("Event {EventId} has empty name", dto.EventId);
+            dto = dto with { Name = "Уведомление о событии" };
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.Description))
+        {
+            _logger.LogWarning("Event {EventId} has empty description", dto.EventId);
+            dto = dto with { Description = "Описание отсутствует" };
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.Location))
+        {
+            dto = dto with { Location = "Место не указано" };
+        }
+
+        return dto;
+    }
+
+    private void LogTimeUntilNotification(SendToTelegramEventDto dto, TimeSpan timeUntilEvent)
+    {
+        if (timeUntilEvent.TotalMinutes <= 0) return;
+
+        if (timeUntilEvent.TotalDays >= 1)
+        {
+            _logger.LogInformation(
+                "Event '{EventName}' (ID: {EventId}) will notify in {Days} days {Hours} hours {Minutes} minutes",
+                dto.Name, dto.EventId,
+                timeUntilEvent.Days, timeUntilEvent.Hours, timeUntilEvent.Minutes);
+        }
+        else if (timeUntilEvent.TotalHours >= 1)
+        {
+            _logger.LogInformation(
+                "Event '{EventName}' (ID: {EventId}) will notify in {Hours} hours {Minutes} minutes",
+                dto.Name, dto.EventId,
+                timeUntilEvent.Hours, timeUntilEvent.Minutes);
+        }
+        else
+        {
+            _logger.LogInformation(
+                "Event '{EventName}' (ID: {EventId}) will notify in {Minutes} minutes",
+                dto.Name, dto.EventId,
+                timeUntilEvent.Minutes);
         }
     }
 

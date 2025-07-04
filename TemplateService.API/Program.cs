@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Telegram.Bot;
 using TemplateService.API.Extensions;
 using TemplateService.API.Middleware;
 using TemplateService.Application.Auth.Services;
@@ -171,6 +172,9 @@ namespace TemplateService.API
             builder.Services.AddScoped<IUserHelperService, UserHelperService>();
             builder.Services.AddScoped<ITeamValidationService, TeamValidationService>();
             builder.Services.AddAutoMapper(typeof(AvatarUrlResolver).Assembly);
+
+            builder.Services.AddSingleton<ITelegramBotClient>(_ =>
+                new TelegramBotClient(builder.Configuration["Telegram:BotToken"]));
 
             // Настройка CORS (временно разрешены все запросы)
             builder.Services.AddCors(options =>

@@ -16,6 +16,10 @@
         "Audience": "Users",
         "ExpiresInMinutes": 3600
     },
+    "Telegram": {
+        "NotificationUrl": "http://template_api:5124/api/v1/telegram/notifications/send",
+        "BotToken": "7851663659:AAGpPDhL3URaO9PMNvJRkF4AiHCZ6Lp9yUA"
+    },
 
     "X-TG-Api-Key": "743D96631EB41C2299A1E5E2B8C3699BFE76655B9316C6918C8E26BE6FF566C2C5FBA8E1FD03AFA024527D26406FABF75C7FE07F4612EA913F4D8168B63FD888"
 }
