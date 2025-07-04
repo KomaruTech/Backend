@@ -15,12 +15,12 @@ public class UserHelperService: IUserHelperService
     {
         return avatar != null && avatar.Length > 0;
     }
+    
     public UserDto BuildUserDto(UserEntity user, IMapper mapper)
     {
         var dto = mapper.Map<UserDto>(user);
-        return dto with
-        {
-            AvatarUrl = IsAvatarExists(user.Avatar) ? GetAvatarUrl(user.Id) : null
-        };
+        dto.AvatarUrl = IsAvatarExists(user.Avatar) ? GetAvatarUrl(user.Id) : null;
+        return dto;
     }
+
 }

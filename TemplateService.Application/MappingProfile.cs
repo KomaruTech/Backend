@@ -18,12 +18,13 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ParticipantIds,
                 opt => opt.MapFrom(src => src.Participants.Select(p => p.UserId).ToList()))
             .ForMember(dest => dest.TeamIds,
-                opt => opt.MapFrom(src => src.EventTeams.Select(et => et.TeamId).ToList()));;
-        
+                opt => opt.MapFrom(src => src.EventTeams.Select(et => et.TeamId).ToList()));
+        ;
+
         CreateMap<UserEntity, UserDto>()
             .ForMember(dest => dest.AvatarUrl, opt =>
                 opt.MapFrom<AvatarUrlResolver>());
-        
+
         CreateMap<CreateUserCommand, UserEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
 
@@ -32,37 +33,24 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.NotifyBeforeOneHour, opt => opt.MapFrom(src => src.ReminderBefore1Hour))
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.NotifyTelegram, opt => opt.MapFrom(src => src.NotifyTelegram));
-        
+
         CreateMap<UpdateEventCommand, EventEntity>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-        
+
         CreateMap<UpdateUserProfileCommand, UserEntity>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-        
+
         CreateMap<UserTeamsEntity, UserDto>()
-            .ConvertUsing((ut, dest, context) =>
-            {
-                if (ut.User == null)
-                    return null!;
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.User.Id))
+            .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.User.Login))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.User.Name))
+            .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.User.Surname))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.User.Role))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
+            .ForMember(dest => dest.TelegramUsername, opt => opt.MapFrom(src => src.User.TelegramUsername));
 
-                var userDto = new UserDto(
-                    ut.User.Id,
-                    ut.User.Login,
-                    ut.User.Name,
-                    ut.User.Surname,
-                    ut.User.Role,
-                    ut.User.Email,
-                    ut.User.TelegramUsername
-                );
-
-                // Теперь заполняем AvatarUrl через маппер
-                userDto.AvatarUrl = context.Mapper.Map<UserDto>(ut.User).AvatarUrl;
-
-                return userDto;
-            });
-        // Маппинг TeamsEntity -> TeamsDto
         CreateMap<TeamsEntity, TeamsDto>()
             .ForMember(dest => dest.Users, opt => opt
-                .MapFrom(src => src.Users.Select(ut => ut.User)));         // из ICollection<UserTeamsEntity> берем UserEntity и маппим в UserDto
+                .MapFrom(src => src.Users.Select(ut => ut.User)));
     }
 }

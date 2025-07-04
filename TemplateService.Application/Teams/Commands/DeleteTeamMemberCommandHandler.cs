@@ -33,6 +33,7 @@ internal class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMember
 
         var team = await _dbContext.Teams
                        .Include(t => t.Users)
+                       .ThenInclude(ut => ut.User)
                        .FirstOrDefaultAsync(t => t.Id == request.TeamId, ct)
                    ?? throw new InvalidOperationException($"Team with id {request.TeamId} not found.");
 

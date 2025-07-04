@@ -19,20 +19,24 @@ internal class SearchTeamsQueryHandler : IRequestHandler<SearchTeamsQuery, List<
 
     public async Task<List<TeamsDto>> Handle(SearchTeamsQuery query, CancellationToken cancellationToken)
     {
-        var teamsQuery = _dbContext.Teams.AsQueryable();
+        var teamsQuery = _dbContext.Teams
+            .Include(t => t.Users)
+            .ThenInclude(ut => ut.User)
+            .AsQueryable();
 
         if (string.IsNullOrWhiteSpace(query.Name))
+        {
             return await teamsQuery
                 .OrderBy(t => EF.Functions.Random())
                 .ProjectTo<TeamsDto>(_mapper.ConfigurationProvider)
                 .Take(100)
                 .ToListAsync(cancellationToken);
-
+        }
 
         var q = query.Name;
 
         teamsQuery = teamsQuery
-            .Where(t => EF.Functions.ILike(t.Name, $"%{q}%")) // фильтр по имени (содержит)
+            .Where(t => EF.Functions.ILike(t.Name, $"%{q}%")) // фильтрация по имени (содержит)
             .OrderByDescending(t =>
                 EF.Functions.ILike(t.Name, q) ? 100 : // точное совпадение имени
                 EF.Functions.ILike(t.Name, $"%{q}%") ? 60 : // имя содержит q

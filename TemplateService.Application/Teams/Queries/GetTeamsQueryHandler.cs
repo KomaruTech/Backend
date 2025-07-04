@@ -20,7 +20,9 @@ internal class GetTeamsQueryHandler : IRequestHandler<GetTeamsQuery, TeamsDto>
     public async Task<TeamsDto> Handle(GetTeamsQuery query, CancellationToken ct)
     {
         var dto = await _dbContext.Teams
-            .Where(u => u.Id == query.Id)
+            .Include(t => t.Users)
+            .ThenInclude(ut => ut.User)
+            .Where(t => t.Id == query.Id)
             .ProjectTo<TeamsDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(ct);
 

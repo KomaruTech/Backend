@@ -87,7 +87,7 @@ public class TeamsController : ControllerBase
             return NoContent();
         return Ok(teams);
     }
-    
+
     /// <summary>
     /// Удаление участника из команды и возврат обновлённой информации о команде
     /// </summary>
@@ -101,4 +101,15 @@ public class TeamsController : ControllerBase
         return Ok(updatedTeam);
     }
     
+    
+    [HttpPost("{teamId:guid}/member/{userId:guid}")]
+    [ProducesResponseType(typeof(TeamsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<TeamsDto>> AddTeamMember([FromQuery] Guid teamId, Guid userId)
+    {
+
+        var updatedTeam = await _mediator.Send(new AddTeamMemberCommand(teamId, userId));
+        return Ok(updatedTeam);
+    }
+
 }

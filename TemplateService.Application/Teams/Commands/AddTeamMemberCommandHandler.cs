@@ -11,7 +11,7 @@ using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Teams.Commands;
 
-internal class AddTeamMemberCommandHandler
+internal class AddTeamMemberCommandHandler : IRequestHandler<AddTeamMemberCommand, TeamsDto>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly ITeamValidationService _teamValidationService;
@@ -34,17 +34,23 @@ internal class AddTeamMemberCommandHandler
     {
         var userId = _currentUserService.GetUserId();
         var userRole = _currentUserService.GetUserRole();
-        var team = await GetTeamAsync(request.TeamId, ct);
+
+        var team = await GetTeamAsync(request.TeamId, ct); // просто проверка на существование
         var userToAdd = await GetUserAsync(request.UserId, ct);
 
         if (await IsUserAlreadyMemberAsync(request.TeamId, request.UserId, ct))
             throw new InvalidOperationException("User is already in a team");
-        
+    
         _teamValidationService.ValidateAddToTeamPermission(userId, userToAdd.Id, userRole);
 
         await AddUserToTeamAsync(request.TeamId, request.UserId, ct);
+        
+        var updatedTeam = await _dbContext.Teams
+            .Include(t => t.Users)
+            .ThenInclude(ut => ut.User)
+            .FirstOrDefaultAsync(t => t.Id == request.TeamId, ct);
 
-        return _mapper.Map<TeamsDto>(team);
+        return _mapper.Map<TeamsDto>(updatedTeam!);
     }
 
     private async Task<TeamsEntity> GetTeamAsync(Guid teamId, CancellationToken ct)
