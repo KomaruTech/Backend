@@ -39,7 +39,7 @@ public class EventEntity
     /// <summary>
     /// Адрес (как URL, так и физический)
     /// </summary>
-    public string? Location { get; set; }
+    public string Location { get; set; }
     
     /// <summary>
     /// ID того, кто создал мероприятие
@@ -65,11 +65,6 @@ public class EventEntity
     /// Список участников мероприятия
     /// </summary>
     public virtual ICollection<EventParticipantEntity> Participants { get; set; } = new List<EventParticipantEntity>();
-   
-    /// <summary>
-    /// Список фото мероприятия
-    /// </summary>
-    public virtual ICollection<EventPhotoEntity> Photos { get; set; } = new List<EventPhotoEntity>();
 
     /// <summary>
     /// Список групп добавленных на мероприятие

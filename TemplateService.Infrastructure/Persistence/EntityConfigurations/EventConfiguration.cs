@@ -80,11 +80,6 @@ public class EventConfiguration : IEntityTypeConfiguration<EventEntity>
             .HasForeignKey(e => e.CreatedById)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
-
-        builder.HasMany(e => e.Photos)
-            .WithOne(p => p.Event)
-            .HasForeignKey(p => p.EventId)
-            .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasMany(e => e.Participants)
             .WithOne(p => p.Event)
