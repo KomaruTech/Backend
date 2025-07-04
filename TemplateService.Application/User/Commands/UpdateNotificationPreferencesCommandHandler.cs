@@ -44,11 +44,12 @@ internal class UpdateNotificationPreferencesCommandHandler : IRequestHandler<Upd
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return new UserNotificationPreferencesDto(
-            prefs.Id,
-            prefs.NotifyTelegram,
-            prefs.ReminderBefore1Day,
-            prefs.ReminderBefore1Hour
-        );
+        return new UserNotificationPreferencesDto
+        {
+            Id = prefs.Id,
+            NotifyTelegram = prefs.NotifyTelegram,
+            NotifyBeforeOneDay = prefs.ReminderBefore1Day,
+            NotifyBeforeOneHour = prefs.ReminderBefore1Hour
+        };
     }
 }
