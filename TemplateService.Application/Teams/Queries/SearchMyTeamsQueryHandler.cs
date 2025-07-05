@@ -7,7 +7,7 @@ using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Teams.Queries;
 
-internal class SearchMyTeamsQueryHandler : IRequestHandler<SearchTeamsQuery, List<TeamsDto>>
+internal class SearchMyTeamsQueryHandler : IRequestHandler<SearchMyTeamsQuery, List<TeamsDto>>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
@@ -24,7 +24,7 @@ internal class SearchMyTeamsQueryHandler : IRequestHandler<SearchTeamsQuery, Lis
         _currentUserService = currentUserService;
     }
 
-    public async Task<List<TeamsDto>> Handle(SearchTeamsQuery query, CancellationToken cancellationToken)
+    public async Task<List<TeamsDto>> Handle(SearchMyTeamsQuery query, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.GetUserId();
 
