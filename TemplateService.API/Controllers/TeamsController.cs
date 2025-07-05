@@ -79,7 +79,7 @@ public class TeamsController : ControllerBase
     [HttpPost("search_my_teams")]
     [ProducesResponseType(typeof(List<TeamsDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<List<TeamsDto>>> SearchTeams([FromBody] SearchMyTeamsQuery command)
+    public async Task<ActionResult<List<TeamsDto>>> SearchMyTeams([FromBody] SearchMyTeamsQuery command)
     {
         var teams = await _mediator.Send(command);
 
