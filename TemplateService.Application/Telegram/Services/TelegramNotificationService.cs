@@ -43,7 +43,7 @@ public class TelegramNotificationService : ITelegramNotificationService
             var now = DateTime.UtcNow;
             var notificationTime = now.Add(timeBefore);
 
-            var participantsWithEvents = await GetParticipantsForNotificationAsync(now, notificationTime, notificationType, cancellationToken);
+            var participantsWithEvents = await GetParticipantsForNotificationAsync(now, notificationTime, cancellationToken);
 
             if (participantsWithEvents.Count == 0)
             {
@@ -63,7 +63,6 @@ public class TelegramNotificationService : ITelegramNotificationService
     private async Task<List<ParticipantNotificationInfo>> GetParticipantsForNotificationAsync(
         DateTime now,
         DateTime notificationTime,
-        NotificationTypeEnum notificationType,
         CancellationToken cancellationToken)
     {
         return await (
@@ -72,12 +71,6 @@ public class TelegramNotificationService : ITelegramNotificationService
             join p in _dbContext.EventParticipants on e.Id equals p.EventId
             join u in _dbContext.Users on p.UserId equals u.Id
             where u.TelegramId != null && u.TelegramId != 0
-            join en in _dbContext.EventNotifications
-                .Where(en => en.NotificationType == notificationType)
-                on new { p.UserId, p.EventId } equals new { en.UserId, en.EventId }
-                into sentNotifications
-            from sn in sentNotifications.DefaultIfEmpty()
-            where sn == null
             select new ParticipantNotificationInfo
             {
                 Event = e,
@@ -96,10 +89,29 @@ public class TelegramNotificationService : ITelegramNotificationService
         {
             try
             {
+                // Проверяем, не было ли уже такого уведомления
+                var wasSent = await _dbContext.EventNotifications
+                    .AnyAsync(en =>
+                        en.UserId == item.Participant.UserId &&
+                        en.EventId == item.Participant.EventId &&
+                        en.NotificationType == notificationType,
+                        cancellationToken);
+
+                if (wasSent)
+                {
+                    _logger.LogDebug("Notification {Type} already sent for user {UserId} and event {EventId}",
+                        notificationType, item.Participant.UserId, item.Event.Id);
+                    continue;
+                }
+
                 var notificationDto = CreateNotificationDto(item);
                 await _notificationSender.SendEventNotificationToTgService(notificationDto, cancellationToken);
 
                 AddNotificationToContext(item, notificationType);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+
+                _logger.LogInformation("Sent {Type} notification for event {EventId} to user {UserId}",
+                    notificationType, item.Event.Id, item.Participant.UserId);
             }
             catch (Exception ex)
             {
@@ -107,8 +119,6 @@ public class TelegramNotificationService : ITelegramNotificationService
                     item.Participant.UserId, item.Event.Id);
             }
         }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private SendToTelegramEventDto CreateNotificationDto(ParticipantNotificationInfo item)

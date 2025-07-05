@@ -135,14 +135,20 @@ public class TelegramNotificationSender : ITelegramNotificationSender
 
     private string FormatNotificationMessage(SendToTelegramEventDto dto, TimeSpan timeLeft)
     {
-        string timeLeftText = timeLeft.TotalHours >= 23
-            ? $"Через 1 день ({dto.TimeStart:dd.MM.yyyy HH:mm})"
-            : $"Через 1 час ({dto.TimeStart:HH:mm})";
+        string notificationType = timeLeft.TotalHours >= 24 ? "day" : "hour";
 
-        return $"{(timeLeft.TotalHours >= 23 ? "📅" : "⏰")} <b>{(timeLeft.TotalHours >= 23 ? "Напоминание" : "Скоро начнётся")}</b>\n\n" +
+        string mainText = notificationType == "day"
+            ? "📅 <b>Напоминание за 24 часа</b>"
+            : "⏰ <b>Напоминание за 1 час</b>";
+
+        string timeText = notificationType == "day"
+            ? $"Начало: {dto.TimeStart:dd.MM.yyyy HH:mm}"
+            : $"Начинается через 1 час ({dto.TimeStart:HH:mm})";
+
+        return $"{mainText}\n\n" +
                $"<b>{dto.Name}</b>\n" +
-               $"⏱ {timeLeftText}\n" +
-               $"📍 {dto.Location ?? "Место не указано"}\n" +
+               $"⏱ {timeText}\n" +
+               $"📍 {dto.Location ?? "Место не указано"}\n\n" +
                $"📝 <i>{dto.Description}</i>\n\n" +
                $"<a href=\"https://your-service.com/events/{dto.EventId}\">Подробнее</a>";
     }
