@@ -2,27 +2,26 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using TemplateService.Application.EventFeedback.DTOs;
-using TemplateService.Domain.Entities;
 using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.EventFeedback.Queries;
 
-internal class GetEventFeedbackQueryHandler : IRequestHandler<GetEventFeedbackQuery, EventFeedbackDto>
+internal class GetUserEventFeedbacksQueryHandler : IRequestHandler<GetUserEventFeedbackQuery, List<EventFeedbackDto>>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly IMapper _mapper;
 
-    public GetEventFeedbackQueryHandler(TemplateDbContext dbContext, IMapper mapper)
+    public GetUserEventFeedbacksQueryHandler(TemplateDbContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext;
         _mapper = mapper;
     }
 
-    public async Task<EventFeedbackDto> Handle(GetEventFeedbackQuery query, CancellationToken ct)
+    public async Task<List<EventFeedbackDto>> Handle(GetUserEventFeedbackQuery query, CancellationToken cancellationToken)
     {
         return await _dbContext.EventFeedbacks
-            .Where(u => u.Id == query.Id)
+            .Where(f => f.UserId == query.UserId)
             .ProjectTo<EventFeedbackDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 }

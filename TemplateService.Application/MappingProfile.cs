@@ -1,6 +1,7 @@
 using AutoMapper;
 using TemplateService.Application.Event.Commands;
 using TemplateService.Application.Event.DTOs;
+using TemplateService.Application.EventFeedback.DTOs;
 using TemplateService.Application.Teams.Dtos;
 using TemplateService.Application.User.Commands;
 using TemplateService.Application.User.Dtos;
@@ -48,7 +49,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.User.Role))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
             .ForMember(dest => dest.TelegramUsername, opt => opt.MapFrom(src => src.User.TelegramUsername));
-
+        
+        CreateMap<EventFeedbackEntity, EventFeedbackDto>();
+        
         CreateMap<TeamsEntity, TeamsDto>()
             .ForMember(dest => dest.Users, opt => opt
                 .MapFrom(src => src.Users.Select(ut => ut.User)));

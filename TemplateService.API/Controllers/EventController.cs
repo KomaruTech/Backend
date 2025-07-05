@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using TemplateService.Application.Event.Commands;
 using TemplateService.Application.Event.DTOs;
 using TemplateService.Application.Event.Queries;
+using TemplateService.Application.EventFeedback.Commands;
+using TemplateService.Application.EventFeedback.DTOs;
+using TemplateService.Application.EventFeedback.Queries;
 
 namespace TemplateService.API.Controllers;
 
@@ -178,7 +181,7 @@ public class EventController : ControllerBase
         var updatedEvent = await _mediator.Send(command);
         return Ok(updatedEvent);
     }
-    
+
     /// <summary>
     /// Удалить пользователя из мероприятия
     /// </summary>
@@ -206,7 +209,7 @@ public class EventController : ControllerBase
         var updatedEvent = await _mediator.Send(command);
         return Ok(updatedEvent);
     }
-    
+
     /// <summary>
     /// Удалить команду из мероприятия, только для групповых мероприятий
     /// </summary>
@@ -233,5 +236,73 @@ public class EventController : ControllerBase
         var command = new RespondInvitationCommand(eventId, status);
         await _mediator.Send(command);
         return Ok();
+    }
+
+    /// <summary>
+    /// Получение отзывов о конкретном мероприятии
+    /// </summary>
+    [HttpGet("feedback/by-event/{eventId:guid}")]
+    [ProducesResponseType(typeof(List<EventFeedbackDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<List<EventFeedbackDto>>> GetAllFeedback([FromRoute] Guid eventId)
+    {
+        var feedbacks = await _mediator.Send(new GetAllEventFeedbackQuery(eventId));
+
+        if (feedbacks.Count == 0)
+            return NoContent(); // 204
+
+        return Ok(feedbacks); // 200
+    }
+    
+    /// <summary>
+    /// Получение отзывов от конкретного пользователя
+    /// </summary>
+    [HttpGet("feedback/by-user/{userId:guid}")]
+    [ProducesResponseType(typeof(List<EventFeedbackDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<List<EventFeedbackDto>>> GetUserFeedback([FromRoute] Guid userId)
+    {
+        var feedbacks = await _mediator.Send(new GetUserEventFeedbackQuery(userId));
+
+        if (feedbacks.Count == 0)
+            return NoContent(); // 204
+
+        return Ok(feedbacks); // 200
+    }
+
+    /// <summary>
+    /// Создание отзыва о мероприятии
+    /// </summary>
+    [HttpPost("feedback")]
+    [ProducesResponseType(typeof(Unit), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<EventFeedbackDto>> AddFeedbackAboutEvent([FromBody] AddEventFeedbackCommand command)
+    {
+        var feedback = await _mediator.Send(command);
+        return Ok(feedback);
+    }
+
+    /// <summary>
+    /// Изменение своего отзыва о мероприятии
+    /// </summary>
+    [HttpPatch("feedback")]
+    [ProducesResponseType(typeof(Unit), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<EventFeedbackDto>> EditFeedbackAboutEvent([FromBody] EditEventFeedbackCommand command)
+    {
+        var feedback = await _mediator.Send(command);
+        return Ok(feedback);
+    }
+
+    /// <summary>
+    /// Удаление отзыва о мероприятии
+    /// </summary>
+    [HttpDelete("feedback")]
+    [ProducesResponseType(typeof(Unit), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> AddFeedbackAboutEvent([FromBody] DeleteEventFeedbackCommand command)
+    {
+        await _mediator.Send(command);
+        return NoContent();
     }
 }
