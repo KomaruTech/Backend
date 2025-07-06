@@ -34,7 +34,13 @@ internal class GetMyEventsQueryHandler : IRequestHandler<GetMyEventsQuery, List<
         var userId = _currentUserService.GetUserId();
 
         return await _dbContext.Events
-            .Where(e => e.Participants.Any(p => p.UserId == userId && p.AttendanceResponse == AttendanceResponseEnum.approved))
+            .Where(e =>
+                e.Participants.Any(p => p.UserId == userId && p.AttendanceResponse == AttendanceResponseEnum.approved)
+                ||
+                e.EventTeams.Any(et =>
+                    et.Team.Users.Any(ut => ut.UserId == userId)
+                )
+            )
             .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
             .ToListAsync(ct);
     }

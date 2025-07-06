@@ -6,7 +6,7 @@ using TemplateService.Infrastructure.Persistence;
 
 namespace TemplateService.Application.Teams.Commands;
 
-internal class DeleteTeamCommandHandler
+internal class DeleteTeamCommandHandler : IRequestHandler<DeleteTeamCommand, Unit>
 {
     private readonly TemplateDbContext _dbContext;
     private readonly ITeamValidationService _teamValidationService;

@@ -18,13 +18,13 @@ public class TeamValidationService : ITeamValidationService
     
     public void ValidateDeletePermission(Guid userId, Guid teamOwnerId, UserRoleEnum role)
     {
-        if (userId != teamOwnerId && role != UserRoleEnum.administrator)
+        if (userId != teamOwnerId || role != UserRoleEnum.administrator)
             throw new ArgumentException("You don't have permission to delete this team");
     }
     
     public void ValidateAddToTeamPermission(Guid userId, Guid teamOwnerId, UserRoleEnum role)
     {
-        if (userId != teamOwnerId && role != UserRoleEnum.administrator)
+        if (userId != teamOwnerId || role != UserRoleEnum.administrator)
             throw new ArgumentException("You don't have permission to add users to this team");
     }
 
@@ -33,7 +33,7 @@ public class TeamValidationService : ITeamValidationService
         if (userToDeleteId == teamOwnerId)
             throw new ArgumentException("You can't delete owner of the team");
         
-        if (userThatDeletesId != teamOwnerId && userThatDeletesRoles != UserRoleEnum.administrator)
+        if (userThatDeletesId != teamOwnerId || userThatDeletesRoles != UserRoleEnum.administrator)
             throw new ArgumentException("You don't have permission to delete members of the team");
     }
 }

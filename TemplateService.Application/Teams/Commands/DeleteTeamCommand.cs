@@ -1,5 +1,3 @@
-﻿using MediatR;
-
-namespace TemplateService.Application.Teams.Commands;
+﻿namespace TemplateService.Application.Teams.Commands;
 
 public record DeleteTeamCommand(Guid TeamId) : IRequest<Unit>;
