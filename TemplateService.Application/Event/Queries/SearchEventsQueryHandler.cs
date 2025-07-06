@@ -28,43 +28,42 @@ public class SearchEventsHandler : IRequestHandler<SearchEventsQuery, List<Event
     public async Task<List<EventDto>> Handle(SearchEventsQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.GetUserId();
-
-        // Сначала получаем все TeamId, в которых состоит пользователь
+        
         var userTeamIds = await _dbContext.UserTeams
             .Where(ut => ut.UserId == userId)
             .Select(ut => ut.TeamId)
             .ToListAsync(cancellationToken);
-
+        
         var query = _dbContext.Events
-            .Include(e => e.Participants) // обязательно для фильтра по участникам
+            .Include(e => e.Participants)
+            .Include(e => e.EventTeams)
             .AsQueryable();
-
+        
         if (request.StartSearchTime.HasValue)
             query = query.Where(e => e.TimeStart >= request.StartSearchTime);
-
+        
         if (request.EndSearchTime.HasValue)
             query = query.Where(e => !e.TimeEnd.HasValue || e.TimeEnd <= request.EndSearchTime.Value);
-
+        
         if (request.Status != null)
             query = query.Where(e => e.Status == request.Status);
-
+        
         if (!string.IsNullOrWhiteSpace(request.Name))
             query = query.Where(e => EF.Functions.ILike(e.Name, $"%{request.Name}%"));
-
+        
         query = query.Where(e =>
             e.Type == EventTypeEnum.general ||
             (e.Type == EventTypeEnum.personal && e.Participants.Any(p => p.UserId == userId)) ||
             (e.Type == EventTypeEnum.group && e.EventTeams.Any(eg => userTeamIds.Contains(eg.TeamId)))
         );
-
+        
         List<EventEntity> events;
 
         if (request.Keywords != null && request.Keywords.Any())
         {
             var filterKeywordsLower = request.Keywords.Select(k => k.ToLower()).ToList();
 
-            events = await query
-                .ToListAsync(cancellationToken);
+            events = await query.ToListAsync(cancellationToken);
 
             events = events
                 .Where(e => e.Keywords.Any(kw => filterKeywordsLower.Contains(kw.ToLower())))
@@ -74,7 +73,7 @@ public class SearchEventsHandler : IRequestHandler<SearchEventsQuery, List<Event
         {
             events = await query.ToListAsync(cancellationToken);
         }
-
+        
         return _mapper.Map<List<EventDto>>(events);
     }
 }

@@ -32,8 +32,7 @@ internal class GetMyEventsQueryHandler : IRequestHandler<GetMyEventsQuery, List<
     public async Task<List<EventDto>> Handle(GetMyEventsQuery query, CancellationToken ct)
     {
         var userId = _currentUserService.GetUserId();
-
-        // Получаем все команды, в которых состоит пользователь
+        
         var userTeamIds = await _dbContext.UserTeams
             .Where(ut => ut.UserId == userId)
             .Select(ut => ut.TeamId)
