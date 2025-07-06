@@ -33,13 +33,17 @@ internal class GetMyEventsQueryHandler : IRequestHandler<GetMyEventsQuery, List<
     {
         var userId = _currentUserService.GetUserId();
 
+        // Получаем все команды, в которых состоит пользователь
+        var userTeamIds = await _dbContext.UserTeams
+            .Where(ut => ut.UserId == userId)
+            .Select(ut => ut.TeamId)
+            .ToListAsync(ct);
+
         return await _dbContext.Events
             .Where(e =>
                 e.Participants.Any(p => p.UserId == userId && p.AttendanceResponse == AttendanceResponseEnum.approved)
                 ||
-                e.EventTeams.Any(et =>
-                    et.Team.Users.Any(ut => ut.UserId == userId)
-                )
+                e.EventTeams.Any(et => userTeamIds.Contains(et.TeamId))
             )
             .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
             .ToListAsync(ct);
